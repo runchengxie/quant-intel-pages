@@ -35,7 +35,7 @@ test('date-only news SVG keeps honest publication labels and fits mobile layout'
     await page.goto(route.path);
     await page.addScriptTag({ content: bundle });
     await page.evaluate((locale) => {
-      const tools = (window as unknown as { marketDailyUtils: typeof import('../src/lib/market-daily-utils') }).marketDailyUtils;
+      const tools = (window as unknown as { marketDailyUtils: typeof import('../../src/lib/market-daily-utils') }).marketDailyUtils;
       const payload = { schema_version: '1.1', run_id: 'daily-2026-10-02', as_of: '2026-10-02T23:00:00Z', generated_at: '2026-10-04T01:00:00Z',
         facts: [{ id: 'macro.cpi_yoy', value: 3.4, unit: 'percent', quality: 'ok', observation_date: '2026-08-01', source_url: 'https://fred.stlouisfed.org/series/CPIAUCSL' }],
         events: [{ id: 'fixture', source_time: null, publication_precision: 'date', source_date: '2026-10-02', source_timezone: 'unknown', time_role: 'publication', usage: 'background' }],
