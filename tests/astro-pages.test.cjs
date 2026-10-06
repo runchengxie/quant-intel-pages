@@ -339,10 +339,19 @@ test('new Asian evening reports build a visual history while old direct links re
   const fixture = mkdtempSync(path.join(path.dirname(root), 'modern-evening-history-'));
   try {
     cpSync(path.join(root, 'artifacts/public'), fixture, { recursive: true });
+    const reportFixtures = path.join(__dirname, 'fixtures/asia-report-image');
     const indexFile = path.join(fixture, 'data/reports.json');
     const reportIndex = JSON.parse(readFileSync(indexFile, 'utf8'));
-    const template = reportIndex.reports.find((row) => row.id === '2026-09-24-evening');
-    assert.ok(template);
+    const fixtureReports = ['evening', 'morning'].map((kind) =>
+      JSON.parse(readFileSync(path.join(reportFixtures, `${kind}-report.json`), 'utf8')));
+    const fixtureDates = new Set(['2026-09-24', '2026-09-28', '2026-09-29']);
+    reportIndex.reports = reportIndex.reports.filter((row) => !fixtureDates.has(row.date));
+    reportIndex.reports.push(...fixtureReports);
+    for (const kind of ['evening', 'morning']) {
+      cpSync(path.join(reportFixtures, `${kind}-report.md`), path.join(fixture, `reports/2026-09-24-${kind}.md`));
+    }
+    cpSync(path.join(reportFixtures, 'evening-charts.json'), path.join(fixture, 'data/charts/2026-09-24-evening.json'));
+    const template = fixtureReports.find((row) => row.id === '2026-09-24-evening');
     for (const date of ['2026-09-28', '2026-09-29']) {
       const id = `${date}-evening`;
       reportIndex.reports.push({ ...template, id, date, title: `收盘复盘（${date}）`,

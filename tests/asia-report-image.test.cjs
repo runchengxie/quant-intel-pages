@@ -321,12 +321,11 @@ test('Asia report image combines the evening framework, five local chart states 
 
 test('real evening data uses breadth, trend and money flow visuals without overnight US quotes', async () => {
   const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
-  const publicRoot = path.join(__dirname, '../artifacts/public');
+  const fixtureRoot = path.join(__dirname, 'fixtures/asia-report-image');
   const reportId = '2026-09-24-evening';
-  const report = JSON.parse(readFileSync(path.join(publicRoot, 'data/reports.json'), 'utf8'))
-    .reports.find((row) => row.id === reportId);
-  const charts = JSON.parse(readFileSync(path.join(publicRoot, `data/charts/${reportId}.json`), 'utf8')).charts;
-  const markdown = readFileSync(path.join(publicRoot, `reports/${reportId}.md`), 'utf8');
+  const report = JSON.parse(readFileSync(path.join(fixtureRoot, 'evening-report.json'), 'utf8'));
+  const charts = JSON.parse(readFileSync(path.join(fixtureRoot, 'evening-charts.json'), 'utf8')).charts;
+  const markdown = readFileSync(path.join(fixtureRoot, 'evening-report.md'), 'utf8');
   const svg = buildAsiaReportSvg(report, charts, markdown);
   assert.match(svg, /市场广度/);
   assert.match(svg, /融资余额走势/);
