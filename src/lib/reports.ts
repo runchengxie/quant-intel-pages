@@ -34,15 +34,20 @@ export function readJson(relativePath: string): unknown {
   return JSON.parse(readFileSync(file, 'utf8')) as unknown;
 }
 
-export function loadReports(): ReportRecord[] {
+export function loadAllReports(): ReportRecord[] {
   const index = readJson('data/reports.json');
   if (!isRecord(index) || index.schema_version !== 'market_intel_pages.reports.v1' || !Array.isArray(index.reports)) {
     throw new Error('invalid public report index');
   }
   const reports = index.reports.filter(isReportRecord);
-  const dates = [...new Set(reports.map((row) => row.date))].sort().reverse().slice(0, 5);
-  return reports.filter((row) => dates.includes(row.date)).sort((a, b) =>
+  return reports.sort((a, b) =>
     b.date.localeCompare(a.date) || a.kind.localeCompare(b.kind));
+}
+
+export function loadReports(): ReportRecord[] {
+  const reports = loadAllReports();
+  const dates = [...new Set(reports.map((row) => row.date))].slice(0, 5);
+  return reports.filter((row) => dates.includes(row.date));
 }
 
 export function loadChart(reportId: string): ChartCard[] {
