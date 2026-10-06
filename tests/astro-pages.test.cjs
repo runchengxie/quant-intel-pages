@@ -138,7 +138,10 @@ test('Astro emits a readable recent-report site with Asian market chart states',
 
 test('English report pages translate source-language presentation text', () => {
   execFileSync('npm', ['run', 'build'], { cwd: root, stdio: 'pipe' });
-  const englishReport = readFileSync(path.join(root, 'dist/en/reports/2026-09-29-evening/index.html'), 'utf8');
+  const { reports } = JSON.parse(readFileSync(path.join(root, 'artifacts/public/data/reports.json'), 'utf8'));
+  const report = reports.find((row) => row.kind === 'evening' && row.date >= '2026-09-25');
+  assert.ok(report, 'a published visual evening report is required');
+  const englishReport = readFileSync(path.join(root, `dist/en/reports/${report.id}/index.html`), 'utf8');
   assert.doesNotMatch(englishReport, /亚洲市场收盘复盘|六维观察|热门概念|市场状态/);
   assert.match(englishReport, /Asia market close review|Six-dimension observation|Hot concepts|Market state/);
 });
