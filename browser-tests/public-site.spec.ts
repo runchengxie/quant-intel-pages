@@ -1,7 +1,13 @@
+import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 const base = '/quant-intel-pages';
+const reportIndex = JSON.parse(readFileSync('artifacts/public/data/reports.json', 'utf8'));
+const historicalEvening = reportIndex.reports
+  .filter((report: { kind: string; date: string }) => report.kind === 'evening' && report.date >= '2026-09-25')
+  .sort((left: { date: string }, right: { date: string }) => left.date.localeCompare(right.date))[0];
+if (!historicalEvening) throw new Error('A published visual evening report is required');
 const routes = [
   {
     name: 'English', path: `${base}/en/`, language: 'en-US',
@@ -245,7 +251,7 @@ test('English homepage downloads both current report images', async ({ page }) =
 });
 
 test('historical evening report loads with a visible graphic and resolved colors', async ({ page }) => {
-  await page.goto(`${base}/reports/2026-09-28-evening/`);
+  await page.goto(`${base}/reports/${historicalEvening.id}/`);
   await expect(page.locator('.report-heading h1')).toBeVisible();
   const colors = await chartColors(page, '#asia-daily-chart svg');
   expect(colors.bg).toBe(colors.expectedBg);
@@ -253,14 +259,14 @@ test('historical evening report loads with a visible graphic and resolved colors
 });
 
 test('report locale switch preserves the report and provides shareable locale routes', async ({ page }) => {
-  const reportId = '2026-09-28-evening';
+  const reportId = historicalEvening.id;
   const chineseRoute = `${base}/reports/${reportId}/`;
   const englishRoute = `${base}/en/reports/${reportId}/`;
 
   await page.goto(chineseRoute);
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
   await expect(page.locator('.report-heading h1')).toBeVisible();
-  await expect(page.locator('.top-note')).toContainText('2026-09-28');
+  await expect(page.locator('.top-note')).toContainText(historicalEvening.date);
   await expect(page.getByRole('link', { name: 'English', exact: true }))
     .toHaveAttribute('href', englishRoute);
   await page.getByRole('link', { name: 'English', exact: true }).click();
@@ -268,7 +274,7 @@ test('report locale switch preserves the report and provides shareable locale ro
   await expect(page).toHaveURL(new RegExp(`${reportId}/$`));
   await expect(page.locator('html')).toHaveAttribute('lang', 'en-US');
   await expect(page.locator('.report-heading h1')).toBeVisible();
-  await expect(page.locator('.top-note')).toContainText('2026-09-28');
+  await expect(page.locator('.top-note')).toContainText(historicalEvening.date);
   await expect(page.getByRole('link', { name: '中文', exact: true }))
     .toHaveAttribute('href', chineseRoute);
   await page.getByRole('link', { name: '中文', exact: true }).click();
@@ -276,5 +282,5 @@ test('report locale switch preserves the report and provides shareable locale ro
   await expect(page).toHaveURL(new RegExp(`${reportId}/$`));
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
   await expect(page.locator('.report-heading h1')).toBeVisible();
-  await expect(page.locator('.top-note')).toContainText('2026-09-28');
+  await expect(page.locator('.top-note')).toContainText(historicalEvening.date);
 });
