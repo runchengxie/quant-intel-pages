@@ -17,14 +17,19 @@ export function readJson(relativePath) {
   return JSON.parse(readFileSync(file, 'utf8'));
 }
 
-export function loadReports() {
+export function loadAllReports() {
   const index = readJson('data/reports.json');
   if (index?.schema_version !== 'market_intel_pages.reports.v1' || !Array.isArray(index.reports)) {
     throw new Error('invalid public report index');
   }
-  const dates = [...new Set(index.reports.map((row) => row.date))].sort().reverse().slice(0, 5);
-  return index.reports.filter((row) => dates.includes(row.date)).sort((a, b) =>
+  return [...index.reports].sort((a, b) =>
     b.date.localeCompare(a.date) || a.kind.localeCompare(b.kind));
+}
+
+export function loadReports() {
+  const reports = loadAllReports();
+  const dates = [...new Set(reports.map((row) => row.date))].slice(0, 5);
+  return reports.filter((row) => dates.includes(row.date));
 }
 
 export function loadChart(reportId) {
