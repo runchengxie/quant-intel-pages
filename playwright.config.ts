@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './browser-tests',
+  testDir: './tests/browser',
   timeout: 30_000,
   expect: { timeout: 10_000 },
   workers: process.env.CI ? 1 : undefined,
