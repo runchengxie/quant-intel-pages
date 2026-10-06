@@ -16,6 +16,7 @@ dev = [
     "vulture==2.16",
 ]
 
+
 [tool.ruff]
 target-version = "py311"
 line-length = 110

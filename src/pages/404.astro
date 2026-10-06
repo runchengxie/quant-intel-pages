@@ -1,0 +1,29 @@
+---
+import '../styles/site.css';
+import { PAGE_NOT_FOUND_LABELS } from '../lib/locale.ts';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const index = Astro.url.searchParams.get('locale') === 'zh-CN' ? 0 : 1;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f0e8" />
+    <title>{PAGE_NOT_FOUND_LABELS.title[index]} · Quant Market Intel</title>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <span class="eyebrow">404</span>
+        <h1>{PAGE_NOT_FOUND_LABELS.title[index]}</h1>
+        <p>{PAGE_NOT_FOUND_LABELS.description[index]}</p>
+        <nav class="link-row" aria-label="{PAGE_NOT_FOUND_LABELS.title[index]}">
+          <a href={`${base}/en/`}>{PAGE_NOT_FOUND_LABELS.home[index]}</a>
+          <a href={`${base}/?locale=zh-CN`}>{PAGE_NOT_FOUND_LABELS.chinese[index]}</a>
+        </nav>
+      </section>
+    </main>
+  </body>
+</html>
