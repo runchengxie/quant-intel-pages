@@ -1,0 +1,123 @@
+name: Public website
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ESBUILD_BINARY_PATH: ${{ github.workspace }}/node_modules/@esbuild/linux-x64/bin/esbuild
+    permissions:
+      contents: read
+    steps:
+      - name: Check out Pages
+        uses: actions/checkout@v6
+      - name: Check out pinned Platform CLI
+        uses: actions/checkout@v6
+        with:
+          repository: runchengxie/quant-intel-platform
+          ref: 66a74f5549b294ae99955bd292755c7b4522fe71
+          path: platform-cli
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install Platform CLI
+        run: |
+          uv sync --project platform-cli --locked --no-dev
+          echo "$GITHUB_WORKSPACE/platform-cli/.venv/bin" >> "$GITHUB_PATH"
+          platform-cli/.venv/bin/market-export-site-snapshot --help
+      - name: Install website dependencies
+        run: npm ci
+      - name: Install Pages development checks
+        run: uv sync --locked --group dev --no-install-project
+      - name: Lint, format, type check, and unused code
+        run: |
+          uv run ruff check scripts tests tools
+          uv run ruff format --check scripts tests tools
+          uv run ty check
+          uv run vulture scripts tests tools --min-confidence 80
+      - name: Run Python and Node checks
+        run: |
+          uv run pytest --cov-report=xml
+          npm test
+          node --check src/legacy/app.js
+          node --check src/legacy/summary-utils.js
+      - name: Build and audit the site
+        env:
+          SITE_OUTPUT: ${{ runner.temp }}/quant-intel-pages-site
+        run: |
+          python scripts/build_site.py --output "$SITE_OUTPUT"
+          npm run check
+          python tools/audit_structure.py --output "${{ runner.temp }}/structure.json"
+          npm audit
+          uv run pip-audit --strict --format json --output "${{ runner.temp }}/dependency-audit.json"
+      - name: Install Chromium for browser checks
+        run: npx playwright install --with-deps chromium
+      - name: Browser checks
+        id: browser
+        env:
+          PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/playwright-results
+        run: npm run test:browser
+      - name: Upload browser failure artifacts
+        if: failure() && steps.browser.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-site-browser-failure
+          path: ${{ runner.temp }}/playwright-results/
+          if-no-files-found: ignore
+      - name: Preserve publication ledger
+        if: github.event_name != 'pull_request'
+        env:
+          SITE_OUTPUT: ${{ runner.temp }}/quant-intel-pages-site
+        run: |
+          mkdir -p "${{ runner.temp }}/market-intel-ledger/data" "${{ runner.temp }}/market-intel-ledger/reports"
+          cp -a "$SITE_OUTPUT/data/." "${{ runner.temp }}/market-intel-ledger/data/"
+          cp -a "$SITE_OUTPUT/reports/." "${{ runner.temp }}/market-intel-ledger/reports/"
+      - name: Upload publication ledger
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: market-intel-ledger-${{ github.run_id }}-1
+          path: ${{ runner.temp }}/market-intel-ledger
+          if-no-files-found: error
+          retention-days: 90
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/quant-intel-pages-site
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Deploy Pages site
+        id: deployment
+        uses: actions/deploy-pages@v4

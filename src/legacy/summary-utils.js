@@ -9,10 +9,10 @@ function selectVisibleSummaries(summaries, reports, selectedDate, limit = 5) {
     .filter((summary) => {
       const morning = reportsById.get(summary.morning_report_id);
       const evening = reportsById.get(summary.evening_report_id);
-      return morning?.kind === "morning"
+      return ["morning", "evening"].includes(morning?.kind)
         && evening?.kind === "evening"
         && summary.date === morning.date
-        && evening.date <= morning.date
+        && (morning.kind === "evening" ? evening.date < morning.date : evening.date <= morning.date)
         && allowedDates.includes(summary.date);
     })
     .sort((left, right) => right.date.localeCompare(left.date));
@@ -39,7 +39,7 @@ function selectVisibleInsights(insights, reports, selectedDate) {
 
 function isHealthDelayed(health, now = Date.now()) {
   const elapsed = (now - Date.parse(health.latest_source_generated_at)) / 3600000;
-  // Match pipeline_health's target-day fallback in Beijing, independent of the browser timezone.
+  // Compare target-day age in Beijing, independent of the browser timezone.
   const targetEnd = Date.parse(`${health.latest_target_date}T23:59:59.999+08:00`);
   const targetAge = (now - targetEnd) / 3600000;
   return ["stale", "behind", "missing", "invalid_timestamp"].includes(health.status)

@@ -10,6 +10,9 @@ htmlcov/
 node_modules/
 dist/
 .astro/
+test-results/
+playwright-report/
+platform-cli/
 
 .env
 .env.*

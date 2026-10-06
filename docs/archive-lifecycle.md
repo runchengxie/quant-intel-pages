@@ -1,6 +1,6 @@
 # Legacy archive lifecycle
 
-`quant-intel-pages` remains the compatibility site for historical reports and the rollback entry point after daily reporting moved to `quant-intel-platform`. The archive is still useful while readers, maintained links, or recovery procedures depend on it.
+`quant-intel-pages` is the maintained static report website. Its Git history and dated snapshots also provide recovery material. Keep the public site available while readers, maintained links, or recovery procedures depend on it.
 
 ## Retirement gates
 
@@ -16,4 +16,10 @@ Retirement may mean stopping the live Pages deployment while retaining the repos
 
 ## Current scope
 
-New daily-report features and production scheduling belong to `quant-intel-platform` and `quant-intel-deploy`. This repository accepts maintenance needed to preserve legacy rendering, historical access, or a tested rollback path.
+Report generation and evidence review belong to `quant-intel-platform`; production scheduling belongs to `quant-intel-deploy`. Pages owns the frontend, static rendering, public downloads, and website monitoring. Retirement must be reviewed separately from ordinary frontend maintenance.
+
+## Snapshot archive, 2026-10-06
+
+Before restoring the maintained frontend, the Pages snapshot at `a67720efdee3116b96926bc6cbb5d0fe4ba5ed3f` was compared with Platform's public snapshot from merged revision `66a74f5549b294ae99955bd292755c7b4522fe71`. Pages had 30 files and Platform had 45. Of 22 shared paths, 15 were identical and seven differed. Pages had eight archive-only report files; Platform had 23 files absent from Pages.
+
+The Pages input snapshot is retained at `artifacts/archive/pre-separation-2026-10-06/public/`; trailing blank-line formatting was normalized, while the original bytes remain recoverable from the recorded Git revision. The active `artifacts/public/` now contains Platform's validated five-date snapshot. Older files remain outside the current report window. The archive is not copied into the website output; links to older material must use an explicit archive location if they need to be published.
