@@ -12,6 +12,7 @@ dist/
 .astro/
 test-results/
 playwright-report/
+platform-cli/
 
 .env
 .env.*

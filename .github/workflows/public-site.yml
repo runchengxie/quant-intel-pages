@@ -30,7 +30,7 @@ jobs:
         with:
           repository: runchengxie/quant-intel-platform
           ref: 66a74f5549b294ae99955bd292755c7b4522fe71
-          path: platform
+          path: platform-cli
           persist-credentials: false
       - uses: actions/setup-python@v6
         with:
@@ -42,9 +42,9 @@ jobs:
           cache: npm
       - name: Install Platform CLI
         run: |
-          uv sync --project platform --locked --no-dev
-          echo "$GITHUB_WORKSPACE/platform/.venv/bin" >> "$GITHUB_PATH"
-          platform/.venv/bin/market-export-site-snapshot --help
+          uv sync --project platform-cli --locked --no-dev
+          echo "$GITHUB_WORKSPACE/platform-cli/.venv/bin" >> "$GITHUB_PATH"
+          platform-cli/.venv/bin/market-export-site-snapshot --help
       - name: Install website dependencies
         run: npm ci
       - name: Install Pages development checks
