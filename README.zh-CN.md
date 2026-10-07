@@ -9,7 +9,7 @@
 需要 Python 3.11、Node.js 24、npm、uv，以及从固定 Platform 提交安装的 `market-export-site-snapshot` 命令。
 
 ```bash
-uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@c7a73f9ea7d2609c0e186517995b956292a1630f"
+uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@118ab01cf7f153bf09e0de25ceb4433100e42d7d"
 npm ci
 python -m pip install --group dev
 preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)

@@ -18,6 +18,9 @@ test('producer status is bound to public run, date and content identity', async 
     assert.deepEqual(loadUsDailyStatus(report), unknown);
     write([row]);
     assert.deepEqual(loadUsDailyStatus(report), row.report_status);
+    const incomplete = { market: 'incomplete', research: 'reviewed', publication: 'published' };
+    write([{ ...row, report_status: incomplete, missing_market_facts: ['index.spx.change_percent'] }]);
+    assert.deepEqual(loadUsDailyStatus(report), incomplete);
     for (const change of [{ content_hash: 'b'.repeat(64) }, { run_id: 'daily-2026-10-05' }, { date: '2026-10-05' }, { report_status: { ...row.report_status, research: 'pending_review' } }]) {
       write([{ ...row, ...change }]);
       assert.deepEqual(loadUsDailyStatus(report), unknown);
