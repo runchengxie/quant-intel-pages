@@ -2,19 +2,6 @@
   "schema_version": "market_intel_pages.daily_summaries.v1",
   "summaries": [
     {
-      "date": "2026-09-29",
-      "text": "市场从前一日的偏冷脆弱转为温和活跃，指数与行业普遍收涨，但成交额继续收缩，上涨质量仍待确认。",
-      "morning_report_id": "2026-09-29-evening",
-      "evening_report_id": "2026-09-28-evening",
-      "generated_at": "2026-09-29T21:22:54+08:00",
-      "model": "deepseek-chat",
-      "provider": "deepseek",
-      "prompt_version": "daily-commentary-v1",
-      "fingerprint": "49145dcaa55c4f7399f794207280fe2ca232f15adc531add3431250682306251",
-      "source_hash": "91e5473aa6d6513e9cf081f92313ff21202290226072d10ee1785bf546751bd0",
-      "insight_source_hash": "0ec1676fc4d65bdd53e3dc6247488ebec699eb2c277b93cca4ff2473244839ae"
-    },
-    {
       "date": "2026-09-30",
       "text": "市场状态从温和活跃转为中性偏冷，指数层面分化，个股广度明显走弱。",
       "morning_report_id": "2026-09-30-evening",
