@@ -174,7 +174,7 @@ test('English homepage exposes dated PNG controls and recent U.S. history', () =
   assert.ok(html.includes(`data-report-date="${date}" data-report-kind="market-daily" data-report-content-hash="${report.content_hash}"`));
   assert.match(html, /data-chart-target="#market-daily-chart svg"/);
   assert.match(html, /data-chart-target="#asia-daily-chart svg"/);
-  const generated = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(report.as_of));
+  const generated = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(report.generated_at || report.as_of));
   assert.ok(html.includes(generated));
   assert.match(html, /America\/New_York/);
   assert.match(html, /Recent U\.S\. reports/);
@@ -533,6 +533,9 @@ test('both rendered locales expose independent producer assessments', () => {
     const output = path.join(temporary, 'site');
     cpSync(path.join(root, 'artifacts/public'), data, { recursive: true });
     const report = JSON.parse(readFileSync(path.join(data, 'data/market_daily_report.json'), 'utf8'));
+    // A news-only revision keeps the market observation timestamp and advances generation.
+    report.generated_at = new Date(new Date(report.as_of).getTime() + 3600000).toISOString();
+    writeFileSync(path.join(data, 'data/market_daily_report.json'), JSON.stringify(report));
     writeFileSync(path.join(data, 'data/us_daily_status.json'), JSON.stringify({
       schema_version: 'market_intel_pages.us_daily_status.v1', reports: [{
         run_id: report.run_id, date: report.run_id.slice(6), content_hash: report.content_hash,
@@ -546,6 +549,17 @@ test('both rendered locales expose independent producer assessments', () => {
       for (const label of labels) assert.ok(current.includes(label));
       assert.doesNotMatch(current, /研究待审核|Research pending review/);
     }
+    const generationLabel = (value) => new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+    }).format(new Date(value));
+    let english = readFileSync(path.join(output, 'en/index.html'), 'utf8');
+    assert.ok(english.includes(generationLabel(report.generated_at)));
+    assert.ok(!english.includes(generationLabel(report.as_of)));
+    delete report.generated_at;
+    writeFileSync(path.join(data, 'data/market_daily_report.json'), JSON.stringify(report));
+    execFileSync('npm', ['run', 'build'], { cwd: root, env: { ...process.env, ASTRO_DATA_ROOT: data, ASTRO_OUT_DIR: output }, stdio: 'pipe' });
+    english = readFileSync(path.join(output, 'en/index.html'), 'utf8');
+    assert.ok(english.includes(generationLabel(report.as_of)), 'legacy reports fall back to their observation timestamp');
   } finally {
     rmSync(temporary, { recursive: true });
   }
