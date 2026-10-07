@@ -28,3 +28,5 @@ Open <http://localhost:8000/quant-intel-pages/>. The builder asks the Platform C
 - `.github/workflows/public-site.yml`: static-site checks, publication ledger, and GitHub Pages deployment.
 
 Platform is pinned by commit in the workflow so snapshot validation uses a reviewed owner release. The site workflow has no model credentials and runs no report generation. Public report date and age monitoring belongs to `quant-intel-deploy`. Use `AGENTS.md` and [daily generation options](docs/daily-generation-options.md) for ownership and handoff details.
+
+The website presents market completeness, research inclusion, and publication as separate producer assessments. Status records are accepted only when the report run, date, and content hash match; older snapshots without status metadata show unknown status. Historical report content and quality notes remain available.

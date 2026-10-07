@@ -127,3 +127,28 @@ export function loadLatestInsight(): JsonRecord | null {
   const history = isRecord(value) && Array.isArray(value.insights) ? value.insights.filter(isRecord) : [];
   return history.sort((a, b) => String(b.date).localeCompare(String(a.date)))[0] || null;
 }
+
+export type UsDailyStatus = {
+  market: 'complete' | 'incomplete' | 'unknown';
+  research: 'reviewed' | 'not_included' | 'unknown';
+  publication: 'published' | 'unknown';
+};
+
+/** Only present the producer's assessment when its signed report identity matches. */
+export function loadUsDailyStatus(report: MarketDailyRecord): UsDailyStatus {
+  const unknown: UsDailyStatus = { market: 'unknown', research: 'unknown', publication: 'unknown' };
+  const payload = readJson('data/us_daily_status.json');
+  if (!isRecord(payload) || payload.schema_version !== 'market_intel_pages.us_daily_status.v1'
+    || !Array.isArray(payload.reports) || report.publication !== 'public'
+    || typeof report.content_hash !== 'string' || !/^[a-f0-9]{64}$/i.test(report.content_hash)) return unknown;
+  const matches = payload.reports.filter((row) => isRecord(row) && row.run_id === report.run_id
+    && row.date === report.run_id.slice(6) && row.content_hash === report.content_hash);
+  if (matches.length !== 1) return unknown;
+  const row = matches[0];
+  const status = row.report_status;
+  if (!isRecord(status) || !['complete', 'incomplete'].includes(String(status.market))
+    || !['reviewed', 'not_included', 'unknown'].includes(String(status.research))
+    || status.publication !== 'published' || !Array.isArray(row.missing_market_facts)
+    || !row.missing_market_facts.every((fact: unknown) => typeof fact === 'string')) return unknown;
+  return { market: status.market, research: status.research, publication: status.publication } as UsDailyStatus;
+}

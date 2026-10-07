@@ -28,3 +28,5 @@ python3 -m http.server 8000 --directory "$preview_root"
 - `.github/workflows/public-site.yml`：网站检查、发布账本和 GitHub Pages 部署。
 
 工作流按提交固定 Platform 版本，保证快照使用已审核的所有者实现进行校验。网站工作流不读取模型密钥，也不生成报告。公开报告日期和年龄由 `quant-intel-deploy` 负责监控。职责边界和数据交接见 `AGENTS.md` 与[日报生成选项](docs/daily-generation-options.md)。
+
+网页分别展示行情完整性、研究接入和发布状态，只接受与报告运行标识、日期和内容哈希一致的上游评估。旧快照缺少状态记录时显示未知；历史报告正文和质量说明继续保留。

@@ -76,6 +76,8 @@ test('Astro emits a readable recent-report site with Asian market chart states',
   assert.ok(index.indexOf('aria-label="下载这份美股报告"') < index.indexOf('id="market-daily-chart"'));
   const usSection = index.slice(index.indexOf('id="us-session"'), index.indexOf('id="asia-session"'));
   const currentUs = usSection.slice(0, usSection.indexOf('class="market-history"'));
+  assert.match(currentUs, /aria-label="报告状态"/);
+  for (const dimension of ['market', 'research', 'publication']) assert.match(currentUs, new RegExp(`data-status-dimension="${dimension}"`));
   const usReport = JSON.parse(readFileSync(path.join(root, 'artifacts/public/data/market_daily_report.json'), 'utf8'));
   const usDate = usReport.run_id.slice(6);
   assert.ok(currentUs.includes(`data-report-content-hash="${usReport.content_hash}"`));
@@ -165,6 +167,9 @@ test('English homepage exposes dated PNG controls and recent U.S. history', () =
   const report = JSON.parse(readFileSync(path.join(root, 'artifacts/public/data/market_daily_report.json'), 'utf8'));
   const date = report.run_id.slice(6);
   assert.match(html, /id="download-market-chart"/);
+  assert.match(html, /aria-label="Report status"/);
+  assert.match(html, /Market data status unknown/);
+  assert.match(html, /Research status unknown/);
   assert.match(html, /id="download-asia-report"/);
   assert.ok(html.includes(`data-report-date="${date}" data-report-kind="market-daily" data-report-content-hash="${report.content_hash}"`));
   assert.match(html, /data-chart-target="#market-daily-chart svg"/);
@@ -518,5 +523,30 @@ test('verified watchpoint outcome shows labelled table evidence', () => {
     assert.doesNotMatch(html, /\| 流动性 \|/);
   } finally {
     rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('both rendered locales expose independent producer assessments', () => {
+  const temporary = mkdtempSync(path.join(path.dirname(root), 'us-status-render-'));
+  try {
+    const data = path.join(temporary, 'input');
+    const output = path.join(temporary, 'site');
+    cpSync(path.join(root, 'artifacts/public'), data, { recursive: true });
+    const report = JSON.parse(readFileSync(path.join(data, 'data/market_daily_report.json'), 'utf8'));
+    writeFileSync(path.join(data, 'data/us_daily_status.json'), JSON.stringify({
+      schema_version: 'market_intel_pages.us_daily_status.v1', reports: [{
+        run_id: report.run_id, date: report.run_id.slice(6), content_hash: report.content_hash,
+        report_status: { market: 'complete', research: 'not_included', publication: 'published' }, missing_market_facts: [],
+      }],
+    }));
+    execFileSync('npm', ['run', 'build'], { cwd: root, env: { ...process.env, ASTRO_DATA_ROOT: data, ASTRO_OUT_DIR: output }, stdio: 'pipe' });
+    for (const [entry, labels] of [['index.html', ['行情齐全', '研究未接入', '已发布']], ['en/index.html', ['Market data complete', 'Research not included', 'Published']]]) {
+      const html = readFileSync(path.join(output, entry), 'utf8');
+      const current = html.slice(html.indexOf('id="us-session"'), html.indexOf('class="market-history"'));
+      for (const label of labels) assert.ok(current.includes(label));
+      assert.doesNotMatch(current, /研究待审核|Research pending review/);
+    }
+  } finally {
+    rmSync(temporary, { recursive: true });
   }
 });
