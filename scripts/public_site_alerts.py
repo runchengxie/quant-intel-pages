@@ -6,24 +6,15 @@ import argparse
 import json
 import os
 import re
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError
 from urllib.parse import quote, urlencode, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
-try:
-    from .public_site_calendar import load_calendar
-    from .public_site_freshness import evaluate_public_snapshots, fetch_public_snapshots
-except ImportError:
-    from public_site_calendar import load_calendar
-    from public_site_freshness import evaluate_public_snapshots, fetch_public_snapshots
-
 LABEL = "public-site-alert"
 _EVENT_RE = re.compile(r"(?m)^event_id: ([0-9]+)$")
 _MAX_FINDING = 400
-PAGES_BASE = "https://runchengxie.github.io/quant-intel-pages"
 
 
 class _NoRedirectHandler(HTTPRedirectHandler):
@@ -271,30 +262,8 @@ def process_workflow_event(
     )
 
 
-def process_freshness_event(
-    client: IssueClient, *, repository: str, run_id: int, dry_run: bool = False
-) -> list[str]:
-    """Evaluate live public snapshots and reconcile each independent stream."""
-    reports, us_report = fetch_public_snapshots(PAGES_BASE)
-    findings = evaluate_public_snapshots(reports, us_report, now=datetime.now(UTC), calendar=load_calendar())
-    return [
-        "deferred"
-        if item["status"] == "deferred"
-        else _alert(
-            client,
-            key=f"freshness:{item['key']}",
-            finding=item["summary"] if item["status"] != "ok" else None,
-            repository=repository,
-            run_id=run_id,
-            dry_run=dry_run,
-        )
-        for item in findings
-    ]
-
-
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Monitor public site publication and freshness")
-    parser.add_argument("--mode", required=True, choices=("freshness", "workflow"))
+    parser = argparse.ArgumentParser(description="Track completed public website builds")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
     event_path = os.environ.get("GITHUB_EVENT_PATH")
@@ -304,14 +273,9 @@ def main(argv: list[str] | None = None) -> int:
     if not isinstance(event, dict):
         raise ValueError("GitHub event must be a JSON object")
     repository = os.environ.get("GITHUB_REPOSITORY", "")
-    run_id = int(os.environ.get("GITHUB_RUN_ID", "0"))
     client = IssueClient("dry-run-token", repository) if args.dry_run else IssueClient.from_environment()
-    if args.mode == "workflow":
-        result = process_workflow_event(client, event, repository=repository, dry_run=args.dry_run)
-        print(f"Workflow monitor: {result}")
-    else:
-        results = process_freshness_event(client, repository=repository, run_id=run_id, dry_run=args.dry_run)
-        print("Freshness monitor: " + ", ".join(results))
+    result = process_workflow_event(client, event, repository=repository, dry_run=args.dry_run)
+    print(f"Workflow monitor: {result}")
     return 0
 
 

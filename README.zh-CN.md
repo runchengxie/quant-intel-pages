@@ -24,7 +24,7 @@ python3 -m http.server 8000 --directory "$preview_root"
 - `src/`：Astro 前端、本地化页面、图表展示和旧版回退页。
 - `artifacts/public/`：经过审核的公开快照；私有归档保存在仓库之外。
 - `scripts/build_site.py`：前端构建适配器，不导入 Platform 源码。
-- `scripts/public_site_*.py`：范围受限的公开站点新鲜度监控。
+- `scripts/public_site_alerts.py`：跟踪本仓库网站构建的失败与恢复，并维护对应 Issue。
 - `.github/workflows/public-site.yml`：网站检查、发布账本和 GitHub Pages 部署。
 
-工作流按提交固定 Platform 版本，保证快照使用已审核的所有者实现进行校验。网站工作流不读取模型密钥，也不生成报告。职责边界和数据交接见 `AGENTS.md` 与[日报生成选项](docs/daily-generation-options.md)。
+工作流按提交固定 Platform 版本，保证快照使用已审核的所有者实现进行校验。网站工作流不读取模型密钥，也不生成报告。公开报告日期和年龄由 `quant-intel-deploy` 负责监控。职责边界和数据交接见 `AGENTS.md` 与[日报生成选项](docs/daily-generation-options.md)。

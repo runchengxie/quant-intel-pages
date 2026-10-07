@@ -94,6 +94,66 @@ def test_build_rejects_output_inside_repository(tmp_path: Path) -> None:
         build_site.build_site(root, root / "dist")
 
 
+def test_snapshot_command_uses_configured_cli_before_path_lookup(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("MARKET_EXPORT_SITE_SNAPSHOT", "/owner/bin/snapshot")
+    monkeypatch.setattr(build_site.shutil, "which", lambda _name: pytest.fail("PATH lookup not needed"))
+    assert build_site._snapshot_command() == "/owner/bin/snapshot"
+
+
+def test_astro_build_without_homepage_is_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = tmp_path / "repo"
+    root.mkdir()
+    output = tmp_path / "published"
+    monkeypatch.setattr(build_site, "_snapshot_command", lambda: "snapshot-cli")
+
+    def run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        if command[0] == "snapshot-cli":
+            Path(command[command.index("--output") + 1]).mkdir(parents=True)
+        else:
+            Path(kwargs["env"]["ASTRO_OUT_DIR"]).mkdir(parents=True)
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(build_site.subprocess, "run", run)
+    with pytest.raises(RuntimeError, match="did not produce index.html"):
+        build_site.build_site(root, output)
+
+
+def test_failed_atomic_swap_restores_previous_output(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = tmp_path / "repo"
+    root.mkdir()
+    output = tmp_path / "published"
+    output.mkdir()
+    (output / "keep.txt").write_text("previous", encoding="utf-8")
+    monkeypatch.setattr(build_site, "_snapshot_command", lambda: "snapshot-cli")
+    monkeypatch.setattr(
+        build_site.subprocess,
+        "run",
+        lambda command, **_kwargs: (
+            Path(command[command.index("--output") + 1]).mkdir(parents=True)
+            if command[0] == "snapshot-cli"
+            else subprocess.CompletedProcess(command, 0, "", "")
+        ),
+    )
+    monkeypatch.setattr(
+        build_site, "_render_astro", lambda _root, snapshot: (snapshot / "index.html").write_text("new")
+    )
+    original_replace = Path.replace
+    failed = False
+
+    def replace(source: Path, destination: Path) -> Path:
+        nonlocal failed
+        if source.name == "site" and destination == output and not failed:
+            failed = True
+            raise OSError("atomic replacement failed")
+        return original_replace(source, destination)
+
+    monkeypatch.setattr(Path, "replace", replace)
+    with pytest.raises(OSError, match="atomic replacement failed"):
+        build_site.build_site(root, output)
+
+    assert (output / "keep.txt").read_text(encoding="utf-8") == "previous"
+
+
 def test_main_parses_arguments_and_prints_success(monkeypatch: pytest.MonkeyPatch, capsys) -> None:
     calls: list[tuple[Path, Path, Path | None]] = []
     monkeypatch.setattr(

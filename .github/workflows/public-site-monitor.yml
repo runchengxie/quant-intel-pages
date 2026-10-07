@@ -1,18 +1,9 @@
 name: Public site monitor
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'
   workflow_run:
     workflows: [Public website]
     types: [completed]
-  workflow_dispatch:
-    inputs:
-      dry_run:
-        description: Preview public snapshot findings without changing Issues
-        required: true
-        type: boolean
-        default: true
 
 permissions:
   contents: read
@@ -23,7 +14,7 @@ concurrency:
 
 jobs:
   monitor:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_run'
+    if: github.event_name == 'workflow_run'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -38,35 +29,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      - name: Check live public snapshots
-        if: github.event_name == 'schedule'
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: python scripts/public_site_alerts.py --mode freshness
       - name: Reconcile completed website run
-        if: github.event_name == 'workflow_run'
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: python scripts/public_site_alerts.py --mode workflow
-
-  dry-run:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - name: Reject Issue-writing manual invocation
-        if: inputs.dry_run == false
-        run: |
-          echo '::error::Only dry-run workflow_dispatch is supported'
-          exit 1
-      - uses: actions/checkout@v6
-        with:
-          ref: main
-          persist-credentials: false
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-      - name: Preview live snapshot findings
-        run: python scripts/public_site_alerts.py --mode freshness --dry-run
+        run: python scripts/public_site_alerts.py

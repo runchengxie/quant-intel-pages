@@ -24,7 +24,7 @@ Open <http://localhost:8000/quant-intel-pages/>. The builder asks the Platform C
 - `src/`: Astro frontend, localized pages, chart rendering, and the legacy fallback.
 - `artifacts/public/`: reviewed public source snapshots; private archives stay outside this repository.
 - `scripts/build_site.py`: frontend build adapter; it does not import Platform source code.
-- `scripts/public_site_*.py`: bounded public-site freshness monitoring.
+- `scripts/public_site_alerts.py`: tracks this repository's website build workflow and reconciles failure/recovery Issues.
 - `.github/workflows/public-site.yml`: static-site checks, publication ledger, and GitHub Pages deployment.
 
-Platform is pinned by commit in the workflow so snapshot validation uses a reviewed owner release. The site workflow has no model credentials and runs no report generation. Use `AGENTS.md` and [daily generation options](docs/daily-generation-options.md) for ownership and handoff details.
+Platform is pinned by commit in the workflow so snapshot validation uses a reviewed owner release. The site workflow has no model credentials and runs no report generation. Public report date and age monitoring belongs to `quant-intel-deploy`. Use `AGENTS.md` and [daily generation options](docs/daily-generation-options.md) for ownership and handoff details.
