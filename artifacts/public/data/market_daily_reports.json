@@ -2,14 +2,14 @@
   "schema_version": "market_intel_pages.us_daily_history.v1",
   "reports": [
     {
-      "schema_version": "1.0",
+      "schema_version": "1.1",
       "publication": "public",
       "report_formats": [
         "md",
         "txt"
       ],
       "as_of": "2026-10-06T22:30:52.276127+00:00",
-      "generated_at": "2026-10-06T22:30:52.276127+00:00",
+      "generated_at": "2026-10-07T13:34:35.957949+00:00",
       "run_id": "daily-2026-10-06",
       "sections": [
         {
@@ -29,7 +29,9 @@
             "index.nasdaq.change_percent",
             "index.russell2000.change_percent"
           ],
-          "claims": []
+          "claims": [
+            "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.0"
+          ]
         },
         {
           "key": "equities",
@@ -69,7 +71,11 @@
           "key": "drivers",
           "title": "市场驱动因素",
           "facts": [],
-          "claims": []
+          "claims": [
+            "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.1",
+            "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.7",
+            "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.8"
+          ]
         },
         {
           "key": "macro",
@@ -80,7 +86,9 @@
             "macro.unemployment_rate",
             "macro.payroll_change_thousands"
           ],
-          "claims": []
+          "claims": [
+            "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.3"
+          ]
         },
         {
           "key": "company_news",
@@ -637,13 +645,137 @@
           "observation_date": "2026-10-06"
         }
       ],
-      "events": [],
-      "claims": [],
-      "missing_sources": [
-        "research"
+      "events": [
+        {
+          "id": "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.0",
+          "event_type": "web_market_close",
+          "actual": "美股周二收盘，标普500指数涨0.6%至7818.93点，道指涨0.5%至51521.28点，纳指涨0.4%至27599.79点；罗素2000指数跌0.6%。",
+          "source_url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-267ca73e15e09f7e8deb5f6076405f48",
+          "quality": "reviewed",
+          "source_time": "2026-10-06T20:21:55+00:00",
+          "publication_precision": "timestamp",
+          "time_role": "publication",
+          "usage": "context"
+        },
+        {
+          "id": "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.1",
+          "event_type": "web_drivers_close",
+          "actual": "美联社在收盘报道中称，Constellation Energy与谷歌的供电协议、Lamb Weston的业绩，以及美债收益率回落，为当天股市提供了支撑。这是报道对行情的解释。",
+          "source_url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-267ca73e15e09f7e8deb5f6076405f48",
+          "quality": "reviewed",
+          "source_time": "2026-10-06T20:21:55+00:00",
+          "publication_precision": "timestamp",
+          "time_role": "publication",
+          "usage": "context"
+        },
+        {
+          "id": "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.3",
+          "event_type": "web_macro_event",
+          "actual": "美联储在截至10月1日更新的日程中列明，9月15日至16日会议的纪要定于10月7日公布，下一次议息会议定于10月27日至28日举行。",
+          "source_url": "https://www.federalreserve.gov/monetarypolicy.htm",
+          "quality": "reviewed",
+          "source_time": null,
+          "publication_precision": "date",
+          "source_date": "2026-10-01",
+          "source_timezone": "unknown",
+          "time_role": "publication",
+          "usage": "background"
+        },
+        {
+          "id": "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.7",
+          "event_type": "web_drivers_event",
+          "actual": "10月6日原油期货结算价显示，11月交割的美国WTI原油每桶89.44美元，涨1美分；12月交割的布伦特原油每桶100.58美元，涨26美分。",
+          "source_url": "https://www.newsquawk.com/headlines/crude-wrap-wti-x6-settles-usd-001-higher-at-8944bbl",
+          "quality": "reviewed",
+          "source_time": "2026-10-06T19:06:00+00:00",
+          "publication_precision": "timestamp",
+          "time_role": "publication",
+          "usage": "context"
+        },
+        {
+          "id": "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.8",
+          "event_type": "web_drivers_event",
+          "actual": "路透社10月6日报道，美国12月交割黄金期货当日结算价为每盎司4187.10美元，上涨0.7%；报道将金价上涨与美元和美债收益率回落联系起来。",
+          "source_url": "https://uk.marketscreener.com/news/gold-climbs-as-dollar-treasury-yields-slip-ce785dd9dd8df620",
+          "quality": "reviewed",
+          "source_time": "2026-10-06T19:25:00+01:00",
+          "publication_precision": "timestamp",
+          "time_role": "publication",
+          "usage": "context"
+        }
       ],
+      "claims": [
+        {
+          "claim": "美股周二收盘，标普500指数涨0.6%至7818.93点，道指涨0.5%至51521.28点，纳指涨0.4%至27599.79点；罗素2000指数跌0.6%。",
+          "evidence_ids": [
+            "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.0"
+          ],
+          "sources": [
+            "https://apnews.com/article/wall-street-stocks-dow-nasdaq-267ca73e15e09f7e8deb5f6076405f48"
+          ],
+          "confidence": "confirmed",
+          "status": "accepted",
+          "provider": "source_audit"
+        },
+        {
+          "claim": "美联社在收盘报道中称，Constellation Energy与谷歌的供电协议、Lamb Weston的业绩，以及美债收益率回落，为当天股市提供了支撑。这是报道对行情的解释。",
+          "evidence_ids": [
+            "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.1"
+          ],
+          "sources": [
+            "https://apnews.com/article/wall-street-stocks-dow-nasdaq-267ca73e15e09f7e8deb5f6076405f48"
+          ],
+          "confidence": "confirmed",
+          "status": "accepted",
+          "provider": "source_audit"
+        },
+        {
+          "claim": "美联储在截至10月1日更新的日程中列明，9月15日至16日会议的纪要定于10月7日公布，下一次议息会议定于10月27日至28日举行。",
+          "evidence_ids": [
+            "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.3"
+          ],
+          "sources": [
+            "https://www.federalreserve.gov/monetarypolicy.htm"
+          ],
+          "confidence": "confirmed",
+          "status": "accepted",
+          "provider": "source_audit"
+        },
+        {
+          "claim": "10月6日原油期货结算价显示，11月交割的美国WTI原油每桶89.44美元，涨1美分；12月交割的布伦特原油每桶100.58美元，涨26美分。",
+          "evidence_ids": [
+            "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.7"
+          ],
+          "sources": [
+            "https://www.newsquawk.com/headlines/crude-wrap-wti-x6-settles-usd-001-higher-at-8944bbl"
+          ],
+          "confidence": "confirmed",
+          "status": "accepted",
+          "provider": "source_audit"
+        },
+        {
+          "claim": "路透社10月6日报道，美国12月交割黄金期货当日结算价为每盎司4187.10美元，上涨0.7%；报道将金价上涨与美元和美债收益率回落联系起来。",
+          "evidence_ids": [
+            "reviewed.39f855f98c82f84c3d1eac3b763322b146e1f403c82ac6de2ac63d448844af83.8"
+          ],
+          "sources": [
+            "https://uk.marketscreener.com/news/gold-climbs-as-dollar-treasury-yields-slip-ce785dd9dd8df620"
+          ],
+          "confidence": "confirmed",
+          "status": "accepted",
+          "provider": "source_audit"
+        }
+      ],
+      "missing_sources": [],
       "quality_summary": {
-        "status": "degraded"
+        "status": "degraded",
+        "revision": "news_only",
+        "news_revision": {
+          "input_report_sha256": "3933aa9abf93cc9b0706e97be3e40a1277aac7a680911dcd879499bd8e047e7d",
+          "previous_content_hash": "470e0b66cd307120b7ebdb15f4370f9ff439f3720ea8d7ae16eee6341b0af92f",
+          "news_cutoff": "2026-10-07T13:34:35.957949+00:00",
+          "revised_at": "2026-10-07T13:34:35.957949+00:00"
+        }
       },
       "source_status": {
         "rates": {
@@ -657,8 +789,8 @@
           "reason": "all_indices_fresh"
         },
         "research": {
-          "quality": "degraded",
-          "reason": "not_connected"
+          "quality": "reviewed",
+          "reason": "source_audited"
         },
         "cross_asset": {
           "quality": "degraded",
@@ -674,8 +806,8 @@
           "reviewed_movers": []
         }
       },
-      "content_hash": "470e0b66cd307120b7ebdb15f4370f9ff439f3720ea8d7ae16eee6341b0af92f",
-      "source_report_sha256": "3933aa9abf93cc9b0706e97be3e40a1277aac7a680911dcd879499bd8e047e7d"
+      "content_hash": "ddd7c989ebba40a8212a2fa43299a6a9f48ab3eca9d4f692930c7868d10e25a9",
+      "source_report_sha256": "09a807313f09d393c9fcd6ecf0453a6a27974f8226133ae7adb6516637b61d55"
     },
     {
       "schema_version": "1.0",
