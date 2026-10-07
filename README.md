@@ -9,7 +9,7 @@ This repository owns the static website for daily market reports. `quant-intel-p
 Requirements: Python 3.11, Node.js 24, npm, uv, and the `market-export-site-snapshot` command installed from the pinned Platform commit.
 
 ```bash
-uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@c7a73f9ea7d2609c0e186517995b956292a1630f"
+uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@118ab01cf7f153bf09e0de25ceb4433100e42d7d"
 npm ci
 python -m pip install --group dev
 preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)
@@ -28,3 +28,5 @@ Open <http://localhost:8000/quant-intel-pages/>. The builder asks the Platform C
 - `.github/workflows/public-site.yml`: static-site checks, publication ledger, and GitHub Pages deployment.
 
 Platform is pinned by commit in the workflow so snapshot validation uses a reviewed owner release. The site workflow has no model credentials and runs no report generation. Public report date and age monitoring belongs to `quant-intel-deploy`. Use `AGENTS.md` and [daily generation options](docs/daily-generation-options.md) for ownership and handoff details.
+
+The website presents market completeness, research inclusion, and publication as separate producer assessments. Status records are accepted only when the report run, date, and content hash match; older snapshots without status metadata show unknown status. Historical report content and quality notes remain available.

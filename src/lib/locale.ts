@@ -161,3 +161,10 @@ export const LOCALE_PATHS: Record<Locale, string> = {
 export function localePath(locale: Locale, base = ''): string {
   return `${base}${LOCALE_PATHS[locale]}`;
 }
+
+export const US_STATUS_LABELS = {
+  title: ['报告状态', 'Report status'],
+  market: { complete: ['行情齐全', 'Market data complete'], incomplete: ['行情有缺项', 'Market data incomplete'], unknown: ['行情状态未知', 'Market data status unknown'] },
+  research: { reviewed: ['研究已审核', 'Research reviewed'], not_included: ['研究未接入', 'Research not included'], unknown: ['研究状态未知', 'Research status unknown'] },
+  publication: { published: ['已发布', 'Published'], unknown: ['发布状态未知', 'Publication status unknown'] },
+} as const;

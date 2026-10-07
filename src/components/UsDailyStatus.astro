@@ -1,0 +1,20 @@
+---
+import { loadUsDailyStatus, type MarketDailyRecord } from '../lib/reports.ts';
+import { US_STATUS_LABELS } from '../lib/locale.ts';
+interface Props { report: MarketDailyRecord; locale?: 'zh-CN' | 'en-US' }
+const { report, locale = 'zh-CN' } = Astro.props;
+const index = locale === 'en-US' ? 1 : 0;
+const status = loadUsDailyStatus(report);
+const dimensions = [
+  { key: 'market', value: status.market, label: US_STATUS_LABELS.market[status.market][index] },
+  { key: 'research', value: status.research, label: US_STATUS_LABELS.research[status.research][index] },
+  { key: 'publication', value: status.publication, label: US_STATUS_LABELS.publication[status.publication][index] },
+];
+---
+<ul class="us-report-status" aria-label={US_STATUS_LABELS.title[index]}>
+  {dimensions.map((dimension) => <li data-status-dimension={dimension.key} data-status-value={dimension.value}>{dimension.label}</li>)}
+</ul>
+<style>
+  .us-report-status { display: flex; flex-wrap: wrap; gap: .5rem 1rem; padding: 0; list-style: none; }
+  li { border: 1px solid var(--line, #888); border-radius: .35rem; padding: .25rem .5rem; font-size: .9rem; }
+</style>
