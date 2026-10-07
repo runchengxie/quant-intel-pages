@@ -2,9 +2,10 @@
 
 ## 仓库职责
 
-- 本仓库维护 Astro 静态前端、网页构建适配器、公开网址新鲜度监控和 GitHub Pages 工作流。
+- 本仓库维护 Astro 静态前端、网页构建适配器和 GitHub Pages 工作流；报告新鲜度由 `quant-intel-deploy` 唯一监控。
+- 本仓库的 `workflow_run` 监控只跟踪自身网站构建成功或失败，并在恢复后关闭对应 GitHub Issue。
 - `quant-intel-platform` 维护数据采集、指标计算、报告写作、模型编排、证据审核及 `market-export-site-snapshot`。本仓库通过已固定版本的安装 CLI 交接，不导入 Platform 源码。
-- `quant-intel-deploy` 维护生产发布器、发布状态和定时任务。Pages 工作流不生成报告，也不读取模型密钥。
+- `quant-intel-deploy` 维护生产发布器、发布状态、定时任务和公开报告日期/年龄监控。Pages 工作流不生成报告，也不读取模型密钥。
 - 公共 URL 保持以 `/quant-intel-pages/` 为前缀，下载数据和报告使用 `/data/` 与 `/reports/`。
 
 ## 数据与归档

@@ -385,38 +385,10 @@ def test_api_client_rejects_redirect_without_forwarding_token() -> None:
         _NoRedirectHandler().redirect_request(None, None, 302, "found", {}, "https://evil.test")
 
 
-def test_freshness_reconciles_stale_and_healthy_findings(monkeypatch: pytest.MonkeyPatch) -> None:
-    from scripts.public_site_alerts import process_freshness_event
+def test_dry_run_issues_no_write_calls() -> None:
+    from scripts.public_site_alerts import process_workflow_event
 
     client = FakeIssues()
-    findings = [
-        {"key": "asia", "status": "review", "summary": "Review Asian report freshness."},
-        {"key": "us", "status": "ok", "summary": "U.S. report healthy."},
-    ]
-    monkeypatch.setattr("scripts.public_site_alerts.fetch_public_snapshots", lambda base_url: ({}, {}))
-    monkeypatch.setattr(
-        "scripts.public_site_alerts.evaluate_public_snapshots", lambda reports, us, now, **kwargs: findings
-    )
-    assert process_freshness_event(client, repository="example/site", run_id=123) == ["created", "unchanged"]
-    findings[0] = {"key": "asia", "status": "ok", "summary": "Asian report healthy."}
-    assert process_freshness_event(client, repository="example/site", run_id=124) == ["closed", "unchanged"]
-    assert client.issues[0]["state"] == "closed"
-
-
-def test_dry_run_issues_no_write_calls(monkeypatch: pytest.MonkeyPatch) -> None:
-    from scripts.public_site_alerts import process_freshness_event, process_workflow_event
-
-    client = FakeIssues()
-    monkeypatch.setattr("scripts.public_site_alerts.fetch_public_snapshots", lambda base_url: ({}, {}))
-    monkeypatch.setattr(
-        "scripts.public_site_alerts.evaluate_public_snapshots",
-        lambda reports, us, now, **kwargs: [
-            {"key": "asia", "status": "review", "summary": "Review freshness."}
-        ],
-    )
-    assert process_freshness_event(client, repository="example/site", run_id=123, dry_run=True) == [
-        "would-create"
-    ]
     assert (
         process_workflow_event(client, _workflow_event(), repository="example/site", dry_run=True)
         == "would-create"
@@ -431,38 +403,20 @@ def test_cli_reads_event_path_and_dry_run(monkeypatch: pytest.MonkeyPatch, tmp_p
     event_path.write_text(json.dumps(_workflow_event()), encoding="utf-8")
     monkeypatch.setenv("GITHUB_EVENT_PATH", str(event_path))
     monkeypatch.setenv("GITHUB_REPOSITORY", "example/site")
-    monkeypatch.setenv("GITHUB_RUN_ID", "321")
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
-    assert main(["--mode", "workflow", "--dry-run"]) == 0
+    assert main(["--dry-run"]) == 0
 
 
 def test_workflow_has_trusted_checkout_and_global_issue_write_serialization() -> None:
     workflow = Path(__file__).parents[1] / ".github/workflows/public-site-monitor.yml"
     source = workflow.read_text(encoding="utf-8")
     assert "workflow_run:\n    workflows: [Public website]\n    types: [completed]" in source
-    assert "cron: '0 */6 * * *'" in source
+    assert "schedule:" not in source
+    assert "workflow_dispatch:" not in source
     assert "group: public-site-monitor-issues\n  cancel-in-progress: false" in source
     assert "  monitor:\n" in source
     assert "      issues: write\n" in source
     assert "      actions: read\n" in source
-    assert source.count("ref: main") == 2
+    assert "      contents: read\n" in source
+    assert source.count("ref: main") == 1
     assert "${{ github.event.workflow_run" not in source
-    assert "if: inputs.dry_run == false" in source
-    assert "Only dry-run workflow_dispatch is supported" in source
-
-
-def test_calendar_deferral_preserves_open_issue_without_comments(monkeypatch):
-    from scripts.public_site_alerts import process_freshness_event
-
-    client = FakeIssues()
-    reconcile_alert(
-        client, key="freshness:asia", finding="Existing stale alert", run_url=RUN_URL, event_id=100
-    )
-    monkeypatch.setattr("scripts.public_site_alerts.fetch_public_snapshots", lambda base_url: ({}, {}))
-    monkeypatch.setattr(
-        "scripts.public_site_alerts.evaluate_public_snapshots",
-        lambda *args, **kwargs: [{"key": "asia", "status": "deferred", "summary": "SSE closure"}],
-    )
-    assert process_freshness_event(client, repository="example/site", run_id=101) == ["deferred"]
-    assert client.issues[0]["state"] == "open"
-    assert client.comments == [] and client.closed == []
