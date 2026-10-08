@@ -182,3 +182,12 @@ export const US_VALUE_CHANGE_LABELS = {
   'USD/barrel': ['美元/桶', 'USD/barrel'], 'USD/troy_ounce': ['美元/金衡盎司', 'USD/troy oz'],
   'USD/bitcoin': ['美元/BTC', 'USD/BTC'],
 } as const;
+
+/** Exact translations of published Asian interpretations; source evidence remains unchanged. */
+export const ASIA_RESEARCH_TRANSLATIONS = {
+  postHolidayCool: ['节后首个交易日A股偏冷，指数普跌、高成交标的承压，市场状态观察分显示脆弱度偏高。', 'Mainland stocks were subdued on the first session after the holiday. Indexes fell broadly, high-turnover stocks came under pressure, and market-state observation scores indicated elevated fragility.'],
+} as const;
+export const ASIA_RESEARCH_LABELS = {
+  translationMissing: ['英文解读暂缺，请查看中文原文及依据。', 'An English interpretation is not available. Read the original Chinese text and supporting evidence.'],
+  original: ['查看中文解读原文', 'Read the original Chinese interpretation'],
+} as const;

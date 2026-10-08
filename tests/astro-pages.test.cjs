@@ -564,3 +564,40 @@ test('both rendered locales expose independent producer assessments', () => {
     rmSync(temporary, { recursive: true });
   }
 });
+
+
+test('English Asian overview translates catalog prose and links the preserved source for unmapped research', () => {
+  const { ASIA_RESEARCH_TRANSLATIONS } = require('../src/lib/locale.ts');
+  const temporary = mkdtempSync(path.join(path.dirname(root), 'asia-research-locale-'));
+  try {
+    const data = path.join(temporary, 'input'), output = path.join(temporary, 'site');
+    cpSync(path.join(root, 'artifacts/public'), data, { recursive: true });
+    const reports = JSON.parse(readFileSync(path.join(data, 'data/reports.json'), 'utf8')).reports;
+    const report = reports.find(row => row.kind === 'evening' && row.date >= '2026-09-25' && existsSync(path.join(data, `data/charts/${row.id}.json`)));
+    assert.ok(report, 'a published chart snapshot is required');
+    const chartFile = path.join(data, `data/charts/${report.id}.json`);
+    const chart = JSON.parse(readFileSync(chartFile, 'utf8'));
+    chart.charts[0] = { key: 'dashboard', title: '市场广度', status: 'ok', points: [{
+      label: '上涨率', value: 41.23, unit: '%', observation_date: report.date,
+      source_label: 'Evidence source', source_url: 'https://source.example/static-evidence',
+    }] };
+    writeFileSync(chartFile, JSON.stringify(chart));
+    for (const [source, expected] of [ASIA_RESEARCH_TRANSLATIONS.postHolidayCool, ['未知的新研究结论，市场状态仍待核对。', 'An English interpretation is not available.']]) {
+      const insight = { date: '2026-10-08', as_of: '2026-10-08T10:45:00Z', generated_at: '2026-10-08T10:45:00Z', evidence: [], analysis: { overview: { text: source, evidence_ids: [] } } };
+      writeFileSync(path.join(data, 'data/insights.json'), JSON.stringify({ insights: [insight] }));
+      execFileSync('npm', ['run', 'build'], { cwd: root, env: { ...process.env, ASTRO_DATA_ROOT: data, ASTRO_OUT_DIR: output }, stdio: 'pipe' });
+      const html = readFileSync(path.join(output, 'en/index.html'), 'utf8');
+      assert.ok(html.includes(expected));
+      assert.ok(html.includes('/?locale=zh-CN#insight-title'));
+      assert.doesNotMatch(html, /亚洲市场收盘复盘|目标日期|六维观察|市场状态/);
+      assert.equal(JSON.parse(readFileSync(path.join(data, 'data/insights.json'), 'utf8')).insights[0].analysis.overview.text, source);
+      for (const prefix of ['', 'en/']) {
+        const evidence = readFileSync(path.join(output, `${prefix}reports/${report.id}/index.html`), 'utf8');
+        assert.ok(evidence.includes('41.23'));
+        assert.ok(evidence.includes('https://source.example/static-evidence'));
+        assert.ok(evidence.includes(report.date));
+        assert.doesNotMatch(evidence, /ChartIsland\.|echarts\./);
+      }
+    }
+  } finally { rmSync(temporary, { recursive: true }); }
+});
