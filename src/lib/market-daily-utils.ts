@@ -1,8 +1,12 @@
 import { isMarketDailyPayload } from './market-facts.ts';
-import { US_REPORT_LABELS, usResearchText, type Locale } from './locale.ts';
+import { US_REPORT_LABELS, US_VALUE_CHANGE_LABELS, usResearchText, type Locale } from './locale.ts';
 import type { MarketClaimSummary, MarketDailyChart, MarketDailyPayload, MarketDailyRow, MarketDailySummary, MarketEventEvidence } from './market-facts.ts';
 
 const MARKET_DAILY_FACTS = [
+  ["index.spx.close", "标普 500 收盘", " 点"],
+  ["index.dow.close", "道指收盘", " 点"],
+  ["index.nasdaq.close", "纳指收盘", " 点"],
+  ["index.russell2000.close", "罗素 2000 收盘", " 点"],
   ["index.spx.change_percent", "标普 500 日涨跌", "%"],
   ["index.dow.change_percent", "道指日涨跌", "%"],
   ["index.nasdaq.change_percent", "纳指日涨跌", "%"],
@@ -110,6 +114,11 @@ function validMarketDailyFact(id: string, fact: MarketDailyPayload['facts'][numb
   }
   if (id.startsWith("index.")) {
     const key = id.split(".")[1];
+    const close = id.endsWith(".close");
+    if (close) return fact.observation_date === reportDate && fact.value > 0
+      && fact.quality === "ok" && fact.source === "Yahoo Finance"
+      && fact.metric === "index_close" && fact.unit === "points"
+      && Boolean(YAHOO_INDEX_SOURCES[key]?.test(url));
     return fact.observation_date === reportDate && (
       (fact.quality === "reviewed" && validHttpSource(url))
       || (fact.quality === "ok" && fact.source === "Yahoo Finance"
@@ -202,8 +211,13 @@ export function summarizeMarketDaily(payload: unknown): MarketDailySummary | nul
       unit: fact.unit ?? "", quality: fact.quality });
   }
   if (!rows.length) return null;
-  const yahooIndexRows = rows.filter((row) => row.id.startsWith("index.") && row.quality === "ok");
+  const yahooIndexRows = rows.filter((row) => row.id.startsWith("index.") && row.id.endsWith(".change_percent") && row.quality === "ok");
   if (yahooIndexRows.length && yahooIndexRows.length !== Object.keys(YAHOO_INDEX_SOURCES).length) return null;
+  for (const close of rows.filter((row) => row.id.startsWith("index.") && row.id.endsWith(".close"))) {
+    const change = rows.find((row) => row.id === close.id.replace(/\.close$/, ".change_percent"));
+    if (!change || change.observationDate !== close.observationDate || change.sourceUrl !== close.sourceUrl
+      || change.sourceLabel !== close.sourceLabel || change.instrument !== close.instrument) return null;
+  }
   const evidenceIds = new Set([...(payload.facts ?? []), ...(payload.events ?? [])].map((item) => item.id));
   const sectionByEvidence = new Map();
   for (const [key] of MARKET_DAILY_CLAIM_SECTIONS) {
@@ -338,7 +352,7 @@ function publicationLine(event: MarketEventEvidence, locale: Locale): string {
 export function buildMarketDailyCharts(summary: MarketDailySummary | null): MarketDailyChart[] {
   if (!summary) return [];
   const definitions: Array<{ title: string; unit: string; prefix: string; ids: RegExp[]; kind?: 'level' }> = [
-    { title: "四大指数收盘涨跌", unit: "%", prefix: "index.", ids: [/^index\./] },
+    { title: "四大指数收盘涨跌", unit: "%", prefix: "index.", ids: [/\.change_percent$/] },
     { title: "美股个股日涨跌", unit: "%", prefix: "equity.", ids: [/\.change_percent$/] },
     { title: "美债收益率水平", unit: "%", prefix: "treasury.", ids: [/\.level_percent$/], kind: "level" },
     { title: "美债收益率当日变动", unit: "bp", prefix: "treasury.", ids: [/\.change_bp$/] },
@@ -360,6 +374,38 @@ export function buildMarketDailyCharts(summary: MarketDailySummary | null): Mark
       })),
     };
   }).filter((chart) => chart.rows.length);
+}
+
+interface ValueChangeRow {
+  label: string; value?: MarketDailyRow; change?: MarketDailyRow;
+  valueUnit?: 'USD/barrel' | 'USD/troy_ounce' | 'USD/bitcoin';
+}
+interface ValueChangeTable {
+  title: 'indices' | 'equities' | 'treasury' | 'crossAssets';
+  valueHeading: 'indexClose' | 'equityClose' | 'yieldLevel' | 'assetClose';
+  changeHeading: 'dailyReturn' | 'yieldChange'; rows: ValueChangeRow[];
+}
+
+/** Pair already validated facts; missing values remain missing and never imply a derived close. */
+export function buildMarketDailyTables(summary: MarketDailySummary): ValueChangeTable[] {
+  const current = summary.rows.filter(row => row.observationDate === summary.date && row.quality !== 'lagged');
+  const find = (id: string) => current.find(row => row.id === id);
+  const rows = (prefix: string, valueField: string, changeField: string): ValueChangeRow[] => {
+    const keys = [...new Set(current.filter(row => row.id.startsWith(prefix)).map(row => row.id.split('.')[1]))];
+    return keys.flatMap(key => {
+      const value = find(`${prefix}${key}.${valueField}`), change = find(`${prefix}${key}.${changeField}`);
+      if (!value && !change) return [];
+      const label = prefix === 'treasury.' ? `${key.slice(0, -1)} 年期美债` : (change ?? value)!.label;
+      const valueUnit = prefix === 'cross_asset.' && value ? value.unit as ValueChangeRow['valueUnit'] : undefined;
+      return [{ label, value, change, valueUnit }];
+    });
+  };
+  return [
+    { title: 'indices', valueHeading: 'indexClose', changeHeading: 'dailyReturn', rows: rows('index.', 'close', 'change_percent') },
+    { title: 'equities', valueHeading: 'equityClose', changeHeading: 'dailyReturn', rows: rows('equity.', 'close', 'change_percent') },
+    { title: 'treasury', valueHeading: 'yieldLevel', changeHeading: 'yieldChange', rows: rows('treasury.', 'level_percent', 'change_bp') },
+    { title: 'crossAssets', valueHeading: 'assetClose', changeHeading: 'dailyReturn', rows: rows('cross_asset.', 'close', 'change_percent') },
+  ].filter(table => table.rows.length) as ValueChangeTable[];
 }
 
 function escapeSvgText(value: unknown): string {
@@ -399,10 +445,10 @@ const REPORT_LINE = 'var(--report-line, #d9c7b6)';
 export function buildMarketDailyChartSvg(summary: MarketDailySummary, translate: (value: string) => string = (value) => value, locale: Locale = 'zh-CN'): string | null {
   const text = (value: unknown) => escapeSvgText(translate(String(value ?? '')));
   const font = "'Source Han Sans CN', 'Noto Sans CJK SC', 'Noto Sans SC', 'PingFang SC', sans-serif";
-  const charts = buildMarketDailyCharts(summary);
+  const tables = buildMarketDailyTables(summary);
   const laggedRates = summary.rateRows.filter((row) => row.observationDate !== summary.date);
-  if (!charts.length && !laggedRates.length && !summary.secondaryRows.length && !summary.claims.length) return null;
-  let y = 118;
+  if (!tables.length && !laggedRates.length && !summary.secondaryRows.length && !summary.claims.length) return null;
+  let y = 185;
   const parts = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="960" height="__HEIGHT__" viewBox="0 0 960 __HEIGHT__" role="img">`,
     `<title>${text(`${summary.date} 美东交易日市场图文复盘`)}</title>`,
@@ -411,28 +457,42 @@ export function buildMarketDailyChartSvg(summary: MarketDailySummary, translate:
     `<text x="54" y="62" fill="${REPORT_INK}" font-family="sans-serif" font-size="28" font-weight="700">${text(`${summary.date} 美东交易日`)}</text>`,
     `<text x="54" y="91" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="15">${text(`美股收盘复盘${summary.historicalBackfill ? " · 事后整理" : ""} · 图解、解读与来源`)}</text>`,
   ];
-  for (const chart of charts) {
-      parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="19" font-weight="700">${text(`${chart.title}（${chart.unit}）`)}</text>`);
-    y += 34;
-    for (const row of chart.rows) {
-      const equity = summary.equityRows.find((item) => row.id === `equity.${item.symbol.toLowerCase()}.change_percent`);
-      const asset = summary.crossAssetRows.find((item) => row.id === `cross_asset.${item.name}.change_percent`);
-      const assetUnit = asset && ({ "USD/barrel": "美元/桶", "USD/troy_ounce": "美元/金衡盎司", "USD/bitcoin": "美元/BTC" })[asset.priceUnit];
-      const close = equity ? `收盘 ${equity.priceValue.toFixed(2)} 美元`
-        : asset ? `收盘 ${asset.priceValue.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${assetUnit || asset.priceUnit}` : "";
-      const center = chart.kind === "level" ? 350 : 565;
-      const width = Math.round(row.width * (chart.kind === "level" ? 4.3 : 2.15));
-      const barX = row.side === "negative" ? center - width : center;
-      const color = row.side === "negative" ? "#5c7182" : "#b64d33";
-        parts.push(`<text x="54" y="${y + 5}" fill="${REPORT_INK}" font-family="sans-serif" font-size="16" font-weight="600">${text(row.label)}</text>`);
-        parts.push(`<rect x="350" y="${y - 13}" width="430" height="18" rx="3" fill="${REPORT_TRACK}"/>`);
-      parts.push(`<rect x="${barX}" y="${y - 11}" width="${width}" height="14" rx="2" fill="${color}"/>`);
-      parts.push(`<line x1="${center}" y1="${y - 16}" x2="${center}" y2="${y + 8}" stroke="#5d4c40" stroke-width="1"/>`);
-        parts.push(`<text x="800" y="${y + 5}" fill="${REPORT_INK}" font-family="monospace" font-size="16" font-weight="700">${text(row.valueText)}</text>`);
-        parts.push(`<text x="54" y="${y + 25}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="12">${text(`观测日 ${row.observationDate}${close ? ` · ${close}` : ""} · ${row.sourceLabel}`)}</text>`);
-      y += 58;
+  const labelIndex = locale === 'en-US' ? 1 : 0;
+  const label = (key: keyof typeof US_VALUE_CHANGE_LABELS) => US_VALUE_CHANGE_LABELS[key][labelIndex];
+  parts.push(`<rect x="54" y="111" width="14" height="12" fill="#3865b3"/>`);
+  parts.push(`<text x="75" y="123" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label('positive'))}</text>`);
+  parts.push(`<rect x="205" y="111" width="14" height="12" fill="#d0a52f"/>`);
+  parts.push(`<text x="226" y="123" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label('negative'))}</text>`);
+  parts.push(`<text x="54" y="145" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="12">${text(label('scaleNote'))}</text>`);
+  for (const table of tables) {
+    parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="19" font-weight="700">${text(label(table.title))}</text>`);
+    y += 31;
+    parts.push(`<text x="54" y="${y}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label('asset'))}</text>`);
+    parts.push(`<text x="400" y="${y}" text-anchor="end" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label(table.valueHeading))}</text>`);
+    parts.push(`<text x="906" y="${y}" text-anchor="end" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label(table.changeHeading))}</text>`);
+    y += 14;
+    parts.push(`<line x1="54" y1="${y}" x2="906" y2="${y}" stroke="${REPORT_LINE}"/>`);
+    y += 28;
+    const maximum = Math.max(...table.rows.map((row) => Math.abs(row.change?.value ?? 0)), 0);
+    for (const row of table.rows) {
+      const change = row.change;
+      const width = maximum && change ? Math.abs(change.value) / maximum * 156 : 0;
+      const center = 610;
+      const number = row.value ? row.value.value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+      const valueText = change ? `${change.value > 0 ? '+' : ''}${change.value.toFixed(2)}${table.changeHeading === 'yieldChange' ? ' bp' : '%'}` : '—';
+      parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="16" font-weight="600">${text(row.label)}</text>`);
+      parts.push(`<text x="400" y="${y}" text-anchor="end" fill="${REPORT_INK}" font-family="monospace" font-size="18" font-weight="700">${text(number)}</text>`);
+      if (row.valueUnit) parts.push(`<text x="400" y="${y + 18}" text-anchor="end" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="11">${text(label(row.valueUnit))}</text>`);
+      parts.push(`<rect x="450" y="${y - 14}" width="320" height="18" fill="${REPORT_TRACK}"/>`);
+      if (width) parts.push(`<rect x="${change!.value < 0 ? center - width : center}" y="${y - 12}" width="${width}" height="14" fill="${change!.value < 0 ? '#d0a52f' : '#3865b3'}"/>`);
+      parts.push(`<line x1="${center}" y1="${y - 18}" x2="${center}" y2="${y + 8}" stroke="${REPORT_LINE}" stroke-width="1"/>`);
+      parts.push(`<text x="906" y="${y}" text-anchor="end" fill="${REPORT_INK}" font-family="monospace" font-size="16" font-weight="700">${text(valueText)}</text>`);
+      const source = change ?? row.value;
+      if (source) parts.push(`<text x="54" y="${y + 34}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="11">${text(`${label('observed')} ${source.observationDate} · ${source.sourceLabel}${!row.value || !change ? ` · ${label('missing')}` : ''}`)}</text>`);
+      y += 64;
+      parts.push(`<line x1="54" y1="${y - 17}" x2="906" y2="${y - 17}" stroke="${REPORT_LINE}"/>`);
     }
-    y += 20;
+    y += 25;
   }
   if (laggedRates.length) {
     parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="19" font-weight="700">${text('美债较早观测值')}</text>`);
@@ -495,4 +555,4 @@ export function formatMarketDailyDataNotes(summary: MarketDailySummary, locale: 
   return (summary.optionalGaps ?? []).map(() => `${US_REPORT_LABELS.optionalUnavailable[index]}${US_REPORT_LABELS.btcFuturesGap[index]}${index ? '.' : '。'}${spotVerified ? `${index ? ' ' : ''}${US_REPORT_LABELS.optionalSpotUnaffected[index]}` : ''}`);
 }
 
-export default { summarizeMarketDaily, formatMarketDailyStatus, formatMarketDailyRevision, formatMarketDailyDataNotes, buildMarketDailyCharts, buildMarketDailyChartSvg };
+export default { summarizeMarketDaily, formatMarketDailyStatus, formatMarketDailyRevision, formatMarketDailyDataNotes, buildMarketDailyCharts, buildMarketDailyTables, buildMarketDailyChartSvg };

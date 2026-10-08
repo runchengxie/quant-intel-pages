@@ -422,12 +422,12 @@ test('visual report keeps verified market facts and source links together', () =
     const index = readFileSync(path.join(fixture, 'built/index.html'), 'utf8');
     const chart = index.match(/id="market-daily-chart">([\s\S]*?)<\/div>/)?.[1];
     assert.ok(chart);
-    assert.match(chart, /美债收益率水平/);
+    assert.match(chart, /收益率（%）/);
     const twoYear = report.facts.find((fact) => fact.id === 'treasury.2y.level_percent');
     assert.ok(twoYear);
-    const twoYearSection = chart.slice(chart.indexOf('2 年期美债收益率水平'));
-    assert.ok(twoYearSection.slice(0, 600).includes(`${twoYear.value.toFixed(2)}%`));
-    assert.match(chart, /跨资产日涨跌/);
+    const twoYearSection = chart.slice(chart.indexOf('2 年期美债'));
+    assert.ok(twoYearSection.slice(0, 600).includes(`>${twoYear.value.toFixed(2)}</text>`));
+    assert.match(chart, /跨资产/);
     assert.match(chart, /BTC\/USD 现货/);
     assertDriverSectionMatchesReport(chart, report);
     assert.match(chart, /关键来源/);
