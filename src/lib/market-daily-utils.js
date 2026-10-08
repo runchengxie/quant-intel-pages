@@ -23,6 +23,7 @@ var marketDailyUtils = (() => {
   __export(market_daily_utils_exports, {
     buildMarketDailyChartSvg: () => buildMarketDailyChartSvg,
     buildMarketDailyCharts: () => buildMarketDailyCharts,
+    buildMarketDailyTables: () => buildMarketDailyTables,
     default: () => market_daily_utils_default,
     formatMarketDailyDataNotes: () => formatMarketDailyDataNotes,
     formatMarketDailyRevision: () => formatMarketDailyRevision,
@@ -93,9 +94,34 @@ var marketDailyUtils = (() => {
     const translated = Object.values(US_RESEARCH_TRANSLATIONS).find(([original]) => original === source)?.[1];
     return translated ?? (/[\u3400-\u9fff]/.test(source) ? US_REPORT_LABELS.translationMissing[1] + source : source);
   }
+  var US_VALUE_CHANGE_LABELS = {
+    indices: ["\u56DB\u5927\u6307\u6570", "Major indices"],
+    equities: ["\u7F8E\u80A1\u4E2A\u80A1", "U.S. equities"],
+    treasury: ["\u7F8E\u56FD\u56FD\u503A", "U.S. Treasuries"],
+    crossAssets: ["\u8DE8\u8D44\u4EA7", "Cross assets"],
+    asset: ["\u6807\u7684", "Asset"],
+    indexClose: ["\u6536\u76D8\u70B9\u4F4D\uFF08\u70B9\uFF09", "Close (points)"],
+    equityClose: ["\u6536\u76D8\u4EF7\uFF08\u7F8E\u5143\uFF09", "Close (USD)"],
+    yieldLevel: ["\u6536\u76CA\u7387\uFF08%\uFF09", "Yield (%)"],
+    assetClose: ["\u6536\u76D8\u4EF7", "Close"],
+    dailyReturn: ["\u5F53\u65E5\u6DA8\u8DCC\uFF08%\uFF09", "Daily change (%)"],
+    yieldChange: ["\u5F53\u65E5\u53D8\u52A8\uFF08bp\uFF09", "Daily change (bp)"],
+    scaleNote: ["\u6761\u5F62\u4EE5 0 \u4E3A\u4E2D\u5FC3\uFF0C\u5404\u5206\u7EC4\u72EC\u7ACB\u523B\u5EA6", "Bars centered on zero; separate scale per group"],
+    positive: ["\u4E0A\u6DA8 / \u4E0A\u884C", "Up"],
+    negative: ["\u4E0B\u8DCC / \u4E0B\u884C", "Down"],
+    missing: ["\u7F3A\u9879", "Missing"],
+    observed: ["\u89C2\u6D4B\u65E5", "Observed"],
+    "USD/barrel": ["\u7F8E\u5143/\u6876", "USD/barrel"],
+    "USD/troy_ounce": ["\u7F8E\u5143/\u91D1\u8861\u76CE\u53F8", "USD/troy oz"],
+    "USD/bitcoin": ["\u7F8E\u5143/BTC", "USD/BTC"]
+  };
 
   // src/lib/market-daily-utils.ts
   var MARKET_DAILY_FACTS = [
+    ["index.spx.close", "\u6807\u666E 500 \u6536\u76D8", " \u70B9"],
+    ["index.dow.close", "\u9053\u6307\u6536\u76D8", " \u70B9"],
+    ["index.nasdaq.close", "\u7EB3\u6307\u6536\u76D8", " \u70B9"],
+    ["index.russell2000.close", "\u7F57\u7D20 2000 \u6536\u76D8", " \u70B9"],
     ["index.spx.change_percent", "\u6807\u666E 500 \u65E5\u6DA8\u8DCC", "%"],
     ["index.dow.change_percent", "\u9053\u6307\u65E5\u6DA8\u8DCC", "%"],
     ["index.nasdaq.change_percent", "\u7EB3\u6307\u65E5\u6DA8\u8DCC", "%"],
@@ -201,6 +227,8 @@ var marketDailyUtils = (() => {
     }
     if (id.startsWith("index.")) {
       const key = id.split(".")[1];
+      const close = id.endsWith(".close");
+      if (close) return fact.observation_date === reportDate && fact.value > 0 && fact.quality === "ok" && fact.source === "Yahoo Finance" && fact.metric === "index_close" && fact.unit === "points" && Boolean(YAHOO_INDEX_SOURCES[key]?.test(url));
       return fact.observation_date === reportDate && (fact.quality === "reviewed" && validHttpSource(url) || fact.quality === "ok" && fact.source === "Yahoo Finance" && fact.metric === "daily_return" && fact.unit === "percent" && Boolean(YAHOO_INDEX_SOURCES[key]?.test(url)));
     }
     if (id.startsWith("treasury.")) {
@@ -273,8 +301,12 @@ var marketDailyUtils = (() => {
       });
     }
     if (!rows.length) return null;
-    const yahooIndexRows = rows.filter((row) => row.id.startsWith("index.") && row.quality === "ok");
+    const yahooIndexRows = rows.filter((row) => row.id.startsWith("index.") && row.id.endsWith(".change_percent") && row.quality === "ok");
     if (yahooIndexRows.length && yahooIndexRows.length !== Object.keys(YAHOO_INDEX_SOURCES).length) return null;
+    for (const close of rows.filter((row) => row.id.startsWith("index.") && row.id.endsWith(".close"))) {
+      const change = rows.find((row) => row.id === close.id.replace(/\.close$/, ".change_percent"));
+      if (!change || change.observationDate !== close.observationDate || change.sourceUrl !== close.sourceUrl || change.sourceLabel !== close.sourceLabel || change.instrument !== close.instrument) return null;
+    }
     const evidenceIds = new Set([...payload.facts ?? [], ...payload.events ?? []].map((item) => item.id));
     const sectionByEvidence = /* @__PURE__ */ new Map();
     for (const [key] of MARKET_DAILY_CLAIM_SECTIONS) {
@@ -409,7 +441,7 @@ var marketDailyUtils = (() => {
   function buildMarketDailyCharts(summary) {
     if (!summary) return [];
     const definitions = [
-      { title: "\u56DB\u5927\u6307\u6570\u6536\u76D8\u6DA8\u8DCC", unit: "%", prefix: "index.", ids: [/^index\./] },
+      { title: "\u56DB\u5927\u6307\u6570\u6536\u76D8\u6DA8\u8DCC", unit: "%", prefix: "index.", ids: [/\.change_percent$/] },
       { title: "\u7F8E\u80A1\u4E2A\u80A1\u65E5\u6DA8\u8DCC", unit: "%", prefix: "equity.", ids: [/\.change_percent$/] },
       { title: "\u7F8E\u503A\u6536\u76CA\u7387\u6C34\u5E73", unit: "%", prefix: "treasury.", ids: [/\.level_percent$/], kind: "level" },
       { title: "\u7F8E\u503A\u6536\u76CA\u7387\u5F53\u65E5\u53D8\u52A8", unit: "bp", prefix: "treasury.", ids: [/\.change_bp$/] },
@@ -431,6 +463,26 @@ var marketDailyUtils = (() => {
         }))
       };
     }).filter((chart) => chart.rows.length);
+  }
+  function buildMarketDailyTables(summary) {
+    const current = summary.rows.filter((row) => row.observationDate === summary.date && row.quality !== "lagged");
+    const find = (id) => current.find((row) => row.id === id);
+    const rows = (prefix, valueField, changeField) => {
+      const keys = [...new Set(current.filter((row) => row.id.startsWith(prefix)).map((row) => row.id.split(".")[1]))];
+      return keys.flatMap((key) => {
+        const value = find(`${prefix}${key}.${valueField}`), change = find(`${prefix}${key}.${changeField}`);
+        if (!value && !change) return [];
+        const label = prefix === "treasury." ? `${key.slice(0, -1)} \u5E74\u671F\u7F8E\u503A` : (change ?? value).label;
+        const valueUnit = prefix === "cross_asset." && value ? value.unit : void 0;
+        return [{ label, value, change, valueUnit }];
+      });
+    };
+    return [
+      { title: "indices", valueHeading: "indexClose", changeHeading: "dailyReturn", rows: rows("index.", "close", "change_percent") },
+      { title: "equities", valueHeading: "equityClose", changeHeading: "dailyReturn", rows: rows("equity.", "close", "change_percent") },
+      { title: "treasury", valueHeading: "yieldLevel", changeHeading: "yieldChange", rows: rows("treasury.", "level_percent", "change_bp") },
+      { title: "crossAssets", valueHeading: "assetClose", changeHeading: "dailyReturn", rows: rows("cross_asset.", "close", "change_percent") }
+    ].filter((table) => table.rows.length);
   }
   function escapeSvgText(value) {
     return String(value).replace(/[&<>"']/g, (character) => ({
@@ -469,10 +521,10 @@ var marketDailyUtils = (() => {
   function buildMarketDailyChartSvg(summary, translate = (value) => value, locale = "zh-CN") {
     const text = (value) => escapeSvgText(translate(String(value ?? "")));
     const font = "'Source Han Sans CN', 'Noto Sans CJK SC', 'Noto Sans SC', 'PingFang SC', sans-serif";
-    const charts = buildMarketDailyCharts(summary);
+    const tables = buildMarketDailyTables(summary);
     const laggedRates = summary.rateRows.filter((row) => row.observationDate !== summary.date);
-    if (!charts.length && !laggedRates.length && !summary.secondaryRows.length && !summary.claims.length) return null;
-    let y = 118;
+    if (!tables.length && !laggedRates.length && !summary.secondaryRows.length && !summary.claims.length) return null;
+    let y = 185;
     const parts = [
       `<svg xmlns="http://www.w3.org/2000/svg" width="960" height="__HEIGHT__" viewBox="0 0 960 __HEIGHT__" role="img">`,
       `<title>${text(`${summary.date} \u7F8E\u4E1C\u4EA4\u6613\u65E5\u5E02\u573A\u56FE\u6587\u590D\u76D8`)}</title>`,
@@ -481,27 +533,42 @@ var marketDailyUtils = (() => {
       `<text x="54" y="62" fill="${REPORT_INK}" font-family="sans-serif" font-size="28" font-weight="700">${text(`${summary.date} \u7F8E\u4E1C\u4EA4\u6613\u65E5`)}</text>`,
       `<text x="54" y="91" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="15">${text(`\u7F8E\u80A1\u6536\u76D8\u590D\u76D8${summary.historicalBackfill ? " \xB7 \u4E8B\u540E\u6574\u7406" : ""} \xB7 \u56FE\u89E3\u3001\u89E3\u8BFB\u4E0E\u6765\u6E90`)}</text>`
     ];
-    for (const chart of charts) {
-      parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="19" font-weight="700">${text(`${chart.title}\uFF08${chart.unit}\uFF09`)}</text>`);
-      y += 34;
-      for (const row of chart.rows) {
-        const equity = summary.equityRows.find((item) => row.id === `equity.${item.symbol.toLowerCase()}.change_percent`);
-        const asset = summary.crossAssetRows.find((item) => row.id === `cross_asset.${item.name}.change_percent`);
-        const assetUnit = asset && { "USD/barrel": "\u7F8E\u5143/\u6876", "USD/troy_ounce": "\u7F8E\u5143/\u91D1\u8861\u76CE\u53F8", "USD/bitcoin": "\u7F8E\u5143/BTC" }[asset.priceUnit];
-        const close = equity ? `\u6536\u76D8 ${equity.priceValue.toFixed(2)} \u7F8E\u5143` : asset ? `\u6536\u76D8 ${asset.priceValue.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${assetUnit || asset.priceUnit}` : "";
-        const center = chart.kind === "level" ? 350 : 565;
-        const width = Math.round(row.width * (chart.kind === "level" ? 4.3 : 2.15));
-        const barX = row.side === "negative" ? center - width : center;
-        const color = row.side === "negative" ? "#5c7182" : "#b64d33";
-        parts.push(`<text x="54" y="${y + 5}" fill="${REPORT_INK}" font-family="sans-serif" font-size="16" font-weight="600">${text(row.label)}</text>`);
-        parts.push(`<rect x="350" y="${y - 13}" width="430" height="18" rx="3" fill="${REPORT_TRACK}"/>`);
-        parts.push(`<rect x="${barX}" y="${y - 11}" width="${width}" height="14" rx="2" fill="${color}"/>`);
-        parts.push(`<line x1="${center}" y1="${y - 16}" x2="${center}" y2="${y + 8}" stroke="#5d4c40" stroke-width="1"/>`);
-        parts.push(`<text x="800" y="${y + 5}" fill="${REPORT_INK}" font-family="monospace" font-size="16" font-weight="700">${text(row.valueText)}</text>`);
-        parts.push(`<text x="54" y="${y + 25}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="12">${text(`\u89C2\u6D4B\u65E5 ${row.observationDate}${close ? ` \xB7 ${close}` : ""} \xB7 ${row.sourceLabel}`)}</text>`);
-        y += 58;
+    const labelIndex = locale === "en-US" ? 1 : 0;
+    const label = (key) => US_VALUE_CHANGE_LABELS[key][labelIndex];
+    parts.push(`<rect x="54" y="111" width="14" height="12" fill="#3865b3"/>`);
+    parts.push(`<text x="75" y="123" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label("positive"))}</text>`);
+    parts.push(`<rect x="205" y="111" width="14" height="12" fill="#d0a52f"/>`);
+    parts.push(`<text x="226" y="123" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label("negative"))}</text>`);
+    parts.push(`<text x="54" y="145" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="12">${text(label("scaleNote"))}</text>`);
+    for (const table of tables) {
+      parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="19" font-weight="700">${text(label(table.title))}</text>`);
+      y += 31;
+      parts.push(`<text x="54" y="${y}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label("asset"))}</text>`);
+      parts.push(`<text x="400" y="${y}" text-anchor="end" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label(table.valueHeading))}</text>`);
+      parts.push(`<text x="906" y="${y}" text-anchor="end" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label(table.changeHeading))}</text>`);
+      y += 14;
+      parts.push(`<line x1="54" y1="${y}" x2="906" y2="${y}" stroke="${REPORT_LINE}"/>`);
+      y += 28;
+      const maximum = Math.max(...table.rows.map((row) => Math.abs(row.change?.value ?? 0)), 0);
+      for (const row of table.rows) {
+        const change = row.change;
+        const width = maximum && change ? Math.abs(change.value) / maximum * 156 : 0;
+        const center = 610;
+        const number = row.value ? row.value.value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "\u2014";
+        const valueText = change ? `${change.value > 0 ? "+" : ""}${change.value.toFixed(2)}${table.changeHeading === "yieldChange" ? " bp" : "%"}` : "\u2014";
+        parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="16" font-weight="600">${text(row.label)}</text>`);
+        parts.push(`<text x="400" y="${y}" text-anchor="end" fill="${REPORT_INK}" font-family="monospace" font-size="18" font-weight="700">${text(number)}</text>`);
+        if (row.valueUnit) parts.push(`<text x="400" y="${y + 18}" text-anchor="end" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="11">${text(label(row.valueUnit))}</text>`);
+        parts.push(`<rect x="450" y="${y - 14}" width="320" height="18" fill="${REPORT_TRACK}"/>`);
+        if (width) parts.push(`<rect x="${change.value < 0 ? center - width : center}" y="${y - 12}" width="${width}" height="14" fill="${change.value < 0 ? "#d0a52f" : "#3865b3"}"/>`);
+        parts.push(`<line x1="${center}" y1="${y - 18}" x2="${center}" y2="${y + 8}" stroke="${REPORT_LINE}" stroke-width="1"/>`);
+        parts.push(`<text x="906" y="${y}" text-anchor="end" fill="${REPORT_INK}" font-family="monospace" font-size="16" font-weight="700">${text(valueText)}</text>`);
+        const source = change ?? row.value;
+        if (source) parts.push(`<text x="54" y="${y + 34}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="11">${text(`${label("observed")} ${source.observationDate} \xB7 ${source.sourceLabel}${!row.value || !change ? ` \xB7 ${label("missing")}` : ""}`)}</text>`);
+        y += 64;
+        parts.push(`<line x1="54" y1="${y - 17}" x2="906" y2="${y - 17}" stroke="${REPORT_LINE}"/>`);
       }
-      y += 20;
+      y += 25;
     }
     if (laggedRates.length) {
       parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="19" font-weight="700">${text("\u7F8E\u503A\u8F83\u65E9\u89C2\u6D4B\u503C")}</text>`);
@@ -558,6 +625,6 @@ var marketDailyUtils = (() => {
     const spotVerified = ["close", "change_percent"].every((field) => summary.rows.some((row) => row.id === `cross_asset.bitcoin_spot.${field}`));
     return (summary.optionalGaps ?? []).map(() => `${US_REPORT_LABELS.optionalUnavailable[index]}${US_REPORT_LABELS.btcFuturesGap[index]}${index ? "." : "\u3002"}${spotVerified ? `${index ? " " : ""}${US_REPORT_LABELS.optionalSpotUnaffected[index]}` : ""}`);
   }
-  var market_daily_utils_default = { summarizeMarketDaily, formatMarketDailyStatus, formatMarketDailyRevision, formatMarketDailyDataNotes, buildMarketDailyCharts, buildMarketDailyChartSvg };
+  var market_daily_utils_default = { summarizeMarketDaily, formatMarketDailyStatus, formatMarketDailyRevision, formatMarketDailyDataNotes, buildMarketDailyCharts, buildMarketDailyTables, buildMarketDailyChartSvg };
   return __toCommonJS(market_daily_utils_exports);
 })();

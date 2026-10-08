@@ -182,7 +182,8 @@ test("a verified same-day Treasury level alone still produces a sourced image", 
   const svg = buildMarketDailyChartSvg(summary);
   assert.match(svg, /fill="var\(--report-bg/);
   assert.match(svg, /fill="var\(--report-ink/);
-  assert.match(svg, /4\.25%/);
+  assert.match(svg, /收益率（%）/);
+  assert.match(svg, />4\.25<\/text>/);
   assert.match(svg, /2026-09-24/);
   assert.match(svg, /FRED/);
 });
@@ -202,7 +203,7 @@ test("Treasury yield levels have their own four-tenor percent chart", () => {
     ["10 年期美债收益率水平", "5.17%"], ["30 年期美债收益率水平", "5.49%"],
   ]);
   const svg = buildMarketDailyChartSvg(summary);
-  assert.match(svg, /美债收益率水平（%）/);
+  assert.match(svg, /收益率（%）/);
   assert.match(svg, /观测日 2026-09-25/);
   assert.match(svg, /美国财政部|home\.treasury\.gov/);
   assert.doesNotMatch(svg, /\+4\.81%/);
@@ -220,9 +221,10 @@ test("report image combines charts with verified report prose", () => {
     { claim: "微软上涨 3.7%，与已公布的新功能有关。", evidence_ids: ["reviewed.11"], sources: ["https://example.test/stock"] },
   ], sections: [{ key: "movers", claims: ["reviewed.11"] }] });
   const svg = buildMarketDailyChartSvg(summary);
-  assert.ok(svg.indexOf("四大指数收盘涨跌") < svg.indexOf("美债收益率水平（%）"));
-  assert.ok(svg.indexOf("美债收益率水平（%）") < svg.indexOf("美债收益率当日变动（bp）"));
-  assert.ok(svg.indexOf("美债收益率当日变动（bp）") < svg.indexOf("跨资产日涨跌（%）"));
+  assert.ok(svg.indexOf("四大指数") < svg.indexOf("美国国债"));
+  assert.ok(svg.indexOf("美国国债") < svg.indexOf("跨资产"));
+  assert.match(svg, /收益率（%）/);
+  assert.match(svg, /当日变动（bp）/);
   assert.match(svg, /微软上涨 3\.7%/);
 });
 
@@ -374,9 +376,9 @@ test("market daily accepts same-day Treasury levels and cross-asset futures fact
   assert.equal(summary.crossAssetRows[3].priceValue, 108000);
   assert.equal(summary.rows.some((row) => row.id === "cross_asset.brent.close"), true);
   const svg = buildMarketDailyChartSvg(summary);
-  assert.match(svg, /美债收益率水平（%）/);
-  assert.match(svg, /美债收益率当日变动（bp）/);
-  assert.match(svg, /4\.20%/);
+  assert.match(svg, /收益率（%）/);
+  assert.match(svg, /当日变动（bp）/);
+  assert.match(svg, />4\.20<\/text>/);
   assert.match(svg, /布伦特/);
   assert.match(svg, /黄金/);
   assert.match(svg, /比特币期货/);
@@ -414,7 +416,7 @@ test("dated commodity contracts keep the US report chart visible", () => {
   const summary = summarizeMarketDaily(payload);
   assert.ok(summary);
   assert.equal(summary.crossAssetRows.length, 3);
-  assert.match(buildMarketDailyChartSvg(summary), /跨资产日涨跌/);
+  assert.match(buildMarketDailyChartSvg(summary), /跨资产/);
   const wrongMonth = facts.map((fact) => fact.id.startsWith("cross_asset.brent.")
     ? { ...fact, instrument: "brent (BZZ26.NYM)", source_url: "https://finance.yahoo.com/quote/BZZ26.NYM/history/" } : fact);
   assert.equal(summarizeMarketDaily({ ...payload, facts: wrongMonth }), null);
@@ -452,7 +454,7 @@ test("authorized BTC/USD spot fallbacks retain their own attribution", () => {
     assert.ok(summary);
     assert.equal(summary.crossAssetRows[0].sourceLabel, source);
     assert.equal(summary.crossAssetRows[0].sourceUrl, sourceUrl);
-    assert.match(buildMarketDailyChartSvg(summary), /跨资产日涨跌/);
+    assert.match(buildMarketDailyChartSvg(summary), /跨资产/);
     assert.doesNotMatch(buildMarketDailyChartSvg(summary), /跨资产期货价格/);
     assert.equal(summarizeMarketDaily({ schema_version: "1.0", run_id: "daily-2026-09-24", facts: pair.map((fact) => ({ ...fact, source: "Yahoo Finance" })) }), null);
   }
@@ -590,4 +592,37 @@ test("image discloses lagged Treasury readings without plotting them as same-day
   assert.match(svg, /2 年期美债：4\.25%/);
   assert.match(svg, /观测日 2026-09-24，非报告日/);
   assert.doesNotMatch(svg, /美债收益率水平（%）/);
+});
+
+test('value and change tables preserve closes without mixing levels into return bars', () => {
+  const payload = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '../artifacts/public/data/market_daily_report.json'), 'utf8'));
+  const indices = payload.facts.filter(fact => fact.id.startsWith('index.') && fact.id.endsWith('.change_percent'));
+  assert.equal(indices.length, 4);
+  payload.facts.push(...indices.map((fact, index) => ({ ...fact, id: fact.id.replace('.change_percent', '.close'), metric: 'index_close', unit: 'points', value: 6500 + index * 1000 })));
+  const summary = summarizeMarketDaily(payload);
+  assert.ok(summary);
+  const { buildMarketDailyTables } = require('../src/lib/market-daily-utils.ts');
+  const tables = buildMarketDailyTables(summary);
+  assert.deepEqual(tables.map(table => table.title), ['indices', 'equities', 'treasury', 'crossAssets']);
+  assert.equal(tables[0].rows[0].value.value, 6500);
+  assert.ok(buildMarketDailyCharts(summary)[0].rows.every(row => row.id.endsWith('.change_percent')));
+  for (const [locale, translate, headings] of [
+    ['zh-CN', x => x, ['收盘点位（点）', '收盘价（美元）', '收益率（%）', '当日变动（bp）', '条形以 0 为中心，各分组独立刻度']],
+    ['en-US', toEnglishPresentation, ['Close (points)', 'Close (USD)', 'Yield (%)', 'Daily change (bp)', 'Bars centered on zero; separate scale per group']],
+  ]) {
+    const svg = buildMarketDailyChartSvg(summary, translate, locale);
+    for (const heading of headings) assert.ok(svg.includes(heading));
+    assert.match(svg, /x="400"[^>]*text-anchor="end"[^>]*>6,500\.00/);
+    assert.match(svg, /x1="610"[^>]*x2="610"/);
+    assert.match(svg, /x="906"[^>]*text-anchor="end"/);
+    assert.doesNotMatch(svg, /美债收益率水平（%）/);
+  }
+  for (const change of [{ value: 0 }, { unit: 'percent' }, { metric: 'daily_return' }, { observation_date: '2020-01-01' }, { source_url: 'https://example.test/wrong' }, { instrument: 'wrong-index' }]) {
+    const mutated = structuredClone(payload);
+    Object.assign(mutated.facts.find(fact => fact.id === 'index.spx.close'), change);
+    assert.equal(summarizeMarketDaily(mutated), null);
+  }
+  const missing = summarizeMarketDaily({ ...payload, facts: payload.facts.filter(fact => !fact.id.startsWith('index.') || !fact.id.endsWith('.close')) });
+  assert.ok(buildMarketDailyTables(missing)[0].rows.every(row => row.value === undefined));
+  assert.match(buildMarketDailyChartSvg(missing), /x="400"[^>]*>—<\/text>/);
 });

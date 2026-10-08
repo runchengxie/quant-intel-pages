@@ -168,3 +168,17 @@ export const US_STATUS_LABELS = {
   research: { reviewed: ['研究已审核', 'Research reviewed'], not_included: ['研究未接入', 'Research not included'], unknown: ['研究状态未知', 'Research status unknown'] },
   publication: { published: ['已发布', 'Published'], unknown: ['发布状态未知', 'Publication status unknown'] },
 } as const;
+
+export const US_VALUE_CHANGE_LABELS = {
+  indices: ['四大指数', 'Major indices'], equities: ['美股个股', 'U.S. equities'],
+  treasury: ['美国国债', 'U.S. Treasuries'], crossAssets: ['跨资产', 'Cross assets'],
+  asset: ['标的', 'Asset'], indexClose: ['收盘点位（点）', 'Close (points)'],
+  equityClose: ['收盘价（美元）', 'Close (USD)'], yieldLevel: ['收益率（%）', 'Yield (%)'],
+  assetClose: ['收盘价', 'Close'], dailyReturn: ['当日涨跌（%）', 'Daily change (%)'],
+  yieldChange: ['当日变动（bp）', 'Daily change (bp)'],
+  scaleNote: ['条形以 0 为中心，各分组独立刻度', 'Bars centered on zero; separate scale per group'],
+  positive: ['上涨 / 上行', 'Up'], negative: ['下跌 / 下行', 'Down'],
+  missing: ['缺项', 'Missing'], observed: ['观测日', 'Observed'],
+  'USD/barrel': ['美元/桶', 'USD/barrel'], 'USD/troy_ounce': ['美元/金衡盎司', 'USD/troy oz'],
+  'USD/bitcoin': ['美元/BTC', 'USD/BTC'],
+} as const;
