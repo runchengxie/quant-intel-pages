@@ -1,0 +1,95 @@
+美股市场日报｜2026-10-08 美东报告日
+报告生成时间：2026-10-08T22:30:59.322501+00:00；逐项显示原始观测日。
+
+一、美股市场表现
+- 标普 500 收盘：7765.36 点（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/%5EGSPC/history/
+- 道指收盘：51231.64 点（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/%5EDJI/history/
+- 纳指收盘：27193.34 点（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/%5EIXIC/history/
+- 罗素 2000 收盘：2794.13 点（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/%5ERUT/history/
+- 标普 500 日涨跌：-0.47%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/%5EGSPC/history/
+- 道指日涨跌：+0.10%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/%5EDJI/history/
+- 纳指日涨跌：-1.25%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/%5EIXIC/history/
+- 罗素 2000 日涨跌：+0.03%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/%5ERUT/history/
+
+二、重点个股
+- MSFT：522.61 美元，-1.35%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/MSFT/history/
+- AAPL：340.42 美元，+1.11%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/AAPL/history/
+- NVDA：230.48 美元，-2.94%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/NVDA/history/
+- AMZN：254.06 美元，-2.25%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/AMZN/history/
+- GOOGL：348.29 美元，-0.63%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/GOOGL/history/
+- META：720.89 美元，-0.06%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/META/history/
+- 暂无经核实内容。
+
+三、美债收益率
+- 2 年期美债收益率日变动：-2.00 bp（观测日 2026-10-08）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 5 年期美债收益率日变动：-4.00 bp（观测日 2026-10-08）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 10 年期美债收益率日变动：-6.00 bp（观测日 2026-10-08）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 30 年期美债收益率日变动：-7.00 bp（观测日 2026-10-08）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 2 年期美债收益率水平：4.75%（观测日 2026-10-08）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 5 年期美债收益率水平：4.99%（观测日 2026-10-08）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 10 年期美债收益率水平：5.22%（观测日 2026-10-08）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 30 年期美债收益率水平：5.60%（观测日 2026-10-08）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+
+四、跨资产行情
+- 布伦特期货收盘：103.64 美元/桶（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/BZZ26.NYM/history/
+- 布伦特日涨跌：+3.43%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/BZZ26.NYM/history/
+- COMEX 黄金期货收盘：4161.40 美元/金衡盎司（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/GCZ26.CMX/history/
+- 黄金日涨跌：+0.50%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/GCZ26.CMX/history/
+- COMEX 白银期货收盘：59.59 美元/金衡盎司（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/SIZ26.CMX/history/
+- 白银日涨跌：-1.17%（观测日 2026-10-08）
+  来源：https://finance.yahoo.com/quote/SIZ26.CMX/history/
+- BTC/USD 现货收盘：81725.00 美元/BTC（观测日 2026-10-08）
+  来源：https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full
+- BTC/USD 现货日涨跌：-1.86%（观测日 2026-10-08）
+  来源：https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full
+
+五、市场驱动因素
+- 暂无经核实内容。
+
+六、经济数据与美联储动态
+- CPI 同比：3.40%（观测日 2026-08-01）
+  来源：https://fred.stlouisfed.org/series/CPIAUCNS
+- PCE 同比：3.42%（观测日 2026-08-01）
+  来源：https://fred.stlouisfed.org/series/PCEPI
+- 失业率：4.20%（观测日 2026-09-01）
+  来源：https://fred.stlouisfed.org/series/UNRATE
+- 非农就业月变动：29.00 千人（观测日 2026-09-01）
+  来源：https://fred.stlouisfed.org/series/PAYEMS
+
+七、公司新闻
+- 暂无经核实内容。
+
+
+尚缺：研究解释。
+
+数据说明
+可选数据未提供：比特币期货行情。
+
+风险提示：市场有风险，投资需谨慎。
