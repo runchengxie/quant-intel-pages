@@ -72,3 +72,13 @@ test('English explanatory clauses translate before SVG line wrapping', () => {
   assert.match(svg, /Heat, fragility/);
   assert.doesNotMatch(svg, /热度|映射仓位|交易指令/);
 });
+
+
+test('Asian interpretation uses exact catalog translation and leaves unknown research in its source', () => {
+  const { asiaResearchPresentation } = require('../src/lib/english-content.ts');
+  const { ASIA_RESEARCH_TRANSLATIONS } = require('../src/lib/locale.ts');
+  const [source, translation] = ASIA_RESEARCH_TRANSLATIONS.postHolidayCool;
+  assert.equal(asiaResearchPresentation(source).trim(), translation);
+  assert.equal(asiaResearchPresentation('未知的新研究结论，市场状态仍待核对。'), null);
+  assert.equal(present('未知公司名称'), '未知公司名称');
+});
