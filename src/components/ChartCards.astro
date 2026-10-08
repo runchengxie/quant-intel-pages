@@ -3,7 +3,7 @@ import { loadChart } from '../lib/reports.ts';
 import ChartIsland from './ChartIsland.tsx';
 import { toEnglishPresentation } from '../lib/english-content.ts';
 
-const { reportId, locale = 'zh' } = Astro.props;
+const { reportId, locale = 'zh', interactive = true } = Astro.props;
 const cards = loadChart(reportId).filter((card) => card.key !== 'us_overnight');
 const present = (value) => locale === 'en' ? toEnglishPresentation(String(value || '')) : value;
 const formatValue = (point) => `${Number(point.value).toLocaleString(locale === 'en' ? 'en-US' : 'zh-CN', { maximumFractionDigits: 2 })} ${present(point.unit)}`;
@@ -22,7 +22,7 @@ const labels = locale === 'en'
           <span class:list={['status-pill', card.status]}>{labels.status[card.status] || labels.status.missing}</span>
         </div>
         {card.reason && <p class="chart-reason">{present(card.reason)}</p>}
-        {card.points.length > 0 && <ChartIsland reportId={reportId} chartKey={card.key} locale={locale} client:visible />}
+        {interactive && card.points.length > 0 && <ChartIsland reportId={reportId} chartKey={card.key} locale={locale} client:visible />}
         {card.points.length > 0 && (
           <details class="chart-values">
             <summary>{labels.values}</summary>
