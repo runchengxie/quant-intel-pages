@@ -1,12 +1,14 @@
 {
   "schema_version": "market_intel_pages.insights.v1",
   "generation": {
-    "status": "generated",
+    "status": "unavailable",
     "provider": "deepseek",
     "model": "deepseek-chat",
-    "checked_at": "2026-10-08T18:45:18+08:00",
-    "target_date": "2026-10-08",
-    "analysis_attempts": 3
+    "checked_at": "2026-10-09T18:45:18+08:00",
+    "target_date": "2026-10-09",
+    "analysis_attempts": 3,
+    "error_type": "ValueError",
+    "error_code": "analysis_claim_count_invalid"
   },
   "insights": [
     {
