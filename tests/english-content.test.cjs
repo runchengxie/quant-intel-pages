@@ -31,6 +31,7 @@ test('English presentation does not split company names into translated characte
 test('compound metrics and state grades translate as complete terms', () => {
   assert.equal(present('上涨率 46.2%；个股中位涨跌 -0.1%'), 'Advancing share 46.2%; Median stock return -0.1%');
   assert.equal(present('中性偏冷'), 'Neutral to cool');
+  assert.equal(present('市场状态偏热；上涨率 59.3%。').trimEnd(), 'Market state: hot; Advancing share 59.3%.');
   assert.equal(present('偏弱'), 'Somewhat weak');
   assert.equal(present('已核实'), 'Verified');
   assert.equal(present('部分缺项'), 'Degraded');
