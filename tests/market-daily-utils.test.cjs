@@ -598,6 +598,9 @@ test('value and change tables preserve closes without mixing levels into return 
   const payload = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '../artifacts/public/data/market_daily_report.json'), 'utf8'));
   const indices = payload.facts.filter(fact => fact.id.startsWith('index.') && fact.id.endsWith('.change_percent'));
   assert.equal(indices.length, 4);
+  // This test injects fixed close values below. Keep it independent of whether
+  // the current published report already contains index closes.
+  payload.facts = payload.facts.filter(fact => !(fact.id.startsWith('index.') && fact.id.endsWith('.close')));
   payload.facts.push(...indices.map((fact, index) => ({ ...fact, id: fact.id.replace('.change_percent', '.close'), metric: 'index_close', unit: 'points', value: 6500 + index * 1000 })));
   const summary = summarizeMarketDaily(payload);
   assert.ok(summary);
