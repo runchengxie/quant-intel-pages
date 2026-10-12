@@ -11,7 +11,7 @@ Requirements: Python 3.11, Node.js 24, npm, uv, and the `market-export-site-snap
 ```bash
 uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@118ab01cf7f153bf09e0de25ceb4433100e42d7d"
 npm ci
-python -m pip install --group dev
+uv sync --locked --group dev --no-install-project
 preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)
 python3 scripts/build_site.py --output "$preview_root/quant-intel-pages"
 python3 -m http.server 8000 --directory "$preview_root"
@@ -34,3 +34,7 @@ The website presents market completeness, research inclusion, and publication as
 The U.S. report image shows each asset’s close or yield in one aligned value column beside its daily change. Change bars center on zero and use an independent scale per group; Treasury yield levels and basis-point changes share a row. Missing historical index closes remain explicit blanks.
 
 Asian interpretation text uses source-bound English catalog translations. When a translation is unavailable, the English homepage labels the gap and links to the preserved Chinese interpretation and its evidence.
+
+## Language behavior
+
+The homepage defaults to English at `/en/`. Select Chinese with `/?locale=zh-CN`; other homepage locale query values use English. Report pages have separate `/en/reports/<id>/` and `/reports/<id>/` routes. Language links preserve the report identity. Downloads retain source data, evidence IDs, hashes, and timestamps across languages. Missing English interpretation translations show an explicit notice and retain access to source-language evidence.
