@@ -11,7 +11,7 @@
 ```bash
 uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@118ab01cf7f153bf09e0de25ceb4433100e42d7d"
 npm ci
-python -m pip install --group dev
+uv sync --locked --group dev --no-install-project
 preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)
 python3 scripts/build_site.py --output "$preview_root/quant-intel-pages"
 python3 -m http.server 8000 --directory "$preview_root"
@@ -34,3 +34,7 @@ python3 -m http.server 8000 --directory "$preview_root"
 美股报告图片将收盘价或收益率放在统一对齐的数值列，与当日变化并排展示。变化条形以零为中心，各分组使用独立刻度；美债收益率与基点变化合并在同一行。历史报告缺少指数收盘点位时明确显示缺项。
 
 亚洲市场解读使用与原文绑定的英文目录译文。缺少译文时，英文首页明确提示，并链接到保留的中文解读及依据。
+
+## 语言行为
+
+首页默认使用 `/en/` 英文页面，通过 `/?locale=zh-CN` 选择中文。首页其他 locale 参数值使用英文。报告页面分别使用 `/en/reports/<id>/` 和 `/reports/<id>/`，语言切换链接保留报告标识。不同语言的下载保留相同的来源数据、证据 ID、哈希和时间戳。英文解读缺少译文时明确提示，并保留来源语言的依据入口。

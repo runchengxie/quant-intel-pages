@@ -70,3 +70,18 @@ test('optional loader is offline, rejects traversal, and reads only matching rep
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+
+test('locale presentation preserves validated evidence and source artifact identity', async () => {
+  const { validateAsiaNews, newsPresentation } = await import('../src/lib/asia-news.ts');
+  const value = validateAsiaNews(await payload(), '2026-09-30-evening', markdown);
+  const before = structuredClone(value);
+  const item = value.markets.cn[0];
+  const english = newsPresentation(item, 'en-US');
+  const chinese = newsPresentation(item, 'zh-CN');
+  assert.equal(english.href, chinese.href);
+  assert.equal(english.timezone, chinese.timezone);
+  assert.equal(english.claim, item.claim_en);
+  assert.equal(chinese.claim, item.claim);
+  assert.deepEqual(value, before);
+});
