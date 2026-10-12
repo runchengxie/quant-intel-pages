@@ -4,11 +4,11 @@
     "status": "unavailable",
     "provider": "deepseek",
     "model": "deepseek-chat",
-    "checked_at": "2026-10-09T18:45:18+08:00",
-    "target_date": "2026-10-09",
+    "checked_at": "2026-10-12T20:42:04+08:00",
+    "target_date": "2026-10-12",
     "analysis_attempts": 3,
     "error_type": "ValueError",
-    "error_code": "analysis_claim_count_invalid"
+    "error_code": "analysis_schema_invalid"
   },
   "insights": [
     {
