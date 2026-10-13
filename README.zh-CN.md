@@ -44,3 +44,5 @@ python3 -m http.server 8000 --directory "$preview_root"
 当前前端库和 React 图表组件已使用 TypeScript。四个报告路由的图片下载控件共用严格类型检查的模块和 locale 文案；`npm run check` 也检查 `ChartCards.astro`。
 
 `src/legacy/` 和 `src/lib/market-daily-utils.js` 仍作为兼容浏览器的备用页面脚本发布，迁移时必须保留脚本 URL 和浏览器全局接口。所有自有 Astro 页面已纳入严格类型检查。Insight 展示字段在 JSON 边界校验，来源身份、哈希和证据保持语言无关。生成文件和已安装的 Platform CLI 则按各自边界单独排除。
+
+三个 legacy 工具模块以 `src/legacy-source/` 中的严格检查 TypeScript 为准。修改这些模块或 `market-daily-utils.ts` 后运行 `npm run legacy:build`；`npm run check` 会拒绝过期的兼容产物。生成 JS 保留原有 URL、浏览器全局和 CommonJS 导出。备用页面控制器（`src/legacy/app.js`）仍使用 JavaScript。

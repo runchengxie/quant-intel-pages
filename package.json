@@ -6,9 +6,11 @@
   },
   "scripts": {
     "build": "astro build",
-    "check": "astro check",
+    "check": "npm run legacy:check && astro check",
     "test": "tsx --test tests/*.cjs",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "legacy:build": "tsx tools/generate-legacy.ts",
+    "legacy:check": "tsx tools/generate-legacy.ts --check"
   },
   "dependencies": {
     "@astrojs/react": "7.0.0",
@@ -25,6 +27,7 @@
     "@types/node": "^26.6.3",
     "@types/sanitize-html": "^2.16.2",
     "tsx": "^4.23.15",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "esbuild": "0.28.2"
   }
 }

@@ -1,3 +1,4 @@
+// Generated from TypeScript by npm run legacy:build; do not edit.
 "use strict";
 var marketDailyUtils = (() => {
   var __defProp = Object.defineProperty;
@@ -41,6 +42,14 @@ var marketDailyUtils = (() => {
 
   // src/lib/locale.ts
   var US_REPORT_LABELS = {
+    treasuryEvidenceCutoff: ["\u7F8E\u503A\u53C2\u8003\u503C\u6838\u9A8C\u622A\u81F3\uFF08\u7F8E\u4E1C\uFF09", "Treasury reference checked through (ET)"],
+    treasuryClosedReference: ["\u7F8E\u503A\u4F11\u5E02\uFF1B\u53C2\u8003\u6536\u76CA\u7387\u622A\u81F3", "Treasury market closed; reference yields as of"],
+    lastSessionChange: ["\u6700\u8FD1\u4EA4\u6613\u65E5\u53D8\u52A8", "Last-session change"],
+    treasuryHolidayReason: ["\u7F8E\u503A\u4F11\u5E02\uFF0C\u5C55\u793A\u6700\u8FD1\u4EA4\u6613\u65E5\u53C2\u8003\u503C\u53CA\u8BE5\u4EA4\u6613\u65E5\u53D8\u52A8", "Treasury market closed; values and changes refer to the last trading session"],
+    treasuryExpectedFresh: ["\u5E94\u6709\u89C2\u6D4B\u65E5\u6570\u636E\u9F50\u5168", "Expected observation data is complete"],
+    treasuryObservationStale: ["\u5C1A\u672A\u53D6\u5F97\u5E94\u6709\u89C2\u6D4B\u65E5\u6570\u636E", "Expected observation data is unavailable"],
+    treasuryReferenceDate: ["\u53C2\u8003\u89C2\u6D4B\u65E5", "Reference observation date"],
+    treasuryLastSessionYieldChange: ["\u6536\u76CA\u7387\u6700\u8FD1\u4EA4\u6613\u65E5\u53D8\u52A8", "yield last-session change"],
     btcSpotGap: ["\u6BD4\u7279\u5E01\u73B0\u8D27\u884C\u60C5", "Bitcoin spot prices"],
     btcFuturesGap: ["\u6BD4\u7279\u5E01\u671F\u8D27\u884C\u60C5", "Bitcoin futures prices"],
     optionalUnavailable: ["\u53EF\u9009\u6570\u636E\u672A\u63D0\u4F9B\uFF1A", "Optional data unavailable: "],
@@ -218,7 +227,7 @@ var marketDailyUtils = (() => {
       return false;
     }
   }
-  function validMarketDailyFact(id, fact, reportDate) {
+  function validMarketDailyFact(id, fact, reportDate, rates) {
     const url = fact.source_url ?? "";
     const equity = id.match(EQUITY_ID);
     if (equity) {
@@ -237,7 +246,8 @@ var marketDailyUtils = (() => {
       const expectedMetric = isLevel ? "yield_level" : "yield_change";
       const fresh = fact.observation_date === reportDate && ["ok", "reviewed"].includes(fact.quality);
       const lagged = fact.observation_date < reportDate && fact.quality === "lagged";
-      return fact.unit === expectedUnit && fact.metric === expectedMetric && (TREASURY_SOURCE.test(url) && fresh || FRED_SOURCE.test(url) && (fresh || lagged));
+      const reference = lagged && rates?.reason === "holiday_reference" && rates.session === "closed" && rates.expected_observation_date === fact.observation_date && rates.observation_date === fact.observation_date && /^sifma\.us-bonds\.\d{4}-\d{4}\.v1$/.test(rates.calendar_version ?? "") && rates.calendar_source === "https://www.sifma.org/resources/general/holiday-schedule";
+      return fact.unit === expectedUnit && fact.metric === expectedMetric && (TREASURY_SOURCE.test(url) && (fresh || reference) || FRED_SOURCE.test(url) && (fresh || lagged));
     }
     if (id.startsWith("cross_asset.")) {
       const [, asset, field] = id.split(".");
@@ -267,7 +277,7 @@ var marketDailyUtils = (() => {
       const isIndex = id.startsWith("index.");
       const isTreasury = id.startsWith("treasury.");
       const isCrossAsset = id.startsWith("cross_asset.");
-      if (typeof fact.value !== "number" || !Number.isFinite(fact.value) || !/^\d{4}-\d{2}-\d{2}$/.test(fact.observation_date ?? "") || !validMarketDailyFact(id, fact, date)) return null;
+      if (typeof fact.value !== "number" || !Number.isFinite(fact.value) || !/^\d{4}-\d{2}-\d{2}$/.test(fact.observation_date ?? "") || !validMarketDailyFact(id, fact, date, payload.source_status?.rates)) return null;
       const sourceUrl = fact.source_url;
       rows.push({
         id,
@@ -398,7 +408,12 @@ var marketDailyUtils = (() => {
     const primaryClaims = claimSections.filter((section) => ["market", "drivers", "movers"].includes(section.key)).map((section) => ({ ...section, claims: section.claims.slice(0, 3) }));
     const secondaryClaimSections = claimSections.filter((section) => !["drivers", "movers"].includes(section.key));
     const secondaryRows = rows.filter((row) => row.id.startsWith("macro."));
+    const treasuryReferenceDate = payload.source_status?.rates?.reason === "holiday_reference" && rateRows.length > 0 && rateRows.every((row) => row.observationDate === payload.source_status?.rates?.expected_observation_date) ? payload.source_status.rates.expected_observation_date : void 0;
+    const checked = payload.source_status?.rates?.reference_rechecked_at;
+    const treasuryReferenceCheckedAt = treasuryReferenceDate && typeof checked === "string" && /(Z|[+-]\d{2}:\d{2})$/.test(checked) && Number.isFinite(Date.parse(checked)) ? checked : void 0;
     return {
+      treasuryReferenceCheckedAt,
+      treasuryReferenceDate,
       date,
       rows,
       rateRows,
@@ -571,12 +586,17 @@ var marketDailyUtils = (() => {
       y += 25;
     }
     if (laggedRates.length) {
-      parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="19" font-weight="700">${text("\u7F8E\u503A\u8F83\u65E9\u89C2\u6D4B\u503C")}</text>`);
+      parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="19" font-weight="700">${text(summary.treasuryReferenceDate ? `${US_REPORT_LABELS.treasuryClosedReference[locale === "en-US" ? 1 : 0]} ${summary.treasuryReferenceDate}` : "\u7F8E\u503A\u8F83\u65E9\u89C2\u6D4B\u503C")}</text>`);
       y += 30;
+      if (summary.treasuryReferenceCheckedAt) {
+        const checkedText = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "America/New_York" }).format(new Date(summary.treasuryReferenceCheckedAt));
+        parts.push(`<text x="54" y="${y}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(`${US_REPORT_LABELS.treasuryEvidenceCutoff[locale === "en-US" ? 1 : 0]} ${checkedText}`)}</text>`);
+        y += 27;
+      }
       for (const row of laggedRates) {
         const level = row.levelValue === null ? "\u6536\u76CA\u7387\u6682\u7F3A" : `${row.levelValue.toFixed(2)}%`;
         const change = row.changeValue === null ? "\u65E5\u53D8\u52A8\u6682\u7F3A" : `${row.changeValue >= 0 ? "+" : ""}${row.changeValue.toFixed(2)} bp`;
-        parts.push(`<text x="54" y="${y}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="14">${text(`${row.label}\uFF1A${level} \xB7 ${change} \xB7 \u89C2\u6D4B\u65E5 ${row.observationDate}\uFF0C\u975E\u62A5\u544A\u65E5`)}</text>`);
+        parts.push(`<text x="54" y="${y}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="14">${text(`${row.label}\uFF1A${level} \xB7 ${summary.treasuryReferenceDate ? US_REPORT_LABELS.lastSessionChange[locale === "en-US" ? 1 : 0] + " " : ""}${change} \xB7 \u89C2\u6D4B\u65E5 ${row.observationDate}\uFF0C\u975E\u62A5\u544A\u65E5`)}</text>`);
         y += 27;
       }
       y += 12;
@@ -628,3 +648,5 @@ var marketDailyUtils = (() => {
   var market_daily_utils_default = { summarizeMarketDaily, formatMarketDailyStatus, formatMarketDailyRevision, formatMarketDailyDataNotes, buildMarketDailyCharts, buildMarketDailyTables, buildMarketDailyChartSvg };
   return __toCommonJS(market_daily_utils_exports);
 })();
+if (typeof module !== "undefined" && module.exports) module.exports = marketDailyUtils;
+if (typeof window !== "undefined") window.marketDailyUtils = marketDailyUtils;

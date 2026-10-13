@@ -44,3 +44,5 @@ The homepage defaults to English at `/en/`. Select Chinese with `/?locale=zh-CN`
 The active frontend libraries and React chart island use TypeScript. Report image controls share a typed module and locale catalog across the four report routes. `npm run check` also checks `ChartCards.astro`.
 
 The JavaScript in `src/legacy/` and `src/lib/market-daily-utils.js` remains a browser-compatible fallback published by the snapshot/build adapter. Converting those files requires preserving their script URLs and browser globals. All authored Astro pages are included in strict checking. Insight presentation fields are validated at the JSON boundary; source identities, hashes and evidence remain language-neutral. Generated output and the installed Platform CLI are excluded separately.
+
+Three legacy utility modules are authored in `src/legacy-source/` as strictly checked TypeScript. Run `npm run legacy:build` after changing them or `market-daily-utils.ts`; `npm run check` rejects stale compatibility bundles. Generated JS retains the existing URLs, browser globals and CommonJS exports. The legacy page controller (`src/legacy/app.js`) remains JavaScript.
