@@ -595,7 +595,29 @@ test("image discloses lagged Treasury readings without plotting them as same-day
 });
 
 test('value and change tables preserve closes without mixing levels into return bars', () => {
-  const payload = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '../artifacts/public/data/market_daily_report.json'), 'utf8'));
+  // Table layout needs all groups; published reports may legitimately omit
+  // same-day Treasury readings. Keep this rendering fixture independent of them.
+  const observation_date = '2026-09-24';
+  const base = { observation_date, quality: 'ok', source: 'Yahoo Finance' };
+  const treasuryUrl = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202609?_format=csv&field_tdr_date_value_month=202609&page=&type=daily_treasury_yield_curve';
+  const payload = { schema_version: '1.0', run_id: `daily-${observation_date}`, facts: [
+    ...[['spx', '%5EGSPC'], ['dow', '%5EDJI'], ['nasdaq', '%5EIXIC'], ['russell2000', '%5ERUT']].map(([key, ticker]) => ({
+      ...base, id: `index.${key}.change_percent`, metric: 'daily_return', unit: 'percent', value: 1,
+      source_url: `https://finance.yahoo.com/quote/${ticker}/history/`,
+    })),
+    ...[{ id: 'equity.aapl.close', metric: 'stock_close', unit: 'USD/share', value: 200 },
+      { id: 'equity.aapl.change_percent', metric: 'daily_return', unit: 'percent', value: 1 }].map(fact => ({
+      ...base, ...fact, instrument: 'AAPL', source_url: 'https://finance.yahoo.com/quote/AAPL/history/',
+    })),
+    ...[{ id: 'treasury.10y.level_percent', metric: 'yield_level', unit: 'percent', value: 4.2 },
+      { id: 'treasury.10y.change_bp', metric: 'yield_change', unit: 'basis_points', value: 7 }].map(fact => ({
+      ...base, ...fact, source: 'US Treasury', source_url: treasuryUrl,
+    })),
+    ...[{ id: 'cross_asset.gold.close', metric: 'commodity_close', unit: 'USD/troy_ounce', value: 3900 },
+      { id: 'cross_asset.gold.change_percent', metric: 'daily_return', unit: 'percent', value: 1 }].map(fact => ({
+      ...base, ...fact, source_url: 'https://finance.yahoo.com/quote/GC%3DF/history/',
+    })),
+  ] };
   const indices = payload.facts.filter(fact => fact.id.startsWith('index.') && fact.id.endsWith('.change_percent'));
   assert.equal(indices.length, 4);
   // This test injects fixed close values below. Keep it independent of whether
