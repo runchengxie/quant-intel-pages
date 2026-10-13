@@ -1,6 +1,6 @@
 import { isMarketDailyPayload } from './market-facts.ts';
 import { US_REPORT_LABELS, US_VALUE_CHANGE_LABELS, usResearchText, type Locale } from './locale.ts';
-import type { MarketClaimSummary, MarketDailyChart, MarketDailyPayload, MarketDailyRow, MarketDailySummary, MarketEventEvidence } from './market-facts.ts';
+import type { MarketClaimSummary, MarketDailyChart, MarketDailyPayload, MarketDailyRow, MarketDailySummary, MarketEventEvidence, MarketSourceStatus } from './market-facts.ts';
 
 const MARKET_DAILY_FACTS = [
   ["index.spx.close", "标普 500 收盘", " 点"],
@@ -99,7 +99,7 @@ function validHttpSource(sourceUrl: string): boolean {
   }
 }
 
-function validMarketDailyFact(id: string, fact: MarketDailyPayload['facts'][number], reportDate: string): boolean {
+function validMarketDailyFact(id: string, fact: MarketDailyPayload['facts'][number], reportDate: string, rates?: MarketSourceStatus): boolean {
   const url = fact.source_url ?? "";
   const equity = id.match(EQUITY_ID);
   if (equity) {
@@ -132,9 +132,14 @@ function validMarketDailyFact(id: string, fact: MarketDailyPayload['facts'][numb
     const expectedMetric = isLevel ? "yield_level" : "yield_change";
     const fresh = fact.observation_date === reportDate && ["ok", "reviewed"].includes(fact.quality);
     const lagged = fact.observation_date < reportDate && fact.quality === "lagged";
+    const reference = lagged && rates?.reason === 'holiday_reference' && rates.session === 'closed'
+      && rates.expected_observation_date === fact.observation_date
+      && rates.observation_date === fact.observation_date
+      && /^sifma\.us-bonds\.\d{4}-\d{4}\.v1$/.test(rates.calendar_version ?? '')
+      && rates.calendar_source === 'https://www.sifma.org/resources/general/holiday-schedule';
     return fact.unit === expectedUnit
       && fact.metric === expectedMetric
-      && ((TREASURY_SOURCE.test(url) && fresh) || (FRED_SOURCE.test(url) && (fresh || lagged)));
+      && ((TREASURY_SOURCE.test(url) && (fresh || reference)) || (FRED_SOURCE.test(url) && (fresh || lagged)));
   }
   if (id.startsWith("cross_asset.")) {
     const [, asset, field] = id.split(".");
@@ -183,7 +188,7 @@ export function summarizeMarketDaily(payload: unknown): MarketDailySummary | nul
     const isCrossAsset = id.startsWith("cross_asset.");
     if (typeof fact.value !== "number" || !Number.isFinite(fact.value)
         || !/^\d{4}-\d{2}-\d{2}$/.test(fact.observation_date ?? "")
-        || !validMarketDailyFact(id, fact, date)) return null;
+        || !validMarketDailyFact(id, fact, date, payload.source_status?.rates)) return null;
     const sourceUrl = fact.source_url;
     rows.push({
       id,
@@ -319,7 +324,13 @@ export function summarizeMarketDaily(payload: unknown): MarketDailySummary | nul
   const secondaryClaimSections = claimSections
     .filter((section) => !["drivers", "movers"].includes(section.key));
   const secondaryRows = rows.filter((row) => row.id.startsWith("macro."));
-  return { date, rows, rateRows, crossAssetRows, equityRows, claims, claimSections, primaryClaims,
+  const treasuryReferenceDate = payload.source_status?.rates?.reason === 'holiday_reference'
+    && rateRows.length > 0 && rateRows.every(row => row.observationDate === payload.source_status?.rates?.expected_observation_date)
+    ? payload.source_status.rates.expected_observation_date : undefined;
+  const checked = payload.source_status?.rates?.reference_rechecked_at;
+  const treasuryReferenceCheckedAt = treasuryReferenceDate && typeof checked === 'string'
+    && /(Z|[+-]\d{2}:\d{2})$/.test(checked) && Number.isFinite(Date.parse(checked)) ? checked : undefined;
+  return { treasuryReferenceCheckedAt, treasuryReferenceDate, date, rows, rateRows, crossAssetRows, equityRows, claims, claimSections, primaryClaims,
     secondaryClaimSections, secondaryRows, gaps, optionalGaps, hasTextReport,
     nextMorningRevision: payload.quality_summary?.revision === "next_morning_rechecked",
     historicalBackfill: payload.quality_summary?.revision === "historical_backfill" || (payload.quality_summary?.revision === 'news_only' && payload.quality_summary.market_revision === 'historical_backfill'),
@@ -495,12 +506,17 @@ export function buildMarketDailyChartSvg(summary: MarketDailySummary, translate:
     y += 25;
   }
   if (laggedRates.length) {
-    parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="19" font-weight="700">${text('美债较早观测值')}</text>`);
+    parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="19" font-weight="700">${text(summary.treasuryReferenceDate ? `${US_REPORT_LABELS.treasuryClosedReference[locale === 'en-US' ? 1 : 0]} ${summary.treasuryReferenceDate}` : '美债较早观测值')}</text>`);
     y += 30;
+    if (summary.treasuryReferenceCheckedAt) {
+      const checkedText = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/New_York' }).format(new Date(summary.treasuryReferenceCheckedAt));
+      parts.push(`<text x="54" y="${y}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(`${US_REPORT_LABELS.treasuryEvidenceCutoff[locale === 'en-US' ? 1 : 0]} ${checkedText}`)}</text>`);
+      y += 27;
+    }
     for (const row of laggedRates) {
       const level = row.levelValue === null ? "收益率暂缺" : `${row.levelValue.toFixed(2)}%`;
       const change = row.changeValue === null ? "日变动暂缺" : `${row.changeValue >= 0 ? "+" : ""}${row.changeValue.toFixed(2)} bp`;
-        parts.push(`<text x="54" y="${y}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="14">${text(`${row.label}：${level} · ${change} · 观测日 ${row.observationDate}，非报告日`)}</text>`);
+        parts.push(`<text x="54" y="${y}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="14">${text(`${row.label}：${level} · ${summary.treasuryReferenceDate ? US_REPORT_LABELS.lastSessionChange[locale === 'en-US' ? 1 : 0] + ' ' : ''}${change} · 观测日 ${row.observationDate}，非报告日`)}</text>`);
       y += 27;
     }
     y += 12;

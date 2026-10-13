@@ -24,6 +24,12 @@ export interface MarketSection {
 }
 
 export interface MarketSourceStatus {
+  session?: string;
+  expected_observation_date?: string;
+  observation_date?: string;
+  calendar_version?: string;
+  calendar_source?: string;
+  reference_rechecked_at?: string;
   quality?: FactQuality;
   reason?: string;
   reviewed_movers?: Array<{ ticker: string; evidence_id: string }>;
@@ -94,6 +100,8 @@ export interface MarketClaimSection {
 }
 
 export interface MarketDailySummary {
+  treasuryReferenceDate?: string;
+  treasuryReferenceCheckedAt?: string;
   date: string;
   rows: MarketDailyRow[];
   rateRows: Array<{
