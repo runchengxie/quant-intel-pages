@@ -11,6 +11,7 @@ import marketDailyUtils from '../../lib/market-daily-utils.ts';
 import { buildAsiaReportSvg } from '../../lib/asia-report-image.ts';
 import { localePath, US_REPORT_LABELS, ASIA_RESEARCH_LABELS } from '../../lib/locale.ts';
 import { toEnglishPresentation, asiaResearchPresentation } from '../../lib/english-content.ts';
+import type { Evidence } from '../../lib/insights.ts';
 import { publicReportIdentity } from '../../lib/report-image-identity.ts';
 
 const labels = Object.fromEntries(Object.entries(US_REPORT_LABELS).map(([key, pair]) => [key, pair[1]]));
@@ -25,7 +26,7 @@ const latestEveningDate = latestEvening?.date;
 const eveningHistory = reports.filter((row) => row.kind === 'evening' && row.date >= VISUAL_REPORT_START_DATE && row.id !== latestEvening?.id);
 const latestEveningMarkdown = latestEvening ? loadMarkdown(latestEvening) : null;
 const latestEveningContentHash = latestEvening ? publicReportIdentity(latestEvening) : null;
-const asiaReportSvg = latestEvening && latestEveningMarkdown ? toEnglishPresentation(buildAsiaReportSvg(latestEvening, loadChart(latestEvening.id), latestEveningMarkdown, toEnglishPresentation, 'en-US')) : null;
+const asiaReportSvg = latestEvening && latestEveningMarkdown ? toEnglishPresentation(buildAsiaReportSvg(latestEvening, loadChart(latestEvening.id), latestEveningMarkdown, toEnglishPresentation, 'en-US') ?? '') : null;
 const market = loadMarketDaily();
 const marketChartSummary = market?.publication === 'public' ? marketDailyUtils.summarizeMarketDaily(market) : null;
 const marketChartSvg = marketChartSummary ? marketDailyUtils.buildMarketDailyChartSvg(marketChartSummary, toEnglishPresentation, 'en-US') : null;
@@ -42,14 +43,14 @@ const marketGeneratedLabel = marketGeneratedTime && !Number.isNaN(Date.parse(Str
   ? new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(String(marketGeneratedTime))) : null;
 const sourceRows = marketChartSummary?.rows || [];
 const sourceLinks = [...new Map([
-  ...sourceRows.map((row) => [row.sourceUrl, { href: row.sourceUrl, label: toEnglishPresentation(row.sourceLabel), context: toEnglishPresentation(row.label) }]),
-  ...(marketChartSummary?.claims || []).flatMap((claim) => claim.sourceUrls.map((href) => [href, { href, label: new URL(href).hostname, context: labels.researchContext }])),
+  ...sourceRows.map((row) => [row.sourceUrl, { href: row.sourceUrl, label: toEnglishPresentation(row.sourceLabel), context: toEnglishPresentation(row.label) }] as const),
+  ...(marketChartSummary?.claims || []).flatMap((claim) => claim.sourceUrls.map((href) => [href, { href, label: new URL(href).hostname, context: labels.researchContext }] as const)),
 ].filter(([href]) => /^https:\/\//.test(href))).values()];
 const insight = loadLatestInsight();
 const insightOverview = insight?.analysis?.overview?.text ? asiaResearchPresentation(String(insight.analysis.overview.text)) : null;
 const evidenceById = new Map((insight?.evidence || []).map((row) => [row.id, row]));
-const citedEvidence = (ids) => (ids || []).map((id) => evidenceById.get(id)).filter(Boolean);
-const timestampLabel = (value) => { const date = new Date(value); return Number.isNaN(date.getTime()) ? 'time unavailable' : new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Shanghai', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(date); };
+const citedEvidence = (ids: string[] | undefined) => (ids || []).map((id) => evidenceById.get(id)).filter((item): item is Evidence => item !== undefined);
+const timestampLabel = (value: string | undefined) => { const date = new Date(value ?? ''); return Number.isNaN(date.getTime()) ? 'time unavailable' : new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Shanghai', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(date); };
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <!doctype html>
@@ -90,10 +91,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <script>
       const themeToggle = document.querySelector('#theme-toggle');
       const themeKey = 'market-intel-theme';
-      const applyTheme = (theme) => {
+      const applyTheme = (theme: 'dark' | 'light') => {
         document.documentElement.dataset.theme = theme;
-        themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
-        themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+        themeToggle?.setAttribute('aria-pressed', String(theme === 'dark'));
+        themeToggle?.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
       };
       let savedTheme = null;
       try { savedTheme = localStorage.getItem(themeKey); } catch {}
@@ -104,7 +105,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         try { storedTheme = localStorage.getItem(themeKey); } catch {}
         if (storedTheme !== 'dark' && storedTheme !== 'light') applyTheme(systemTheme.matches ? 'dark' : 'light');
       });
-      themeToggle.addEventListener('click', () => {
+      themeToggle?.addEventListener('click', () => {
         const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
         try { localStorage.setItem(themeKey, next); } catch {}
         applyTheme(next);

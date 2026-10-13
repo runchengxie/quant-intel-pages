@@ -8,7 +8,6 @@
   },
   "exclude": [
     "dist/**",
-    "src/pages/**",
     "platform-cli/**"
   ]
 }

@@ -4,13 +4,14 @@ import UsDailyStatus from '../components/UsDailyStatus.astro';
 import AsiaNews from '../components/AsiaNews.astro';
 import '../styles/editorial.css';
 import '../styles/research-language.css';
-import { loadReports, loadSummaries, loadMarketDaily, loadMarketDailyHistory, loadLatestInsight, readJson, loadChart, loadMarkdown, VISUAL_REPORT_START_DATE } from '../lib/reports.ts';
+import { loadReports, loadSummaries, loadMarketDaily, loadMarketDailyHistory, loadLatestInsight, loadInsightOutcomes, loadChart, loadMarkdown, VISUAL_REPORT_START_DATE } from '../lib/reports.ts';
 import { renderMarkdown } from '../lib/markdown.ts';
 import { formatEvidenceLine } from '../lib/evidence.ts';
 import { buildEveningNotes } from '../lib/evening-notes.ts';
 import marketDailyUtils from '../lib/market-daily-utils.ts';
 import { buildAsiaReportSvg } from '../lib/asia-report-image.ts';
 import { localePath, US_REPORT_LABELS } from '../lib/locale.ts';
+import type { Evidence } from '../lib/insights.ts';
 import { publicReportIdentity } from '../lib/report-image-identity.ts';
 
 const reports = loadReports();
@@ -40,32 +41,32 @@ const marketHistory = loadMarketDailyHistory()
   });
 const sourceRows = marketChartSummary?.rows || [];
 const sourceLinks = [...new Map([
-  ...sourceRows.map((row) => [row.sourceUrl, { href: row.sourceUrl, label: row.sourceLabel, context: row.label }]),
-  ...(marketChartSummary?.claims || []).flatMap((claim) => claim.sourceUrls.map((href) => [href, { href, label: new URL(href).hostname, context: '已核实解读' }])),
+  ...sourceRows.map((row) => [row.sourceUrl, { href: row.sourceUrl, label: row.sourceLabel, context: row.label }] as const),
+  ...(marketChartSummary?.claims || []).flatMap((claim) => claim.sourceUrls.map((href) => [href, { href, label: new URL(href).hostname, context: '已核实解读' }] as const)),
 ].filter(([href]) => /^https:\/\//.test(href))).values()];
 const marketGeneratedTime = market?.generated_at || market?.as_of;
-const marketGeneratedLabel = marketGeneratedTime ? new Intl.DateTimeFormat('zh-CN', {
+const marketGeneratedLabel = marketGeneratedTime && !Number.isNaN(Date.parse(String(marketGeneratedTime))) ? new Intl.DateTimeFormat('zh-CN', {
   timeZone: 'America/New_York', year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit',
-}).format(new Date(marketGeneratedTime)) : null;
+}).format(new Date(String(marketGeneratedTime))) : null;
 const insight = loadLatestInsight();
-const insightArchived = Boolean(insight && latestEveningDate >= '2026-09-25'
+const insightArchived = Boolean(insight && latestEveningDate && latestEveningDate >= '2026-09-25'
   && insight.date < latestEveningDate);
-const outcomes = readJson('data/insights.json')?.outcomes || [];
+const outcomes = loadInsightOutcomes();
 const outcomeLabels = { pending: '待验证', met: '条件满足', not_met: '条件未满足', unverifiable: '数据不足，无法验证' };
 const watchpoints = (insight?.analysis?.watchpoints || []).map((point, index) => ({
   ...point,
-  metricLabel: insight.metrics?.[point.metric]?.label || point.metric,
-  unit: insight.metrics?.[point.metric]?.unit || '',
-  outcome: outcomes.find((row) => row.insight_id === insight.id && row.watchpoint_index === index),
+  metricLabel: insight?.metrics?.[point.metric]?.label || point.metric,
+  unit: insight?.metrics?.[point.metric]?.unit || '',
+  outcome: outcomes.find((row) => row.insight_id === insight?.id && row.watchpoint_index === index),
 }));
-const timestampLabel = (value) => {
-  const date = new Date(value);
+const timestampLabel = (value: string | undefined) => {
+  const date = new Date(value ?? '');
   return Number.isNaN(date.getTime()) ? '时间未提供' : new Intl.DateTimeFormat('zh-CN', {
     timeZone: 'Asia/Shanghai', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit',
   }).format(date);
 };
 const evidenceById = new Map((insight?.evidence || []).map((row) => [row.id, row]));
-const citedEvidence = (ids) => (ids || []).map((id) => evidenceById.get(id)).filter(Boolean);
+const citedEvidence = (ids: string[] | undefined) => (ids || []).map((id) => evidenceById.get(id)).filter((item): item is Evidence => item !== undefined);
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <!doctype html>
@@ -146,11 +147,11 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <script>
       const themeToggle = document.querySelector('#theme-toggle');
       const themeKey = 'market-intel-theme';
-      const applyTheme = (theme) => {
+      const applyTheme = (theme: 'dark' | 'light') => {
         document.documentElement.dataset.theme = theme;
-        themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
-        themeToggle.textContent = '深色模式';
-        themeToggle.setAttribute('aria-label', theme === 'dark' ? '切换浅色模式' : '切换深色模式');
+        themeToggle?.setAttribute('aria-pressed', String(theme === 'dark'));
+        if (themeToggle) themeToggle.textContent = '深色模式';
+        themeToggle?.setAttribute('aria-label', theme === 'dark' ? '切换浅色模式' : '切换深色模式');
       };
       let savedTheme = null;
       try { savedTheme = localStorage.getItem(themeKey); } catch {}
@@ -161,7 +162,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         try { storedTheme = localStorage.getItem(themeKey); } catch {}
         if (storedTheme === null) applyTheme(systemTheme.matches ? 'dark' : 'light');
       });
-      themeToggle.addEventListener('click', () => {
+      themeToggle?.addEventListener('click', () => {
         const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
         try { localStorage.setItem(themeKey, next); } catch {}
         applyTheme(next);
