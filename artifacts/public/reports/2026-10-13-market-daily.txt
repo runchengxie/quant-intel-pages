@@ -1,5 +1,5 @@
 美股市场日报｜2026-10-13 美东报告日
-报告生成时间：2026-10-13T22:30:55.678297+00:00；逐项显示原始观测日。
+报告生成时间：2026-10-13T23:01:25.206513+00:00；逐项显示原始观测日。
 
 一、美股市场表现
 - 标普 500 收盘：7805.45 点（观测日 2026-10-13）
@@ -35,39 +35,39 @@
 - 暂无经核实内容。
 
 三、美债收益率
-- 2 年期美债收益率日变动：+5.00 bp（观测日 2026-10-09）
-  来源：https://fred.stlouisfed.org/series/DGS2
-- 5 年期美债收益率日变动：+3.00 bp（观测日 2026-10-09）
-  来源：https://fred.stlouisfed.org/series/DGS5
-- 10 年期美债收益率日变动：+2.00 bp（观测日 2026-10-09）
-  来源：https://fred.stlouisfed.org/series/DGS10
-- 30 年期美债收益率日变动：+0.00 bp（观测日 2026-10-09）
-  来源：https://fred.stlouisfed.org/series/DGS30
-- 2 年期美债收益率水平：4.80%（观测日 2026-10-09）
-  来源：https://fred.stlouisfed.org/series/DGS2
-- 5 年期美债收益率水平：5.02%（观测日 2026-10-09）
-  来源：https://fred.stlouisfed.org/series/DGS5
-- 10 年期美债收益率水平：5.24%（观测日 2026-10-09）
-  来源：https://fred.stlouisfed.org/series/DGS10
-- 30 年期美债收益率水平：5.60%（观测日 2026-10-09）
-  来源：https://fred.stlouisfed.org/series/DGS30
+- 2 年期美债收益率日变动：-1.00 bp（观测日 2026-10-13）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 5 年期美债收益率日变动：-2.00 bp（观测日 2026-10-13）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 10 年期美债收益率日变动：-3.00 bp（观测日 2026-10-13）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 30 年期美债收益率日变动：-4.00 bp（观测日 2026-10-13）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 2 年期美债收益率水平：4.79%（观测日 2026-10-13）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 5 年期美债收益率水平：5.00%（观测日 2026-10-13）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 10 年期美债收益率水平：5.21%（观测日 2026-10-13）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 30 年期美债收益率水平：5.56%（观测日 2026-10-13）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
 
 四、跨资产行情
-- 布伦特期货收盘：106.28 美元/桶（观测日 2026-10-13）
+- 布伦特期货收盘：106.26 美元/桶（观测日 2026-10-13）
   来源：https://finance.yahoo.com/quote/BZZ26.NYM/history/
-- 布伦特日涨跌：-0.35%（观测日 2026-10-13）
+- 布伦特日涨跌：-0.37%（观测日 2026-10-13）
   来源：https://finance.yahoo.com/quote/BZZ26.NYM/history/
-- COMEX 黄金期货收盘：4182.90 美元/金衡盎司（观测日 2026-10-13）
+- COMEX 黄金期货收盘：4185.50 美元/金衡盎司（观测日 2026-10-13）
   来源：https://finance.yahoo.com/quote/GCZ26.CMX/history/
-- 黄金日涨跌：-0.18%（观测日 2026-10-13）
+- 黄金日涨跌：-0.12%（观测日 2026-10-13）
   来源：https://finance.yahoo.com/quote/GCZ26.CMX/history/
-- COMEX 白银期货收盘：59.36 美元/金衡盎司（观测日 2026-10-13）
+- COMEX 白银期货收盘：59.37 美元/金衡盎司（观测日 2026-10-13）
   来源：https://finance.yahoo.com/quote/SIZ26.CMX/history/
-- 白银日涨跌：-1.91%（观测日 2026-10-13）
+- 白银日涨跌：-1.90%（观测日 2026-10-13）
   来源：https://finance.yahoo.com/quote/SIZ26.CMX/history/
-- BTC/USD 现货收盘：83388.71 美元/BTC（观测日 2026-10-13）
+- BTC/USD 现货收盘：83437.34 美元/BTC（观测日 2026-10-13）
   来源：https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full
-- BTC/USD 现货日涨跌：+2.01%（观测日 2026-10-13）
+- BTC/USD 现货日涨跌：+2.07%（观测日 2026-10-13）
   来源：https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full
 
 五、市场驱动因素
@@ -87,7 +87,7 @@
 - 暂无经核实内容。
 
 
-尚缺：研究解释、美债收益率当日变动。
+尚缺：研究解释。
 
 数据说明
 可选数据未提供：比特币期货行情。
