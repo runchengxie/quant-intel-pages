@@ -6,7 +6,7 @@
     "txt"
   ],
   "as_of": "2026-10-12T22:31:26.835989+00:00",
-  "generated_at": "2026-10-12T22:31:26.835989+00:00",
+  "generated_at": "2026-10-13T04:29:54.562592+00:00",
   "run_id": "daily-2026-10-12",
   "sections": [
     {
@@ -100,122 +100,122 @@
     {
       "id": "treasury.2y.level_percent",
       "metric": "yield_level",
-      "instrument": "DGS2",
-      "value": 4.75,
-      "previous": 4.77,
+      "instrument": "US_TREASURY_2Y",
+      "value": 4.8,
+      "previous": 4.75,
       "change": null,
       "unit": "percent",
-      "source": "FRED",
-      "source_url": "https://fred.stlouisfed.org/series/DGS2",
-      "source_time": "2026-10-12T22:30:47.618872+00:00",
-      "retrieved_at": "2026-10-12T22:30:47.618872+00:00",
+      "source": "US Treasury",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve",
+      "source_time": "2026-10-13T04:29:54.562503+00:00",
+      "retrieved_at": "2026-10-13T04:29:54.562503+00:00",
       "quality": "lagged",
-      "observation_date": "2026-10-08"
+      "observation_date": "2026-10-09"
     },
     {
       "id": "treasury.2y.change_bp",
       "metric": "yield_change",
-      "instrument": "DGS2",
-      "value": -2.0,
+      "instrument": "US_TREASURY_2Y",
+      "value": 5.0,
       "previous": null,
-      "change": -2.0,
+      "change": 5.0,
       "unit": "basis_points",
-      "source": "FRED",
-      "source_url": "https://fred.stlouisfed.org/series/DGS2",
-      "source_time": "2026-10-12T22:30:47.618935+00:00",
-      "retrieved_at": "2026-10-12T22:30:47.618935+00:00",
+      "source": "US Treasury",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve",
+      "source_time": "2026-10-13T04:29:54.562503+00:00",
+      "retrieved_at": "2026-10-13T04:29:54.562503+00:00",
       "quality": "lagged",
-      "observation_date": "2026-10-08"
+      "observation_date": "2026-10-09"
     },
     {
       "id": "treasury.5y.level_percent",
       "metric": "yield_level",
-      "instrument": "DGS5",
-      "value": 4.99,
-      "previous": 5.03,
+      "instrument": "US_TREASURY_5Y",
+      "value": 5.02,
+      "previous": 4.99,
       "change": null,
       "unit": "percent",
-      "source": "FRED",
-      "source_url": "https://fred.stlouisfed.org/series/DGS5",
-      "source_time": "2026-10-12T22:30:52.733021+00:00",
-      "retrieved_at": "2026-10-12T22:30:52.733021+00:00",
+      "source": "US Treasury",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve",
+      "source_time": "2026-10-13T04:29:54.562503+00:00",
+      "retrieved_at": "2026-10-13T04:29:54.562503+00:00",
       "quality": "lagged",
-      "observation_date": "2026-10-08"
+      "observation_date": "2026-10-09"
     },
     {
       "id": "treasury.5y.change_bp",
       "metric": "yield_change",
-      "instrument": "DGS5",
-      "value": -4.0,
+      "instrument": "US_TREASURY_5Y",
+      "value": 3.0,
       "previous": null,
-      "change": -4.0,
+      "change": 3.0,
       "unit": "basis_points",
-      "source": "FRED",
-      "source_url": "https://fred.stlouisfed.org/series/DGS5",
-      "source_time": "2026-10-12T22:30:52.733076+00:00",
-      "retrieved_at": "2026-10-12T22:30:52.733076+00:00",
+      "source": "US Treasury",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve",
+      "source_time": "2026-10-13T04:29:54.562503+00:00",
+      "retrieved_at": "2026-10-13T04:29:54.562503+00:00",
       "quality": "lagged",
-      "observation_date": "2026-10-08"
+      "observation_date": "2026-10-09"
     },
     {
       "id": "treasury.10y.level_percent",
       "metric": "yield_level",
-      "instrument": "DGS10",
-      "value": 5.22,
-      "previous": 5.28,
+      "instrument": "US_TREASURY_10Y",
+      "value": 5.24,
+      "previous": 5.22,
       "change": null,
       "unit": "percent",
-      "source": "FRED",
-      "source_url": "https://fred.stlouisfed.org/series/DGS10",
-      "source_time": "2026-10-12T22:30:58.693761+00:00",
-      "retrieved_at": "2026-10-12T22:30:58.693761+00:00",
+      "source": "US Treasury",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve",
+      "source_time": "2026-10-13T04:29:54.562503+00:00",
+      "retrieved_at": "2026-10-13T04:29:54.562503+00:00",
       "quality": "lagged",
-      "observation_date": "2026-10-08"
+      "observation_date": "2026-10-09"
     },
     {
       "id": "treasury.10y.change_bp",
       "metric": "yield_change",
-      "instrument": "DGS10",
-      "value": -6.0,
+      "instrument": "US_TREASURY_10Y",
+      "value": 2.0,
       "previous": null,
-      "change": -6.0,
+      "change": 2.0,
       "unit": "basis_points",
-      "source": "FRED",
-      "source_url": "https://fred.stlouisfed.org/series/DGS10",
-      "source_time": "2026-10-12T22:30:58.693777+00:00",
-      "retrieved_at": "2026-10-12T22:30:58.693777+00:00",
+      "source": "US Treasury",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve",
+      "source_time": "2026-10-13T04:29:54.562503+00:00",
+      "retrieved_at": "2026-10-13T04:29:54.562503+00:00",
       "quality": "lagged",
-      "observation_date": "2026-10-08"
+      "observation_date": "2026-10-09"
     },
     {
       "id": "treasury.30y.level_percent",
       "metric": "yield_level",
-      "instrument": "DGS30",
+      "instrument": "US_TREASURY_30Y",
       "value": 5.6,
-      "previous": 5.67,
+      "previous": 5.6,
       "change": null,
       "unit": "percent",
-      "source": "FRED",
-      "source_url": "https://fred.stlouisfed.org/series/DGS30",
-      "source_time": "2026-10-12T22:31:00.836958+00:00",
-      "retrieved_at": "2026-10-12T22:31:00.836958+00:00",
+      "source": "US Treasury",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve",
+      "source_time": "2026-10-13T04:29:54.562503+00:00",
+      "retrieved_at": "2026-10-13T04:29:54.562503+00:00",
       "quality": "lagged",
-      "observation_date": "2026-10-08"
+      "observation_date": "2026-10-09"
     },
     {
       "id": "treasury.30y.change_bp",
       "metric": "yield_change",
-      "instrument": "DGS30",
-      "value": -7.0,
+      "instrument": "US_TREASURY_30Y",
+      "value": 0.0,
       "previous": null,
-      "change": -7.0,
+      "change": 0.0,
       "unit": "basis_points",
-      "source": "FRED",
-      "source_url": "https://fred.stlouisfed.org/series/DGS30",
-      "source_time": "2026-10-12T22:31:00.836975+00:00",
-      "retrieved_at": "2026-10-12T22:31:00.836975+00:00",
+      "source": "US Treasury",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve",
+      "source_time": "2026-10-13T04:29:54.562503+00:00",
+      "retrieved_at": "2026-10-13T04:29:54.562503+00:00",
       "quality": "lagged",
-      "observation_date": "2026-10-08"
+      "observation_date": "2026-10-09"
     },
     {
       "id": "macro.cpi_yoy",
@@ -701,15 +701,28 @@
   "events": [],
   "claims": [],
   "missing_sources": [
-    "research",
-    "rates_lag"
+    "research"
   ],
   "quality_summary": {
-    "status": "degraded"
+    "status": "degraded",
+    "treasury_revision": {
+      "expected_observation_date": "2026-10-09",
+      "original_as_of": "2026-10-12T22:31:26.835989+00:00",
+      "parent_content_hash": "dcdac03dccdfa0fe6e7315568a14daf5d638024be79a6a4c2f3ca29297f2c919",
+      "revised_at": "2026-10-13T04:29:54.562592+00:00",
+      "schema_version": "market_intel.treasury_revision.v1"
+    }
   },
   "source_status": {
     "rates": {
-      "quality": "lagged"
+      "quality": "lagged",
+      "reason": "holiday_reference",
+      "session": "closed",
+      "expected_observation_date": "2026-10-09",
+      "observation_date": "2026-10-09",
+      "calendar_version": "sifma.us-bonds.2026-2027.v1",
+      "calendar_source": "https://www.sifma.org/resources/general/holiday-schedule",
+      "reference_rechecked_at": "2026-10-13T04:29:54.562592+00:00"
     },
     "macro": {
       "quality": "ok"
@@ -736,6 +749,6 @@
       "reviewed_movers": []
     }
   },
-  "content_hash": "dcdac03dccdfa0fe6e7315568a14daf5d638024be79a6a4c2f3ca29297f2c919",
-  "source_report_sha256": "29293d0299cb950ed419150d418ae49aa9f8274463d8c7d6292d0c1284844f11"
+  "content_hash": "606b169d0766f9900f33c69fd5ae834a10318d772b1b74db722323bf2454e2c5",
+  "source_report_sha256": "a54fe736bd280b6976222b33dd210de4b9812691a9f6a59a29ddfcb6e2d40f61"
 }
