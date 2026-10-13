@@ -300,3 +300,24 @@ test('report locale switch preserves the report and provides shareable locale ro
   await expect(page.locator('.report-heading h1')).toBeVisible();
   await expect(page.locator('.top-note')).toContainText(historicalEvening.date);
 });
+
+
+test('generated legacy utilities retain their browser globals and safe DOM rendering', async ({ page }) => {
+  await page.goto('/quant-intel-pages/en/');
+  for (const name of ['summary-utils', 'theme-utils', 'report-markdown']) {
+    await page.addScriptTag({ path: `src/legacy/${name}.js` });
+  }
+  const result = await page.evaluate(() => {
+    const api = window as typeof window & {
+      marketIntelUtils: { selectVisibleReports: (reports: {id:string;date:string;kind:string}[], date: string, kind: string) => {id:string}[] };
+      marketIntelTheme: { nextTheme: (theme: string) => string };
+      reportMarkdown: { renderReportBlocks: (document: Document, lines: string[]) => HTMLElement[] };
+    };
+    const reports = [{ id: '2026-10-12-evening', date: '2026-10-12', kind: 'evening' }];
+    const blocks = api.reportMarkdown.renderReportBlocks(document, ['<img src=x onerror=alert(1)>', '| A | B |', '|---|---|', '| 1 | 2 |']);
+    return { ids: api.marketIntelUtils.selectVisibleReports(reports, '2026-10-12', 'all').map(row => row.id),
+      next: api.marketIntelTheme.nextTheme('light'), literal: blocks[0].textContent,
+      image: blocks[0].querySelector('img') !== null, table: blocks[1].querySelectorAll('td').length };
+  });
+  expect(result).toEqual({ ids: ['2026-10-12-evening'], next: 'dark', literal: '<img src=x onerror=alert(1)>', image: false, table: 2 });
+});
