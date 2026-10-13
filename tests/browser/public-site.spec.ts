@@ -250,6 +250,22 @@ test('English homepage downloads both current report images', async ({ page }) =
   }
 });
 
+for (const route of [
+  { path: '/?locale=zh-CN', failed: 'PNG 生成失败。请直接阅读网页报告。' },
+  { path: '/en/', failed: 'PNG generation failed. Read the web report instead.' },
+  { path: `/reports/${historicalEvening.id}/`, failed: 'PNG 生成失败。请直接阅读网页报告。' },
+  { path: `/en/reports/${historicalEvening.id}/`, failed: 'PNG generation failed. Read the web report instead.' },
+]) {
+  test(`invalid image identity restores the download control on ${route.path}`, async ({ page }) => {
+    await page.goto(`${base}${route.path}`);
+    const button = page.locator('#download-asia-report');
+    await button.evaluate((element) => { element.setAttribute('data-report-kind', 'invalid'); });
+    await button.click();
+    await expect(page.locator('#asia-chart-download-status')).toHaveText(route.failed);
+    await expect(button).toBeEnabled();
+  });
+}
+
 test('historical evening report loads with a visible graphic and resolved colors', async ({ page }) => {
   await page.goto(`${base}/reports/${historicalEvening.id}/`);
   await expect(page.locator('.report-heading h1')).toBeVisible();

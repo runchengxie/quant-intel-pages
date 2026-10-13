@@ -38,3 +38,9 @@ Asian interpretation text uses source-bound English catalog translations. When a
 ## Language behavior
 
 The homepage defaults to English at `/en/`. Select Chinese with `/?locale=zh-CN`; other homepage locale query values use English. Report pages have separate `/en/reports/<id>/` and `/reports/<id>/` routes. Language links preserve the report identity. Downloads retain source data, evidence IDs, hashes, and timestamps across languages. Missing English interpretation translations show an explicit notice and retain access to source-language evidence.
+
+## TypeScript scope
+
+The active frontend libraries and React chart island use TypeScript. Report image controls share a typed module and locale catalog across the four report routes. `npm run check` also checks `ChartCards.astro`.
+
+The JavaScript in `src/legacy/` and `src/lib/market-daily-utils.js` remains a browser-compatible fallback published by the snapshot/build adapter. Converting those files requires preserving their script URLs and browser globals. Astro pages remain excluded from strict checking until the report and insight loader types describe the fields used by their templates; this is existing type debt, not a fully checked frontend. Generated output and the installed Platform CLI are excluded separately.

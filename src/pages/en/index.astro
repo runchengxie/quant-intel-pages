@@ -87,7 +87,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       {eveningHistory.length > 0 && <section class="reports-section" aria-labelledby="reports-title"><div class="section-heading"><h2 id="reports-title">Historical Asia close reviews</h2></div><div class="report-list">{eveningHistory.map((report) => <article class="report-tile"><div class="report-meta"><time>{report.date}</time><span>Asia evening report</span></div><h3><a href={`${base}/en/reports/${report.id}/`}>{toEnglishPresentation(String(report.title || ''))}</a></h3><p>{toEnglishPresentation(String(report.summary || ''))}</p><div class="link-row"><a href={`${base}/en/reports/${report.id}/`}>Read visual review</a></div></article>)}</div></section>}
     </div></main>
     <footer class="footer"><span>QUANT MARKET INTEL</span><span>For research reference only</span></footer>
-    <script type="application/json" id="report-download-labels" set:html={JSON.stringify({ generating: labels.pngGenerating, done: labels.pngDone, failed: labels.pngFailed })} />
     <script>
       const themeToggle = document.querySelector('#theme-toggle');
       const themeKey = 'market-intel-theme';
@@ -112,23 +111,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       });
     </script>
     <script>
-      const downloadLabels = JSON.parse(document.querySelector('#report-download-labels').textContent);
-      document.querySelectorAll('[data-report-image]').forEach((button) => button.addEventListener('click', async () => {
-        const chart = document.querySelector(button.dataset.chartTarget);
-        const status = document.querySelector(button.dataset.statusTarget);
-        if (!chart || !status) return;
-        button.disabled = true;
-        status.textContent = downloadLabels.generating;
-        try {
-          const { downloadMarketChartPng } = await import('../../lib/market-chart-download.ts');
-          await downloadMarketChartPng(chart, button.dataset.reportDate, button.dataset.reportKind);
-          status.textContent = downloadLabels.done;
-        } catch {
-          status.textContent = downloadLabels.failed;
-        } finally {
-          button.disabled = false;
-        }
-      }));
+      import { initializeReportDownloads } from '../../lib/report-controls.ts';
+      initializeReportDownloads('en-US');
     </script>
   </body>
 </html>

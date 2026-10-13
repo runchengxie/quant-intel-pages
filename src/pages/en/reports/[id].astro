@@ -42,22 +42,8 @@ const chartSources = [...new Map((charts || []).flatMap((chart) => (chart.points
     </main>
     <footer class="footer"><span>QUANT MARKET INTEL</span><span>For research reference only</span></footer>
     <script>
-      document.querySelectorAll('[data-report-image]').forEach((button) => button.addEventListener('click', async () => {
-        const chart = document.querySelector(button.dataset.chartTarget);
-        const status = document.querySelector(button.dataset.statusTarget);
-        if (!chart || !status) return;
-        button.disabled = true;
-        status.textContent = 'Generating PNG…';
-        try {
-          const { downloadMarketChartPng } = await import('../../../lib/market-chart-download.ts');
-          await downloadMarketChartPng(chart, button.dataset.reportDate, button.dataset.reportKind);
-          status.textContent = 'PNG generated.';
-        } catch {
-          status.textContent = 'PNG generation failed. Read the web report instead.';
-        } finally {
-          button.disabled = false;
-        }
-      }));
+      import { initializeReportDownloads } from '../../../lib/report-controls.ts';
+      initializeReportDownloads('en-US');
     </script>
   </body>
 </html>

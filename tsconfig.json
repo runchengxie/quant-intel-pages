@@ -6,5 +6,9 @@
     "strict": true,
     "noEmit": true
   },
-  "exclude": ["dist/**", "src/pages/**", "src/components/ChartCards.astro", "platform-cli/**"]
+  "exclude": [
+    "dist/**",
+    "src/pages/**",
+    "platform-cli/**"
+  ]
 }
