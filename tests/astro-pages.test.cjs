@@ -216,7 +216,7 @@ test('home theme button keeps a stable label, toggles both ways, and restores th
       querySelector: () => button,
       querySelectorAll: () => [],
     };
-    vm.runInNewContext(script, { document, localStorage, window: {
+    vm.runInNewContext(require('typescript').transpileModule(script, {}).outputText, { document, localStorage, window: {
       matchMedia: () => ({ matches: false, addEventListener: () => {} }),
     } });
     return { button, attrs, events, document };
@@ -247,7 +247,7 @@ test('home theme remains usable when browser storage is unavailable', () => {
     querySelectorAll: () => [],
   };
   const localStorage = { getItem: () => { throw new Error('blocked'); }, setItem: () => { throw new Error('blocked'); } };
-  assert.doesNotThrow(() => vm.runInNewContext(script, { document, localStorage, window: {
+  assert.doesNotThrow(() => vm.runInNewContext(require('typescript').transpileModule(script, {}).outputText, { document, localStorage, window: {
     matchMedia: () => ({ matches: false, addEventListener: () => {} }),
   } }));
   assert.doesNotThrow(() => events.click());
@@ -296,7 +296,7 @@ test('English entry restores theme and keeps its button synchronized when storag
     const beforeController = rootElement.dataset.theme;
     vm.runInNewContext(initialButtonSync, { document });
     const buttonBeforeController = { ...attrs };
-    vm.runInNewContext(controller, { document, localStorage, window });
+    vm.runInNewContext(require('typescript').transpileModule(controller, {}).outputText, { document, localStorage, window });
     return { rootElement, attrs, events, mediaEvents, media, button, beforeController, buttonBeforeController, saved: () => stored };
   };
   const restored = run({ stored: 'dark' });
@@ -508,6 +508,10 @@ test('verified watchpoint outcome shows labelled table evidence', () => {
       analysis: { overview: { text: 'Synthetic watchpoint rendering example.', evidence_ids: [] },
         changes: [], tensions: [], watchpoints: [{ question: 'Is liquidity above the threshold?',
           metric: 'liquidity', operator: '>=', threshold: 25, evidence_ids: [] }] } };
+    const dailyFile = path.join(fixture, 'data/market_daily_report.json');
+    const daily = JSON.parse(readFileSync(dailyFile, 'utf8'));
+    daily.generated_at = 'invalid timestamp';
+    writeFileSync(dailyFile, JSON.stringify(daily));
     const outcome = { insight_id: insight.id, watchpoint_index: 0, status: 'met',
       report_id: report.id, observed_date: report.date, observed_value: 25.4,
       evidence: [{ report_id: report.id, section: '六维观察',

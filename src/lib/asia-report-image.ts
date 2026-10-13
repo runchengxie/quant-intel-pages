@@ -5,10 +5,10 @@ import { toEnglishPresentation } from './english-content.ts';
 import { renderReportPanel } from './asia-report-panels.ts';
 
 interface EveningReport {
-  kind: 'evening';
+  kind: string;
   id: string;
   date: string;
-  summary: string;
+  summary?: unknown;
   generation_mode?: string;
 }
 
@@ -394,7 +394,7 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
     return parts.join('').replaceAll('__HEIGHT__', String(y + 28))
       .replaceAll('font-family="sans-serif"', `font-family="${FONT}"`);
   }
-  addText(report.summary);
+  addText(String(report.summary ?? ''));
   for (const [heading, title, limit] of ([
     ['## 一、市场状态', '市场状态', 3], ['### 六维观察', '六维观察', 7],
     ['### 核心矛盾', '核心矛盾', 2], ['### 明日验证', '次日观察', 2],

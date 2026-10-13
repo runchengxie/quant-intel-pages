@@ -1,5 +1,6 @@
 import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import { latestInsight, insightOutcomes, type Insight, type Outcome } from './insights.ts';
 import type { ChartCard, ChartStatus } from './chart-data.ts';
 
 export const CHART_KEYS = ['dashboard', 'moneyflow', 'topic', 'sentiment', 'us_overnight', 'weekly_chart'] as const;
@@ -13,7 +14,7 @@ export const CHART_TITLES: Record<ChartKey, string> = {
 export type JsonRecord = Record<string, unknown>;
 export type ReportRecord = JsonRecord & { id: string; date: string; kind: string; source_url: string; publication?: string };
 export type SummaryRecord = JsonRecord & { date: string };
-export type MarketDailyRecord = JsonRecord & { run_id: string; publication?: string };
+export type MarketDailyRecord = JsonRecord & { run_id: string; content_hash?: unknown; publication?: string };
 
 function isRecord(value: unknown): value is JsonRecord {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -122,10 +123,12 @@ export function loadMarketDailyHistory(): Array<MarketDailyRecord & { date: stri
     .filter((row): row is MarketDailyRecord & { date: string; markdown: string; hasCitationFreeMarkdown: boolean } => row.markdown !== null);
 }
 
-export function loadLatestInsight(): JsonRecord | null {
-  const value = readJson('data/insights.json');
-  const history = isRecord(value) && Array.isArray(value.insights) ? value.insights.filter(isRecord) : [];
-  return history.sort((a, b) => String(b.date).localeCompare(String(a.date)))[0] || null;
+export function loadLatestInsight(): Insight | null {
+  return latestInsight(readJson('data/insights.json'));
+}
+
+export function loadInsightOutcomes(): Outcome[] {
+  return insightOutcomes(readJson('data/insights.json'));
 }
 
 export type UsDailyStatus = {
