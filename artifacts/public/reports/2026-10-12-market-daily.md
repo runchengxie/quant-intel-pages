@@ -1,9 +1,9 @@
 # 美股市场日报（2026-10-12）
 
 数据状态：degraded
-报告生成时间：2026-10-12T22:31:26.835989+00:00（美东报告日 2026-10-12）
+报告生成时间：2026-10-13T04:29:54.562592+00:00（美东报告日 2026-10-12）
 
-尚缺：研究解释、美债收益率当日变动。
+尚缺：研究解释。
 
 ## 美股市场表现
 
@@ -33,10 +33,10 @@
 
 | 美债期限 | 收益率水平 | 日变动 | 观测日 | 来源 |
 |---|---:|---:|---|---|
-| 2 年期 | 4.75% | -2.00 bp | 2026-10-08 | [FRED](https://fred.stlouisfed.org/series/DGS2) |
-| 5 年期 | 4.99% | -4.00 bp | 2026-10-08 | [FRED](https://fred.stlouisfed.org/series/DGS5) |
-| 10 年期 | 5.22% | -6.00 bp | 2026-10-08 | [FRED](https://fred.stlouisfed.org/series/DGS10) |
-| 30 年期 | 5.60% | -7.00 bp | 2026-10-08 | [FRED](https://fred.stlouisfed.org/series/DGS30) |
+| 2 年期 | 4.80% | +5.00 bp | 2026-10-09 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve) |
+| 5 年期 | 5.02% | +3.00 bp | 2026-10-09 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve) |
+| 10 年期 | 5.24% | +2.00 bp | 2026-10-09 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve) |
+| 30 年期 | 5.60% | +0.00 bp | 2026-10-09 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve) |
 
 ## 布伦特、金银与比特币
 
@@ -68,7 +68,7 @@
 
 | 数据链路 | 状态 | 说明 |
 |---|---|---|
-| 美债收益率 | 未确认 | 详见逐项观测日与来源 |
+| 美债收益率 | 较早观测值 | 美债休市，展示最近交易日参考值及该交易日变动；参考观测日 2026-10-09 |
 | 宏观数据 | 已核实 | 详见逐项观测日与来源 |
 | 指数行情 | 已核实 | 目标交易日数据齐全 |
 | 研究材料 | 有缺项 | 研究材料尚未接入，不提供未经核实的解释 |
