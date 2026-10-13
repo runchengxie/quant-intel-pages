@@ -195,6 +195,18 @@ def test_astro_failure_preserves_previous_output(tmp_path: Path, monkeypatch: py
 
 def test_workflow_uses_public_owner_cli_without_generation_secrets() -> None:
     workflow = Path(".github/workflows/public-site.yml").read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+    workflow_pin = (
+        workflow.split("name: Check out pinned Platform CLI", 1)[1]
+        .split("      - uses:", 1)[0]
+        .split("ref: ", 1)[1]
+        .splitlines()[0]
+    )
+    readme_install = readme.split('uv tool install "', 1)[1].split('"', 1)[0]
+    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    readme_zh_install = readme_zh.split('uv tool install "', 1)[1].split('"', 1)[0]
+    assert readme_install.endswith(f"@{workflow_pin}")
+    assert readme_zh_install == readme_install
     assert "market-export-site-snapshot --help" in workflow
     assert "name: Public website" in workflow
     assert "  build:" in workflow
