@@ -18,6 +18,15 @@ export const ASIA_NEWS_LABELS = {
 } as const;
 
 export const US_REPORT_LABELS = {
+  treasuryEvidenceCutoff: ['美债参考值核验截至（美东）', 'Treasury reference checked through (ET)'],
+  treasuryClosedReference: ['美债休市；参考收益率截至', 'Treasury market closed; reference yields as of'],
+  lastSessionChange: ['最近交易日变动', 'Last-session change'],
+  treasuryHolidayReason: ['美债休市，展示最近交易日参考值及该交易日变动', 'Treasury market closed; values and changes refer to the last trading session'],
+  treasuryExpectedFresh: ['应有观测日数据齐全', 'Expected observation data is complete'],
+  treasuryObservationStale: ['尚未取得应有观测日数据', 'Expected observation data is unavailable'],
+  treasuryReferenceDate: ['参考观测日', 'Reference observation date'],
+  treasuryLastSessionYieldChange: ['收益率最近交易日变动', 'yield last-session change'],
+
   btcSpotGap: ['比特币现货行情', 'Bitcoin spot prices'],
   btcFuturesGap: ['比特币期货行情', 'Bitcoin futures prices'],
   optionalUnavailable: ['可选数据未提供：', 'Optional data unavailable: '],

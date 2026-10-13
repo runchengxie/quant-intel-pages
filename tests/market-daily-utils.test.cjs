@@ -651,3 +651,37 @@ test('value and change tables preserve closes without mixing levels into return 
   assert.ok(buildMarketDailyTables(missing)[0].rows.every(row => row.value === undefined));
   assert.match(buildMarketDailyChartSvg(missing), /x="400"[^>]*>—<\/text>/);
 });
+
+test('holiday official Treasury references retain dates and last-session changes', () => {
+  const source_url = 'https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve';
+  const payload = { schema_version: '1.0', run_id: 'daily-2026-10-12',
+    source_status: { rates: { quality: 'lagged', reason: 'holiday_reference', session: 'closed',
+      expected_observation_date: '2026-10-09', observation_date: '2026-10-09',
+      calendar_version: 'sifma.us-bonds.2026-2027.v1', calendar_source: 'https://www.sifma.org/resources/general/holiday-schedule' } },
+    facts: [
+      { id: 'treasury.10y.level_percent', metric: 'yield_level', unit: 'percent', value: 5.24 },
+      { id: 'treasury.10y.change_bp', metric: 'yield_change', unit: 'basis_points', value: 2 },
+    ].map(fact => ({ ...fact, observation_date: '2026-10-09', quality: 'lagged', source_url })),
+  };
+  const summary = summarizeMarketDaily(payload);
+  assert.ok(summary);
+  assert.equal(summary.rateRows[0].observationDate, '2026-10-09');
+  for (const locale of ['zh-CN', 'en-US']) {
+    const svg = buildMarketDailyChartSvg(summary, locale === 'en-US' ? toEnglishPresentation : x => x, locale);
+    assert.match(svg, /2026-10-09/);
+    assert.match(svg, locale === 'en-US' ? /Treasury market closed/ : /美债休市/);
+    assert.match(svg, locale === 'en-US' ? /Last-session change/ : /最近交易日变动/);
+    assert.doesNotMatch(svg, locale === 'en-US' ? /Daily change \(bp\)/ : /当日变动（bp）/);
+    assert.match(svg, /\+2\.00 bp/);
+  }
+  payload.source_status.rates.reference_rechecked_at = '2026-10-13T12:00:00+00:00';
+  const checked = summarizeMarketDaily(payload);
+  assert.match(buildMarketDailyChartSvg(checked, toEnglishPresentation, 'en-US'), /Treasury reference checked through \(ET\)/);
+  payload.source_status.rates.reference_rechecked_at = 'not-a-time';
+  assert.equal(summarizeMarketDaily(payload).treasuryReferenceCheckedAt, undefined);
+  const stale = structuredClone(payload);
+  stale.facts.forEach(fact => { fact.observation_date = '2026-10-08'; });
+  assert.equal(summarizeMarketDaily(stale), null);
+  delete payload.source_status;
+  assert.equal(summarizeMarketDaily(payload), null);
+});
