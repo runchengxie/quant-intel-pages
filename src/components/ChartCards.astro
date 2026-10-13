@@ -2,11 +2,18 @@
 import { loadChart } from '../lib/reports.ts';
 import ChartIsland from './ChartIsland.tsx';
 import { toEnglishPresentation } from '../lib/english-content.ts';
+import type { ChartPoint } from '../lib/chart-data.ts';
+
+interface Props {
+  reportId: string;
+  locale?: 'zh' | 'en';
+  interactive?: boolean;
+}
 
 const { reportId, locale = 'zh', interactive = true } = Astro.props;
 const cards = loadChart(reportId).filter((card) => card.key !== 'us_overnight');
-const present = (value) => locale === 'en' ? toEnglishPresentation(String(value || '')) : value;
-const formatValue = (point) => `${Number(point.value).toLocaleString(locale === 'en' ? 'en-US' : 'zh-CN', { maximumFractionDigits: 2 })} ${present(point.unit)}`;
+const present = (value: string) => locale === 'en' ? toEnglishPresentation(String(value || '')) : value;
+const formatValue = (point: ChartPoint) => `${Number(point.value).toLocaleString(locale === 'en' ? 'en-US' : 'zh-CN', { maximumFractionDigits: 2 })} ${present(point.unit)}`;
 const labels = locale === 'en'
   ? { eyebrow: 'Market charts', heading: 'Asian market charts', note: 'This section shows public data reviewed item by item. Missing data is labelled explicitly.', status: { ok: 'Verified', degraded: 'Degraded', missing: 'Missing', skipped: 'Skipped' }, values: 'View values and sources', metric: 'Metric', value: 'Value', date: 'Observation date', source: 'Source' }
   : { eyebrow: '行情图表', heading: '亚洲市场图表', note: '这里展示已逐项核实的公开数据。缺少的数据会标为缺项。', status: { ok: '已核实', degraded: '降级', missing: '缺项', skipped: '跳过' }, values: '查看数值与来源', metric: '指标', value: '数值', date: '观测日', source: '来源' };

@@ -38,3 +38,9 @@ python3 -m http.server 8000 --directory "$preview_root"
 ## 语言行为
 
 首页默认使用 `/en/` 英文页面，通过 `/?locale=zh-CN` 选择中文。首页其他 locale 参数值使用英文。报告页面分别使用 `/en/reports/<id>/` 和 `/reports/<id>/`，语言切换链接保留报告标识。不同语言的下载保留相同的来源数据、证据 ID、哈希和时间戳。英文解读缺少译文时明确提示，并保留来源语言的依据入口。
+
+## TypeScript 检查范围
+
+当前前端库和 React 图表组件已使用 TypeScript。四个报告路由的图片下载控件共用严格类型检查的模块和 locale 文案；`npm run check` 也检查 `ChartCards.astro`。
+
+`src/legacy/` 和 `src/lib/market-daily-utils.js` 仍作为兼容浏览器的备用页面脚本发布，迁移时必须保留脚本 URL 和浏览器全局接口。Astro 页面暂时保留原有类型检查排除，待报告和 insight 加载器的类型覆盖模板所用字段后再纳入；当前不能视为整个前端均已通过严格类型检查。生成文件和已安装的 Platform CLI 则按各自边界单独排除。
