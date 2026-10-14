@@ -2,6 +2,7 @@ import { build } from 'esbuild';
 import { readFile, writeFile } from 'node:fs/promises';
 
 const entries = [
+  ['src/legacy-source/app.ts', 'src/legacy/app.js', 'marketIntelApp'],
   ['src/legacy-source/summary-utils.ts', 'src/legacy/summary-utils.js', 'marketIntelUtils'],
   ['src/legacy-source/theme-utils.ts', 'src/legacy/theme-utils.js', 'marketIntelTheme'],
   ['src/legacy-source/report-markdown.ts', 'src/legacy/report-markdown.js', 'reportMarkdown'],
