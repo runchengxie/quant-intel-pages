@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const port = process.env.PLAYWRIGHT_PORT || '4321';
+
 export default defineConfig({
   testDir: './tests/browser',
   timeout: 30_000,
@@ -10,13 +12,13 @@ export default defineConfig({
   outputDir: process.env.PLAYWRIGHT_OUTPUT_DIR || '/tmp/quant-intel-pages-playwright',
   use: {
     ...devices['Desktop Chrome'],
-    baseURL: 'http://127.0.0.1:4321',
+    baseURL: `http://127.0.0.1:${port}`,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'npm run build && npx astro preview --ignore-lock --host 127.0.0.1 --port 4321',
-    url: 'http://127.0.0.1:4321/quant-intel-pages/en/',
+    command: `npm run build && npx astro preview --ignore-lock --host 127.0.0.1 --port ${port}`,
+    url: `http://127.0.0.1:${port}/quant-intel-pages/en/`,
     reuseExistingServer: false,
     timeout: 120_000,
   },
