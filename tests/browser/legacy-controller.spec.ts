@@ -73,12 +73,16 @@ test('optional index failures preserve reports and show fallback statuses', asyn
   expect(errors).toEqual([]);
 });
 
-test('complete legacy entry renders published market facts, downloads PNG and shows insight evidence', async ({ page }) => {
+test('complete fact-only legacy entry renders published market facts and downloads PNG', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await legacyEntry(page);
   await page.route(`${base}/data/**`, async route => {
     const name = new URL(route.request().url()).pathname.split('/').pop();
+    if (name === 'insights.json') {
+      await route.fulfill({ json: { schema_version: 'market_intel_pages.insights.v1', generation: { status: 'disabled' }, insights: [], outcomes: [] } });
+      return;
+    }
     if (name === 'health.json') {
       await route.fulfill({ status: 404 });
       return;
@@ -101,9 +105,8 @@ test('complete legacy entry renders published market facts, downloads PNG and sh
   const png = Buffer.concat(chunks);
   expect([...png.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
   await expect(page.locator('#market-daily-files button')).toBeEnabled();
-  await expect(page.locator('#insight-list .insight-card')).toHaveCount(1);
-  await page.locator('#insight-list .evidence-details summary').first().click();
-  await expect(page.locator('#insight-list .evidence-item').first()).toBeVisible();
+  await expect(page.locator('#insight-list .insight-card')).toHaveCount(0);
+  await expect(page.locator('#insight-status')).toContainText('暂无深度解读');
   await expect(page.locator('#load-error')).toBeHidden();
   expect(errors).toEqual([]);
 });
@@ -119,4 +122,22 @@ test('primary report fetch failure shows the load error without an uncaught exce
   await expect(page.locator('#report-list .report-card')).toHaveCount(0);
   await expect(page.locator('#theme-toggle')).toContainText('主题：系统');
   expect(errors).toEqual([]);
+});
+
+
+test('archived interpretation evidence uses a fixed fixture independent of generation', async ({ page }) => {
+  await legacyEntry(page);
+  await page.route(`${base}/data/insights.json`, route => route.fulfill({ json: {
+    schema_version: 'market_intel_pages.insights.v1', generation: { status: 'disabled' }, outcomes: [],
+    insights: [{ id: 'archived-fixture', date: '2026-10-13', morning_report_id: 'new-morning', evening_report_id: 'new-evening',
+      source_report_ids: ['new-morning', 'new-evening'],
+      analysis: { overview: { text: 'Archived observation', evidence_ids: ['e1'] }, changes: [], tensions: [], watchpoints: [] },
+      evidence: [{ id: 'e1', report_id: 'new-morning', section: 'Evidence', text: 'Archived source fact' }], metrics: {}, quality_warnings: [],
+    }],
+  } }));
+  await page.reload();
+  await expect(page.locator('#insight-list .insight-card')).toHaveCount(1);
+  await page.locator('#insight-list .evidence-details summary').first().click();
+  await expect(page.locator('#insight-list .evidence-item').first()).toContainText('Archived source fact');
+  await expect(page.locator('#insight-list .source-link').first()).toHaveAttribute('href', '../reports/morning.md');
 });
