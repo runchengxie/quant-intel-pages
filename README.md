@@ -53,7 +53,11 @@ history is a supported input and does not block publication.
 
 The Asia report image combines index values and zero-centered return bars in one
 table. Industry, turnover, concept and mover tables retain published numbers and
-add column-specific bars. Market overview charts retain original text and use
+add column-specific bars. Chart-covered overview, limit and flow paragraphs are omitted; uncharted text
+and malformed facts remain visible. Gain and loss Top 5 use separate groups
+with a shared return scale. Lower dashboard counts are omitted only when values,
+units, dates and known source contracts match already drawn report facts.
+Market overview charts use
 only complete return distributions whose bucket counts match reported coverage.
 The bucket containing zero is distinguished from advancing-stock counts.
 Malformed or missing facts stay visible as text without invented graphics.

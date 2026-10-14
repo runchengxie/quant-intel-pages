@@ -2,7 +2,8 @@ import type { ChartCard, ChartPoint } from './chart-data.ts';
 import { dailyReturn, reportTable, type ReportTable } from './asia-report-tables.ts';
 import { ASIA_IMAGE_LABELS as labels, asiaImageLabel, type Locale } from './locale.ts';
 import { toEnglishPresentation } from './english-content.ts';
-import { renderReportPanel } from './asia-report-panels.ts';
+import { renderReportPanel, normalizePanelLine } from './asia-report-panels.ts';
+import { reportFactAlreadyShown } from './asia-report-facts.ts';
 import { tableColumns, tableMetric, tableMetricValue, metricScale } from './asia-table-metrics.ts';
 
 interface EveningReport {
@@ -77,6 +78,28 @@ function alignedTable(draw: SvgDraw, table: ReportTable): void {
     draw.text(labels.originalFacts[0], MUTED, 12);
   }
   if (table.rows.length) draw.text(labels.tableBarNote[0], MUTED, 12);
+}
+
+function separatedMovers(draw: SvgDraw, table: ReportTable): void {
+  draw.parts.push('<g data-table="movers">');
+  for (const [key, title] of [['gainers', labels.gainers[0]], ['decliners', labels.decliners[0]]]) {
+    const rows = table.rows.filter(row => row[0] === title);
+    if (!rows.length) continue;
+    draw.y += 20;
+    draw.parts.push(`<g data-table="movers-${key}">`);
+    draw.text(title);
+    for (const row of rows) {
+      draw.parts.push(draw.node(66, draw.y, row[1], { size: 13 }));
+      tableCellBar(draw, table, row, 2, 574, 332);
+      draw.parts.push(draw.node(894, draw.y, row[2], { size: 13, anchor: 'end', color: row[2].startsWith('-') ? DOWN : UP }));
+      draw.y += 32;
+    }
+    draw.parts.push('</g>');
+  }
+  draw.parts.push('</g>');
+  for (const line of table.fallback) draw.text(`${draw.present(labels.fallback[0])}: ${line}`, MUTED, 12);
+  for (const note of table.notes) draw.text(note, MUTED, 12);
+  draw.text(labels.tableBarNote[0], MUTED, 12);
 }
 
 function tableCellBar(draw: SvgDraw, table: ReportTable, row: string[], column: number, x: number, cellWidth: number): void {
@@ -426,7 +449,8 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
     const table = reportTable(markdown, heading);
     if (table) {
       addHeading(title);
-      alignedTable(draw, table);
+      if (table.key === 'movers') separatedMovers(draw, table);
+      else alignedTable(draw, table);
       continue;
     }
     if (heading === '### 六维观察') {
@@ -440,8 +464,8 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
     const lines = excerpt(markdown, heading, limit as number);
     if (lines.length) {
       addHeading(title);
-      for (const line of lines) addText(line);
-      renderReportPanel(draw, markdown, heading);
+      const consumed = renderReportPanel(draw, markdown, heading);
+      for (const line of lines) if (!consumed.has(normalizePanelLine(line))) addText(line);
     }
   }
   const provenance = markdown.split('\n').filter((line) => /^\*数据:/.test(line.trim()));
@@ -454,11 +478,20 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
     const chart: ChartCard = charts.find((item) => item.key === key) || {
       key, title: chartTitles[key], status: 'missing', points: [], reason: '暂无可公开数据',
     };
+    const originalPoints = usablePoints(chart);
+    validPoints.push(...originalPoints);
+    let points = originalPoints.filter(point => !reportFactAlreadyShown(point, report.date, markdown, parts.join('')));
+    const countLabels = ['上涨家数', '下跌家数', '平盘家数'];
+    const breadthPoints = originalPoints.filter(point => countLabels.includes(point.label));
+    if (breadthPoints.length && breadthPoints.some(point => points.includes(point))) {
+      points = originalPoints.filter(point => points.includes(point) || countLabels.includes(point.label));
+    }
+    if (originalPoints.length && !points.length && !chart.reason) continue;
     addHeading(`${chartTitles[key]} · ${statusTitles[chart.status] || '缺项'}`);
     if (chart.reason) addText(chart.reason, MUTED, 13);
-    const points = usablePoints(chart);
+
     if (!points.length) {
-      if (!chart.reason) addText('暂无通过审核的公开数据。', MUTED, 13);
+      if (!originalPoints.length && !chart.reason) addText('暂无通过审核的公开数据。', MUTED, 13);
       continue;
     }
     const chartStart = draw.y;
@@ -483,7 +516,7 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
     }
     if (draw.y === chartStart) fallbackRows(draw, points);
     sourceNote(draw, points);
-    validPoints.push(...points);
+
   }
   const sources = [...new Set(validPoints.map((point) => `${point.source_label} · ${sourceDomain(point.source_url)}`))];
   if (sources.length) {

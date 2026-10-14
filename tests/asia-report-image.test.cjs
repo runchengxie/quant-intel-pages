@@ -24,7 +24,7 @@ test('published overview facts produce signed comparison and disjoint count grou
   assert.match(svg, /data-count="inflow" data-value="2065"/);
   assert.match(svg, /data-card="turnover"/);
   assert.match(svg, /data-card="max-board"/);
-  assert.match(svg, /1.45万亿/);
+  assert.match(svg, /1.45 万亿元/);
   assert.match(svg, /-286.86/);
   assert.doesNotMatch(svg, /NaN|undefined/);
   const en = buildAsiaReportSvg(evening, [], markdown, value => value, 'en-US');
@@ -461,7 +461,8 @@ test('all twelve return buckets are charted only when their counts reconcile wit
   const svg = buildAsiaReportSvg(evening, [], distributionOverview + distributionLine);
   assert.equal((svg.match(/data-metric="distribution"/g) || []).length, 12);
   assert.match(svg, /data-metric="distribution" data-value="2203"/);
-  assert.match(svg, /站上 VWAP 比例: 11.5%/);
+  assert.match(svg, /站上 VWAP 比例/);
+  assert.match(svg, /11.5%/);
   assert.match(svg, /data-metric="vwap-share" data-value="11.5"/);
   assert.match(svg, /data-metric="close-position" data-value="12.1"/);
   assert.match(svg, /data-metric="opening-gap" data-value="-0.22"/);
@@ -487,7 +488,7 @@ test('flow proxy gets a signed amount bar and industry decliners keep labels, re
 电力设备(-3.07%)、机械设备(-2.53%)`);
   assert.match(svg, /data-metric="flow-proxy" data-value="-695.53"/);
   assert.match(svg, /data-metric="industry-decliner" data-value="-3.07"/);
-  assert.match(svg, /大单资金代理 -695.53亿/);
+  assert.match(svg, /大单资金代理: -695.53 亿元/);
   assert.match(svg, /电力设备/);
   assert.match(svg, /净流入家数/);
 });
@@ -502,4 +503,45 @@ test('large finite published table values never overflow bar geometry', async ()
 | 300308 | ${large} | +1.00% |`);
   assert.match(svg, /data-metric="turnover-amount"/);
   assert.doesNotMatch(svg, /Infinity|NaN/);
+});
+
+test('chart-covered prose disappears while uncharted representatives survive', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  const markdown = readFileSync(path.join(__dirname, '../artifacts/public/reports/2026-10-14-evening.md'), 'utf8');
+  const svg = buildAsiaReportSvg({ ...evening, id: '2026-10-14-evening', date: '2026-10-14' }, [], markdown);
+  assert.doesNotMatch(svg, /全市场中位数涨跌 -1.94% \|/);
+  assert.doesNotMatch(svg, /大单资金代理 -695.53亿 \|/);
+  assert.match(svg, /上涨率: 17.6%/);
+  assert.match(svg, /新华文轩/);
+  assert.match(svg, /data-table="movers-gainers"/);
+  assert.match(svg, /data-table="movers-decliners"/);
+});
+
+
+test('lower dashboard omits exact duplicates but retains mean, dates and coverage', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  const markdown = readFileSync(path.join(__dirname, '../artifacts/public/reports/2026-10-14-evening.md'), 'utf8');
+  const charts = JSON.parse(readFileSync(path.join(__dirname, '../artifacts/public/data/charts/2026-10-14-evening.json'), 'utf8')).charts;
+  const svg = buildAsiaReportSvg({ ...evening, id: '2026-10-14-evening', date: '2026-10-14' }, charts, markdown);
+  assert.doesNotMatch(svg, />市场广度</);
+  assert.match(svg, /平均涨跌/);
+  assert.equal((svg.match(/>最高连板<\/text>/g) || []).length, 1);
+  assert.equal((svg.match(/>涨停家数<\/text>/g) || []).length, 0);
+  assert.match(svg, /融资余额仅覆盖部分交易所/);
+  assert.match(svg, /09-30/);
+  const { reportFactAlreadyShown } = await import('../src/lib/asia-report-facts.ts');
+  const point = charts.find(chart => chart.key === 'dashboard').points.find(point => point.label === '上涨家数');
+  assert.equal(reportFactAlreadyShown(point, '2026-10-14', markdown, svg), true);
+  for (const update of [{ value: 978 }, { observation_date: '2026-10-13' }, { unit: '%' }, { source_label: 'Partial coverage' }, { source_url: 'https://example.com' }]) {
+    assert.equal(reportFactAlreadyShown({ ...point, ...update }, '2026-10-14', markdown, svg), false);
+  }
+});
+
+test('zero counts stay labelled and integer returns can replace covered prose', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  const svg = buildAsiaReportSvg(evening, [], '### 三、市场总览\n全市场中位数涨跌 0% | 成交额加权涨跌 0% | 总成交 0\n上涨 0 家 | 下跌 0 家 | 平盘 0 家 | 上涨率 0%');
+  assert.doesNotMatch(svg, /全市场中位数涨跌 0% \|/);
+  assert.match(svg, /上涨家数: 0 家/);
+  assert.match(svg, /上涨率: 0%/);
+  assert.doesNotMatch(svg, /NaN|Infinity/);
 });
