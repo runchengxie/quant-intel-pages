@@ -109,8 +109,7 @@ test('published facts produce aligned tables, signed index geometry and explicit
   assert.equal(bars.length, 2);
   const positive = bars.find((row) => row[2] === '0.31');
   const negative = bars.find((row) => row[2] === '-2.51');
-  assert.equal(Number(positive[3]), 540);
-  assert.equal(Number(negative[3]) + Number(negative[5]), 540);
+  assert.equal(Number(negative[3]) + Number(negative[5]), Number(positive[3]));
   assert.ok(Number(positive[5]) < Number(negative[5]));
   assert.match(svg, /无法解析|缺项/);
   assert.match(svg, /broken/);
@@ -132,11 +131,11 @@ test('English table labels are complete and geometry is shared with Chinese', as
   const en = buildAsiaReportSvg(evening, [], facts, toEnglishPresentation);
   assert.match(en, />Close level<\/text>/);
   assert.match(en, />Turnover \(CNY 100m\)<\/text>/);
-  assert.match(en, />Index daily returns<\/text>/);
+  assert.doesNotMatch(en, />Index daily returns<\/text>/);
   assert.match(en, /Unparsed row/);
   assert.match(en, /Original report facts/);
   assert.doesNotMatch(en, /收盘点位|成交额（亿）|指数日涨跌|\[WARN\]/);
-  assert.match(en, /data-value="-2.51" x="240"/);
+  assert.match(en, /data-index-return="[^"]+" data-value="-2.51"/);
 });
 
 test('new English labels come from the selected semantic catalog without substring translation', async () => {
@@ -146,7 +145,7 @@ test('new English labels come from the selected semantic catalog without substri
   const svg = buildAsiaReportSvg(evening, [], facts, legacy);
   assert.match(svg, />Close level<\/text>/);
   assert.match(svg, />Turnover \(CNY 100m\)<\/text>/);
-  assert.match(svg, />Index daily returns<\/text>/);
+  assert.doesNotMatch(svg, />Index daily returns<\/text>/);
   assert.match(svg, /Original report facts/);
 });
 
@@ -158,7 +157,7 @@ test('explicit English locale selects labels and metadata with identity or custo
     assert.match(svg, /<desc>Includes the Asia close summary/);
     assert.match(svg, /19:00 Beijing time edition/);
     assert.match(svg, />Close level<\/text>/);
-    assert.match(svg, />Index daily returns<\/text>/);
+    assert.doesNotMatch(svg, />Index daily returns<\/text>/);
     assert.doesNotMatch(svg, /亚洲市场收盘|北京时间|收盘点位|指数日涨跌/);
   }
 });
@@ -421,4 +420,86 @@ test('holiday image shows missing sessions explicitly and requires one current o
   assert.equal(buildAsiaReportSvg(holidayReport, [], missingJapan.replace('| 香港 | 2026-10-05 | 25000.00 | +1.00% |', '| 香港 | 当日数据缺失 | — | — |')), null);
   assert.equal(buildAsiaReportSvg(holidayReport, [], holidayMarkdown.replace('A 股今日休市。', '')), null);
   assert.equal(buildAsiaReportSvg(holidayReport, [], holidayMarkdown.replace('| A 股 | 休市', '| A 股 | 当日数据缺失')), null);
+});
+
+
+test('index return bars share the table row and show each numeric return once', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  const svg = buildAsiaReportSvg(evening, [], `### 二、指数总览
+上证指数: 3767.23 [WARN] -0.89% | 成交 6624.92亿
+科创50: 1380.26 [WARN] -3.29% | 成交 576.23亿`);
+  const table = svg.match(/<g data-table="indices">([\s\S]*?)<\/g>/)[1];
+  assert.equal((svg.match(/>-0\.89%<\/text>/g) || []).length, 1);
+  assert.equal((svg.match(/>上证指数<\/text>/g) || []).length, 1);
+  assert.match(table, /data-index-return="上证指数" data-value="-0.89"/);
+  assert.doesNotMatch(svg, />指数日涨跌<\/text>/);
+  assert.match(table, />3767\.23<\/text>/);
+  assert.match(table, />6624\.92<\/text>/);
+});
+
+test('published table metrics add separate signed return and turnover bars without dropping text', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  const svg = buildAsiaReportSvg(evening, [], facts);
+  for (const [key, value] of [['industry-return', '2'], ['turnover-amount', '128.5'], ['turnover-return', '-0.56'], ['concepts-return', '6.42'], ['movers-return', '-29.97']]) {
+    assert.match(svg, new RegExp(`data-metric="${key}" data-value="${value}"`));
+  }
+  const industry = svg.match(/<g data-table="industry">([\s\S]*?)<\/g>/)[1];
+  assert.match(industry, />医药生物<\/text>/);
+  assert.match(industry, />\+2\.00%<\/text>/);
+  assert.doesNotMatch(svg, /NaN|Infinity|undefined/);
+});
+
+const distributionLine = '涨跌分布: -100~-9.9%:23 -9.9~-7%:62 -7~-5%:240 -5~-3%:1288 -3~-1%:2203 -1~0%:680 0~1%:493 1~3%:373 3~5%:91 5~7%:51 7~9.9%:12 9.9~100%:47';
+const distributionOverview = `### 三、市场总览
+全市场中位数涨跌 -1.94% | 成交额加权涨跌 -1.59% | 总成交 1.43万亿
+上涨 979 家 | 下跌 4496 家 | 平盘 88 家 | 上涨率 17.6%
+站上 VWAP 比例: 11.5% | 开盘跳空: -0.22% | 日内振幅中位数: 3.66% | 收盘位置: 12.1%
+`;
+
+test('all twelve return buckets are charted only when their counts reconcile with market coverage', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  const svg = buildAsiaReportSvg(evening, [], distributionOverview + distributionLine);
+  assert.equal((svg.match(/data-metric="distribution"/g) || []).length, 12);
+  assert.match(svg, /data-metric="distribution" data-value="2203"/);
+  assert.match(svg, /站上 VWAP 比例: 11.5%/);
+  assert.match(svg, /data-metric="vwap-share" data-value="11.5"/);
+  assert.match(svg, /data-metric="close-position" data-value="12.1"/);
+  assert.match(svg, /data-metric="opening-gap" data-value="-0.22"/);
+  assert.match(svg, /data-metric="intraday-range" data-value="3.66"/);
+  const en = buildAsiaReportSvg(evening, [], distributionOverview + distributionLine, value => value, 'en-US');
+  assert.match(en, /Return distribution/);
+  assert.doesNotMatch(en, /涨跌分布|区间沿用|站上 VWAP|收盘位置/);
+  for (const line of [distributionLine.replace(':2203', ':2204'), distributionLine.replace(' -7~-5%:240', ''), distributionLine + ' bad', distributionLine.replace('-3~-1%', '-2~-1%'), distributionLine.replace(':23', ':1e3')]) {
+    const invalid = buildAsiaReportSvg(evening, [], distributionOverview + line);
+    assert.doesNotMatch(invalid, /data-metric="distribution"/);
+  }
+});
+
+test('flow proxy gets a signed amount bar and industry decliners keep labels, returns and negative direction', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  const svg = buildAsiaReportSvg(evening, [], `### 五、资金动向
+大单资金代理 -695.53亿 | 净流入 1163 家 / 净流出 4050 家
+### 七、行业板块 TOP10
+| 行业 | 均涨跌 | 中位数 | 家数 | 上涨率 |
+|---|---|---|---|---|
+| 煤炭 | +1.17% | +0.80% | 39 | 61.5% |
+跌幅靠前行业:
+电力设备(-3.07%)、机械设备(-2.53%)`);
+  assert.match(svg, /data-metric="flow-proxy" data-value="-695.53"/);
+  assert.match(svg, /data-metric="industry-decliner" data-value="-3.07"/);
+  assert.match(svg, /大单资金代理 -695.53亿/);
+  assert.match(svg, /电力设备/);
+  assert.match(svg, /净流入家数/);
+});
+
+
+test('large finite published table values never overflow bar geometry', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  const large = '1' + '0'.repeat(307);
+  const svg = buildAsiaReportSvg(evening, [], `### 八、高成交核心票 TOP10
+| 代码 | 成交额(亿) | 涨跌 |
+|---|---|---|
+| 300308 | ${large} | +1.00% |`);
+  assert.match(svg, /data-metric="turnover-amount"/);
+  assert.doesNotMatch(svg, /Infinity|NaN/);
 });

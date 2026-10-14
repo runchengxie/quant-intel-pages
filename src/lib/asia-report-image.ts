@@ -3,6 +3,7 @@ import { dailyReturn, reportTable, type ReportTable } from './asia-report-tables
 import { ASIA_IMAGE_LABELS as labels, asiaImageLabel, type Locale } from './locale.ts';
 import { toEnglishPresentation } from './english-content.ts';
 import { renderReportPanel } from './asia-report-panels.ts';
+import { tableColumns, tableMetric, tableMetricValue, metricScale } from './asia-table-metrics.ts';
 
 interface EveningReport {
   kind: string;
@@ -46,11 +47,7 @@ function cellLines(value: string, pixels: number, size = 13): string[] {
 }
 
 function alignedTable(draw: SvgDraw, table: ReportTable): void {
-  const widths: Record<string, number[]> = {
-    indices: [280, 180, 170, 222], industry: [280, 145, 145, 130, 152],
-    turnover: [280, 300, 272], concepts: [220, 120, 350, 162], movers: [280, 300, 272],
-  };
-  const columns = widths[table.key];
+  const columns = tableColumns[table.key];
   draw.parts.push(`<g data-table="${table.key}">`);
   const row = (values: string[], header = false) => {
     const lines = values.map((value, i) => cellLines(draw.present(value), columns[i] - 24));
@@ -60,6 +57,7 @@ function alignedTable(draw: SvgDraw, table: ReportTable): void {
     for (const [i, cell] of lines.entries()) {
       const numeric = !header && /^(?:[+-]?\d|N\/A)/.test(values[i]) && !(table.key === 'turnover' && i === 0) && !(table.key === 'movers' && i === 1);
       const color = !header && /^[+-]\d.*%$/.test(values[i]) ? (values[i].startsWith('-') ? DOWN : UP) : INK;
+      if (!header) tableCellBar(draw, table, values, i, x, columns[i]);
       for (const [j, line] of cell.entries()) draw.parts.push(textNode(numeric ? x + columns[i] - 12 : x + 12, draw.y + j * 18, line,
         { size: 13, anchor: numeric ? 'end' : 'start', weight: header ? '600' : '400', color }));
       x += columns[i];
@@ -73,25 +71,44 @@ function alignedTable(draw: SvgDraw, table: ReportTable): void {
   if (table.rows.length > table.preview) draw.text(draw.present(labels.preview[0]).replace('{shown}', String(table.preview)).replace('{total}', String(table.rows.length)), MUTED, 12);
   for (const line of table.fallback) draw.text(`${draw.present(labels.fallback[0])}: ${line}`, MUTED, 12);
   for (const note of table.notes.slice(0, 2)) draw.text(note, MUTED, 12);
-  if (table.key !== 'indices') return;
-  draw.text(labels.indexReturns[0], INK, 15);
-  const values = table.rows.map((item) => dailyReturn(item[2])).filter((value): value is number => value !== null);
-  const scale = Math.max(...values.map(Math.abs), 0.01);
-  for (const item of table.rows) {
-    const value = dailyReturn(item[2]);
-    draw.parts.push(textNode(54, draw.y, draw.present(item[0]), { size: 13 }));
-    if (value === null) {
-      draw.parts.push(textNode(350, draw.y, draw.present(labels.missingReturn[0]), { size: 12, color: MUTED }));
-    } else {
-      const width = 300 * Math.abs(value) / scale;
-      draw.parts.push(`<line x1="540" y1="${draw.y - 15}" x2="540" y2="${draw.y + 3}" stroke="${MUTED}"/>`);
-      draw.parts.push(`<rect data-index-return="${escapeText(item[0])}" data-value="${value}" x="${value < 0 ? 540 - width : 540}" y="${draw.y - 12}" width="${width}" height="14" fill="${value < 0 ? DOWN : value > 0 ? UP : FLAT}"/>`);
-      draw.parts.push(draw.node(906, draw.y, item[2], { size: 13, anchor: 'end' }));
-    }
-    draw.y += 28;
+  if (table.key === 'industry') industryDecliners(draw, table.notes);
+  if (table.key === 'indices') {
+    if (table.rows.some(row => dailyReturn(row[2]) === null)) draw.text(labels.missingReturn[0], MUTED, 12);
+    draw.text(labels.originalFacts[0], MUTED, 12);
   }
-  draw.text(labels.direction[0], MUTED, 12);
-  draw.text(labels.originalFacts[0], MUTED, 12);
+  if (table.rows.length) draw.text(labels.tableBarNote[0], MUTED, 12);
+}
+
+function tableCellBar(draw: SvgDraw, table: ReportTable, row: string[], column: number, x: number, cellWidth: number): void {
+  const metric = tableMetric(table, column);
+  const value = tableMetricValue(table, row, column);
+  if (metric === null || value === null) return;
+  const span = cellWidth - 110;
+  const zero = x + 12 + (metric === 'return' ? span / 2 : 0);
+  const width = (Math.abs(value) / metricScale(table, column)) * (metric === 'return' ? span / 2 : span);
+  const metadata = table.key === 'indices' ? `data-index-return="${escapeText(row[0])}"` : `data-metric="${table.key}-${metric}"`;
+  draw.parts.push(`<line x1="${zero}" y1="${draw.y - 14}" x2="${zero}" y2="${draw.y + 3}" stroke="${MUTED}"/>`);
+  draw.parts.push(`<rect ${metadata} data-value="${value}" x="${value < 0 ? zero - width : zero}" y="${draw.y - 11}" width="${width}" height="13" fill="${metric === 'amount' ? DOWN : value < 0 ? DOWN : value > 0 ? UP : FLAT}"/>`);
+}
+
+function industryDecliners(draw: SvgDraw, notes: string[]): void {
+  const heading = notes.indexOf('跌幅靠前行业:');
+  if (heading < 0 || !notes[heading + 1]) return;
+  const matches = notes[heading + 1].split('、').map(value => /^([^()]+)\(([+-]\d+(?:\.\d+)?)%\)$/.exec(value));
+  if (matches.some(value => !value || !Number.isFinite(Number(value[2])) || Number(value[2]) >= 0 || Number(value[2]) < -100)) return;
+  const rows = matches as RegExpExecArray[];
+  const scale = Math.max(...rows.map(row => Math.abs(Number(row[2]))));
+  draw.parts.push('<g data-table="industry-decliners">');
+  for (const row of rows) {
+    const value = Number(row[2]);
+    const width = 430 * Math.abs(value) / scale;
+    draw.parts.push(draw.node(66, draw.y, row[1], { size: 13 }));
+    draw.parts.push(`<line x1="790" y1="${draw.y - 14}" x2="790" y2="${draw.y + 3}" stroke="${MUTED}"/>`);
+    draw.parts.push(`<rect data-metric="industry-decliner" data-value="${value}" x="${790 - width}" y="${draw.y - 11}" width="${width}" height="13" fill="${DOWN}"/>`);
+    draw.parts.push(draw.node(894, draw.y, `${row[2]}%`, { size: 13, anchor: 'end', color: DOWN }));
+    draw.y += 30;
+  }
+  draw.parts.push('</g>');
 }
 
 function sourceDomain(url: string): string | null {

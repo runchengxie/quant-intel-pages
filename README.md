@@ -50,3 +50,10 @@ The legacy controller and its three utility modules are authored in `src/legacy-
 Scheduled morning and evening publications use factual reports without generating
 AI interpretation. Archived interpretation remains readable; an empty interpretation
 history is a supported input and does not block publication.
+
+The Asia report image combines index values and zero-centered return bars in one
+table. Industry, turnover, concept and mover tables retain published numbers and
+add column-specific bars. Market overview charts retain original text and use
+only complete return distributions whose bucket counts match reported coverage.
+The bucket containing zero is distinguished from advancing-stock counts.
+Malformed or missing facts stay visible as text without invented graphics.
