@@ -8,7 +8,7 @@ const FLAT = '#777777';
 const TRACK = '#efe2d5';
 
 /** Reject partial, overlapping, reordered or non-reconciling report buckets. */
-export function renderDistribution(draw: Draw, lines: string[], coverage: number): void {
+export function renderDistribution(draw: Draw, lines: string[], coverage: number): string | undefined {
   const source = lines.find(line => line.startsWith('涨跌分布:'));
   if (!source) return;
   const tokens = source.slice('涨跌分布:'.length).trim().split(/\s+/);
@@ -32,9 +32,10 @@ export function renderDistribution(draw: Draw, lines: string[], coverage: number
   }
   draw.text(labels.distributionNote[0], FLAT, 12);
   draw.parts.push('</g>');
+  return source;
 }
 
-export function renderIntraday(draw: Draw, lines: string[]): void {
+export function renderIntraday(draw: Draw, lines: string[]): string | undefined {
   const source = lines.find(line => line.startsWith('站上 VWAP 比例:'));
   const row = source && /^站上 VWAP 比例: (\d+(?:\.\d+)?)% \| 开盘跳空: ([+-]?\d+(?:\.\d+)?)% \| 日内振幅中位数: (\d+(?:\.\d+)?)% \| 收盘位置: (\d+(?:\.\d+)?)%$/.exec(source);
   if (!row) return;
@@ -63,4 +64,5 @@ export function renderIntraday(draw: Draw, lines: string[]): void {
   }
   draw.text(labels.ratioScaleNote[0], FLAT, 12);
   draw.parts.push('</g>');
+  return source;
 }

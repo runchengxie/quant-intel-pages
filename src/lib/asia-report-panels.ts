@@ -25,10 +25,10 @@ function card(draw: Draw, key: string, label: string, value: string): void {
 
 function counts(draw: Draw, rows: Metric[]): void {
   const total = rows.reduce((sum, row) => sum + row[2], 0);
-  if (!total) return;
+
   let left = 54;
   for (const [index, [key, , value]] of rows.entries()) {
-    const width = 852 * value / total;
+    const width = total ? 852 * value / total : 0;
     draw.parts.push(`<rect data-count="${key}" data-value="${value}" x="${left}" y="${draw.y}" width="${width}" height="18" fill="${[UP, DOWN, FLAT][index]}"/>`);
     left += width;
   }
@@ -70,34 +70,44 @@ function validBreadth(row: RegExpExecArray): boolean {
   return rate <= 100 && (total === 0 ? rate === 0 : Math.abs(up / total * 100 - rate) <= 0.051);
 }
 
-/** Graphics supplement the original published text; never read private source assets. */
-export function renderReportPanel(draw: Draw, markdown: string, heading: string): void {
+/** Return only lines whose complete facts have been drawn from published text. */
+export function renderReportPanel(draw: Draw, markdown: string, heading: string): Set<string> {
+  const consumed = new Set<string>();
+  const consume = (match: RegExpExecArray) => consumed.add(normalizePanelLine(match[0]));
   const lines = sectionLines(markdown, heading);
   if (heading === '### 三、市场总览') {
     const change = matches(lines, new RegExp(`^全市场中位数涨跌\\s*${patternNumber}% \\| 成交额加权涨跌 ${patternNumber}% \\| 总成交 ${patternNumber}(万亿|亿|万)?$`));
     const breadth = matches(lines, /^上涨 (\d+) 家 \| 下跌 (\d+) 家 \| 平盘 (\d+) 家 \| 上涨率 (\d+(?:\.\d+)?)%$/);
-    if (!change || !breadth || Number(change[3]) < 0 || Number(change[1]) < -100 || Number(change[2]) < -100 || !validBreadth(breadth)) return;
+    if (!change || !breadth || Number(change[3]) < 0 || Number(change[1]) < -100 || Number(change[2]) < -100 || !validBreadth(breadth)) return consumed;
     draw.parts.push('<g data-report-panel="overview">');
     card(draw, 'turnover', labels.totalTurnover[0], moneyText(draw, change[3], change[4] || ''));
     returns(draw, [['median', labels.medianReturn[0], Number(change[1])], ['weighted', labels.weightedReturn[0], Number(change[2])]]);
     counts(draw, [['up', labels.upCount[0], Number(breadth[1])], ['down', labels.downCount[0], Number(breadth[2])], ['flat', labels.flatCount[0], Number(breadth[3])]]);
+    draw.text(`${draw.present(labels.advanceRate[0])}: ${breadth[4]}%`, FLAT, 12);
+    if ((change[1].split('.')[1]?.length ?? 0) <= 2 && (change[2].split('.')[1]?.length ?? 0) <= 2) consume(change);
+    consume(breadth);
     draw.text(labels.weightedNote[0], FLAT, 12);
-    renderIntraday(draw, lines);
-    renderDistribution(draw, lines, Number(breadth[1]) + Number(breadth[2]) + Number(breadth[3]));
+    const intraday = renderIntraday(draw, lines);
+    if (intraday) consumed.add(normalizePanelLine(intraday));
+    const distribution = renderDistribution(draw, lines, Number(breadth[1]) + Number(breadth[2]) + Number(breadth[3]));
+    if (distribution) consumed.add(normalizePanelLine(distribution));
   } else if (heading === '### 四、涨跌停') {
     const limits = matches(lines, /^涨停 (\d+) 家 \| 跌停 (\d+) 家 \| 涨幅>5% (\d+) 家 \| 跌幅>5% (\d+) 家$/);
-    if (!limits) return;
+    if (!limits) return consumed;
     draw.parts.push('<g data-report-panel="limits">');
     const board = matches(lines.map(line => line.replace(/^>\s*/, '')), /^最高连板:\s*(\d+) 板$/);
+    consume(limits);
+    if (board) consume(board);
     if (board) card(draw, 'max-board', labels.maxBoard[0], `${board[1]}${draw.present(labels.boardUnit[0])}`);
     counts(draw, [['limit-up', labels.limitUp[0], Number(limits[1])], ['limit-down', labels.limitDown[0], Number(limits[2])]]);
     counts(draw, [['over-five', labels.overFive[0], Number(limits[3])], ['below-five', labels.belowFive[0], Number(limits[4])]]);
     draw.text(labels.overlapNote[0], FLAT, 12);
   } else if (heading === '### 五、资金动向') {
     const flow = matches(lines, new RegExp(`^大单资金代理\\s*${patternNumber}(万亿|亿|万)? \\| 净流入 (\\d+) 家 / 净流出 (\\d+) 家$`));
-    if (!flow) return;
+    if (!flow) return consumed;
+    consume(flow);
     draw.parts.push('<g data-report-panel="flow">');
-    draw.text(`${draw.present(labels.flowProxy[0])}: ${moneyText(draw, Number(flow[1]).toFixed(2), flow[2] || '')}`);
+    draw.text(`${draw.present(labels.flowProxy[0])}: ${moneyText(draw, flow[1], flow[2] || '')}`);
     const value = Number(flow[1]);
     const width = 250 * Math.abs(value) / Math.max(Math.abs(value), 0.01);
     draw.parts.push(`<line x1="590" y1="${draw.y - 14}" x2="590" y2="${draw.y + 3}" stroke="${FLAT}"/>`);
@@ -106,6 +116,11 @@ export function renderReportPanel(draw: Draw, markdown: string, heading: string)
     draw.text(labels.flowDirectionNote[0], FLAT, 12);
     counts(draw, [['inflow', labels.inflowCount[0], Number(flow[3])], ['outflow', labels.outflowCount[0], Number(flow[4])]]);
     draw.text(labels.proxyNote[0], FLAT, 12);
-  } else return;
+  } else return consumed;
   draw.parts.push('</g>');
+  return consumed;
+}
+
+export function normalizePanelLine(line: string): string {
+  return line.replace(/^[-*>]\s*/, '').replace(/\[(?:OK|WARN)\]\s*/g, '').trim();
 }
