@@ -1,11 +1,16 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
 
 test('insight presentation keeps the published identity, claims and evidence', async () => {
   const { latestInsight } = await import('../src/lib/insights.ts');
-  const payload = JSON.parse(fs.readFileSync(path.join(__dirname, '../artifacts/public/data/insights.json'), 'utf8'));
+  const payload = { insights: [{
+    id: 'archived-insight', date: '2026-10-12', source_hash: 'source-hash',
+    source_hashes: { '2026-10-12-evening': 'report-hash' },
+    analysis: { overview: { text: 'Published observation', evidence_ids: ['e1'] },
+      changes: [], tensions: [], watchpoints: [] },
+    evidence: [{ id: 'e1', report_id: '2026-10-12-evening', section: 'breadth', text: 'Published fact' }],
+    metrics: { breadth: { label: 'Breadth', unit: '%' } }, quality_warnings: [],
+  }] };
   const expected = [...payload.insights].sort((a, b) => b.date.localeCompare(a.date))[0];
   const result = latestInsight(payload);
   for (const key of ['id', 'date', 'source_hashes', 'source_hash', 'analysis', 'evidence', 'metrics', 'quality_warnings']) {
@@ -34,4 +39,14 @@ test('outcomes preserve source evidence without requiring an optional evidence I
   const row = { insight_id: 'x', watchpoint_index: 0, status: 'met', observed_value: 2,
     evidence: [{ report_id: '2026-10-12-evening', section: 'breadth', text: '2' }] };
   assert.deepEqual(insightOutcomes({ outcomes: [row] }), [row]);
+});
+
+// Empty insight history is a supported fact-only publication, regardless of provider state.
+test('disabled or unavailable interpretation does not require an insight record', async () => {
+  const { latestInsight, insightOutcomes } = await import('../src/lib/insights.ts');
+  for (const status of ['disabled', 'unavailable', 'not_configured']) {
+    const payload = { schema_version: 'market_intel_pages.insights.v1', generation: { status }, insights: [], outcomes: [] };
+    assert.equal(latestInsight(payload), null);
+    assert.deepEqual(insightOutcomes(payload), []);
+  }
 });
