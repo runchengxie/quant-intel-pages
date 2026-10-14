@@ -73,7 +73,7 @@ test('optional index failures preserve reports and show fallback statuses', asyn
   expect(errors).toEqual([]);
 });
 
-test('complete legacy entry renders published market facts and insight evidence', async ({ page }) => {
+test('complete legacy entry renders published market facts, downloads PNG and shows insight evidence', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await legacyEntry(page);
@@ -89,9 +89,34 @@ test('complete legacy entry renders published market facts and insight evidence'
   await expect(page.locator('#report-list .report-card')).not.toHaveCount(0);
   await expect(page.locator('#market-daily-charts .market-daily-chart')).not.toHaveCount(0);
   await expect(page.locator('#market-daily-files a').first()).toHaveAttribute('href', /\.\.\/reports\/\d{4}-\d{2}-\d{2}-market-daily\.(txt|md)/);
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('#market-daily-files button').click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^\d{4}-\d{2}-\d{2}-market-daily-charts\.png$/);
+  const stream = await download.createReadStream();
+  expect(stream).not.toBeNull();
+  if (!stream) throw new Error('PNG download stream unavailable');
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream) chunks.push(Buffer.from(chunk));
+  const png = Buffer.concat(chunks);
+  expect([...png.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
+  await expect(page.locator('#market-daily-files button')).toBeEnabled();
   await expect(page.locator('#insight-list .insight-card')).toHaveCount(1);
   await page.locator('#insight-list .evidence-details summary').first().click();
   await expect(page.locator('#insight-list .evidence-item').first()).toBeVisible();
   await expect(page.locator('#load-error')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+
+test('primary report fetch failure shows the load error without an uncaught exception', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await legacyEntry(page);
+  await page.route(`${base}/data/reports.json`, route => route.fulfill({ status: 503, body: 'unavailable' }));
+  await page.reload();
+  await expect(page.locator('#load-error')).toBeVisible();
+  await expect(page.locator('#report-list .report-card')).toHaveCount(0);
+  await expect(page.locator('#theme-toggle')).toContainText('主题：系统');
   expect(errors).toEqual([]);
 });
