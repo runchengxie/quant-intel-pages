@@ -1,7 +1,8 @@
 import { sectionLines } from './asia-report-tables.ts';
 import { ASIA_IMAGE_LABELS as labels } from './locale.ts';
+import { renderDistribution, renderIntraday } from './asia-report-distribution.ts';
 
-interface Draw {
+export interface Draw {
   parts: string[];
   y: number;
   present: (value: string) => string;
@@ -81,6 +82,8 @@ export function renderReportPanel(draw: Draw, markdown: string, heading: string)
     returns(draw, [['median', labels.medianReturn[0], Number(change[1])], ['weighted', labels.weightedReturn[0], Number(change[2])]]);
     counts(draw, [['up', labels.upCount[0], Number(breadth[1])], ['down', labels.downCount[0], Number(breadth[2])], ['flat', labels.flatCount[0], Number(breadth[3])]]);
     draw.text(labels.weightedNote[0], FLAT, 12);
+    renderIntraday(draw, lines);
+    renderDistribution(draw, lines, Number(breadth[1]) + Number(breadth[2]) + Number(breadth[3]));
   } else if (heading === '### 四、涨跌停') {
     const limits = matches(lines, /^涨停 (\d+) 家 \| 跌停 (\d+) 家 \| 涨幅>5% (\d+) 家 \| 跌幅>5% (\d+) 家$/);
     if (!limits) return;
@@ -95,6 +98,12 @@ export function renderReportPanel(draw: Draw, markdown: string, heading: string)
     if (!flow) return;
     draw.parts.push('<g data-report-panel="flow">');
     draw.text(`${draw.present(labels.flowProxy[0])}: ${moneyText(draw, Number(flow[1]).toFixed(2), flow[2] || '')}`);
+    const value = Number(flow[1]);
+    const width = 250 * Math.abs(value) / Math.max(Math.abs(value), 0.01);
+    draw.parts.push(`<line x1="590" y1="${draw.y - 14}" x2="590" y2="${draw.y + 3}" stroke="${FLAT}"/>`);
+    draw.parts.push(`<rect data-metric="flow-proxy" data-value="${value}" x="${value < 0 ? 590 - width : 590}" y="${draw.y - 11}" width="${width}" height="13" fill="${value < 0 ? DOWN : UP}"/>`);
+    draw.y += 25;
+    draw.text(labels.flowDirectionNote[0], FLAT, 12);
     counts(draw, [['inflow', labels.inflowCount[0], Number(flow[3])], ['outflow', labels.outflowCount[0], Number(flow[4])]]);
     draw.text(labels.proxyNote[0], FLAT, 12);
   } else return;
