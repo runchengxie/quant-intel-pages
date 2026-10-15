@@ -124,6 +124,8 @@ export const ASIA_IMAGE_LABELS = {
   backfill: ['历史补报', 'Historical backfill'],
   tableBarNote: ['条形以 0 为起点或中心；同一列共用刻度，数值保留原报告精度。', 'Bars start at or center on zero; each column has its own scale. Published precision is preserved.'],
   distribution: ['涨跌分布（家数）', 'Return distribution (stocks)'],
+  distributionLower: ['低于 −9.9%', 'Below −9.9%'],
+  distributionUpper: ['不低于 +9.9%', 'At least +9.9%'],
   distributionNote: ['区间沿用原报告；包含 0 的区间可能含平盘股票，不等同于上涨家数。', 'Buckets follow the report; a bucket containing zero may include unchanged stocks and is not an advancing-stock count.'],
   vwapShare: ['站上 VWAP 比例', 'Share above VWAP'],
   openingGap: ['开盘跳空', 'Opening gap'],

@@ -450,6 +450,27 @@ test('published table metrics add separate signed return and turnover bars witho
 });
 
 const distributionLine = '涨跌分布: -100~-9.9%:23 -9.9~-7%:62 -7~-5%:240 -5~-3%:1288 -3~-1%:2203 -1~0%:680 0~1%:493 1~3%:373 3~5%:91 5~7%:51 7~9.9%:12 9.9~100%:47';
+test('open return tails include IPOs and keep zero buckets on a shared diverging count scale', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  const report = `### 三、市场总览
+全市场中位数涨跌 0% | 成交额加权涨跌 +1% | 总成交 1亿
+上涨 3 家 | 下跌 2 家 | 平盘 1 家 | 上涨率 50.0%
+涨跌分布: -inf~-9.9%:1 -9.9~-7%:1 -7~-5%:0 -5~-3%:0 -3~-1%:0 -1~0%:0 0~1%:1 1~3%:0 3~5%:0 5~7%:0 7~9.9%:0 9.9~inf%:3`;
+  const svg = buildAsiaReportSvg(evening, [], report);
+  const bars = [...svg.matchAll(/<rect data-metric="distribution" data-value="(\d+)" x="([^"]+)" y="[^"]+" width="([^"]+)"/g)];
+  assert.equal(bars.length, 12);
+  assert.equal(Number(bars[0][2]) + Number(bars[0][3]), Number(bars[11][2]));
+  assert.equal(Number(bars[11][3]), 3 * Number(bars[0][3]));
+  assert.equal(Number(bars[2][3]), 0);
+  assert.match(svg, /低于.*9.9%/);
+  assert.match(svg, /不低于.*9.9%/);
+  assert.match(svg, /50.0%/);
+  assert.doesNotMatch(svg, /涨跌分布:|inf~/);
+  const english = buildAsiaReportSvg(evening, [], report, value => value, 'en-US');
+  assert.match(english, /Below/);
+  assert.match(english, /At least/);
+  assert.doesNotMatch(english, /低于|不低于/);
+});
 const distributionOverview = `### 三、市场总览
 全市场中位数涨跌 -1.94% | 成交额加权涨跌 -1.59% | 总成交 1.43万亿
 上涨 979 家 | 下跌 4496 家 | 平盘 88 家 | 上涨率 17.6%

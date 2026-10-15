@@ -13,21 +13,29 @@ export function renderDistribution(draw: Draw, lines: string[], coverage: number
   if (!source) return;
   const tokens = source.slice('涨跌分布:'.length).trim().split(/\s+/);
   if (tokens.length !== BOUNDS.length - 1) return;
-  const rows = tokens.map(token => /^(-?\d+(?:\.\d+)?)~(-?\d+(?:\.\d+)?)%:(\d+)$/.exec(token));
-  if (rows.some((row, i) => !row || Number(row[1]) !== BOUNDS[i] || Number(row[2]) !== BOUNDS[i + 1]
+  const openTails = tokens[0].startsWith('-inf~');
+  const bounds = openTails ? [-Infinity, ...BOUNDS.slice(1, -1), Infinity] : BOUNDS;
+  const bound = (value: string) => value === '-inf' ? -Infinity : value === 'inf' ? Infinity : Number(value);
+  const rows = tokens.map(token => /^(-inf|-?\d+(?:\.\d+)?)~(inf|-?\d+(?:\.\d+)?)%:(\d+)$/.exec(token));
+  if (rows.some((row, i) => !row || bound(row[1]) !== bounds[i] || bound(row[2]) !== bounds[i + 1]
     || !Number.isSafeInteger(Number(row[3])))) return;
   const valid = rows as RegExpExecArray[];
   if (valid.reduce((total, row) => total + Number(row[3]), 0) !== coverage) return;
   const max = Math.max(...valid.map(row => Number(row[3])), 1);
   draw.parts.push('<g data-report-panel="distribution">');
   draw.text(labels.distribution[0]);
-  for (const row of valid) {
+  for (const [index, row] of valid.entries()) {
     const value = Number(row[3]);
-    const color = Number(row[2]) <= 0 ? DOWN : Number(row[1]) > 0 ? UP : FLAT;
-    draw.parts.push(draw.node(54, draw.y, `${row[1]} ~ ${row[2]}%`, { size: 12 }));
-    draw.parts.push(`<rect x="240" y="${draw.y - 12}" width="570" height="14" fill="${TRACK}"/>`);
-    draw.parts.push(`<rect data-metric="distribution" data-value="${value}" x="240" y="${draw.y - 12}" width="${570 * value / max}" height="14" fill="${color}"/>`);
-    draw.parts.push(draw.node(906, draw.y, `${value.toLocaleString('en-US')}${draw.present(labels.countUnit[0])}`, { size: 12, anchor: 'end' }));
+    const negative = bound(row[2]) <= 0;
+    const color = negative ? DOWN : bound(row[1]) > 0 ? UP : FLAT;
+    const width = 230 * value / max;
+    const label = openTails && index === 0 ? draw.present(labels.distributionLower[0])
+      : openTails && index === valid.length - 1 ? draw.present(labels.distributionUpper[0]) : `${row[1]} ~ ${row[2]}%`;
+    draw.parts.push(draw.node(54, draw.y, label, { size: 12 }));
+    draw.parts.push(`<rect x="290" y="${draw.y - 12}" width="460" height="14" fill="${TRACK}"/>`);
+    draw.parts.push(`<line x1="520" y1="${draw.y - 14}" x2="520" y2="${draw.y + 4}" stroke="${FLAT}"/>`);
+    draw.parts.push(`<rect data-metric="distribution" data-value="${value}" x="${negative ? 520 - width : 520}" y="${draw.y - 12}" width="${width}" height="14" fill="${color}"/>`);
+    draw.parts.push(draw.node(906, draw.y, `${value.toLocaleString('en-US')}${draw.present(labels.countUnit[0])} (${coverage ? (100 * value / coverage).toFixed(1) : '0.0'}%)`, { size: 12, anchor: 'end' }));
     draw.y += 26;
   }
   draw.text(labels.distributionNote[0], FLAT, 12);
