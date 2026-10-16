@@ -1,9 +1,9 @@
 # 美股市场日报（2026-10-16）
 
 数据状态：degraded
-报告生成时间：2026-10-16T22:31:22.143086+00:00（美东报告日 2026-10-16）
+报告生成时间：2026-10-16T22:45:53.722436+00:00（美东报告日 2026-10-16）
 
-尚缺：研究解释、美债收益率当日变动。
+尚缺：研究解释。
 
 ## 美股市场表现
 
@@ -22,7 +22,7 @@
 | AAPL | 343.46 美元 | +0.43% | 2026-10-16 | [Yahoo Finance](https://finance.yahoo.com/quote/AAPL/history/) |
 | NVDA | 214.13 美元 | -1.43% | 2026-10-16 | [Yahoo Finance](https://finance.yahoo.com/quote/NVDA/history/) |
 | AMZN | 250.00 美元 | -1.87% | 2026-10-16 | [Yahoo Finance](https://finance.yahoo.com/quote/AMZN/history/) |
-| GOOGL | 340.59 美元 | -2.47% | 2026-10-16 | [Alpaca SIP](https://docs.alpaca.markets/us/reference/stockbars) |
+| GOOGL | 340.59 美元 | -2.47% | 2026-10-16 | [Yahoo Finance](https://finance.yahoo.com/quote/GOOGL/history/) |
 | META | 709.33 美元 | -3.72% | 2026-10-16 | [Yahoo Finance](https://finance.yahoo.com/quote/META/history/) |
 
 ## 主要个股
@@ -33,10 +33,10 @@
 
 | 美债期限 | 收益率水平 | 日变动 | 观测日 | 来源 |
 |---|---:|---:|---|---|
-| 2 年期 | 4.77% | -5.00 bp | 2026-10-15 | [FRED](https://fred.stlouisfed.org/series/DGS2) |
-| 5 年期 | 4.91% | -9.00 bp | 2026-10-15 | [FRED](https://fred.stlouisfed.org/series/DGS5) |
-| 10 年期 | 5.10% | -9.00 bp | 2026-10-15 | [FRED](https://fred.stlouisfed.org/series/DGS10) |
-| 30 年期 | 5.43% | -9.00 bp | 2026-10-15 | [FRED](https://fred.stlouisfed.org/series/DGS30) |
+| 2 年期 | 4.74% | -3.00 bp | 2026-10-16 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve) |
+| 5 年期 | 4.89% | -2.00 bp | 2026-10-16 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve) |
+| 10 年期 | 5.09% | -1.00 bp | 2026-10-16 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve) |
+| 30 年期 | 5.43% | +0.00 bp | 2026-10-16 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve) |
 
 ## 布伦特、金银与比特币
 
@@ -45,7 +45,7 @@
 | 布伦特期货 | 109.69 美元/桶 | +3.56% | 2026-10-16 | [Yahoo Finance](https://finance.yahoo.com/quote/BZZ26.NYM/history/) |
 | COMEX 黄金期货 | 4,186.70 美元/金衡盎司 | +0.40% | 2026-10-16 | [Yahoo Finance](https://finance.yahoo.com/quote/GCZ26.CMX/history/) |
 | COMEX 白银期货 | 57.13 美元/金衡盎司 | -0.04% | 2026-10-16 | [Yahoo Finance](https://finance.yahoo.com/quote/SIZ26.CMX/history/) |
-| BTC/USD 现货 | 81,692.29 美元/BTC | -0.53% | 2026-10-16 | [FMP](https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full) |
+| BTC/USD 现货 | 81,707.55 美元/BTC | -0.52% | 2026-10-16 | [FMP](https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full) |
 
 ## 市场驱动因素
 
@@ -68,7 +68,7 @@
 
 | 数据链路 | 状态 | 说明 |
 |---|---|---|
-| 美债收益率 | 较早观测值 | 尚未取得应有观测日数据 |
+| 美债收益率 | 已核实 | 应有观测日数据齐全 |
 | 宏观数据 | 已核实 | 详见逐项观测日与来源 |
 | 指数行情 | 已核实 | 目标交易日数据齐全 |
 | 研究材料 | 有缺项 | 研究材料尚未接入，不提供未经核实的解释 |

@@ -1,5 +1,5 @@
 美股市场日报｜2026-10-16 美东报告日
-报告生成时间：2026-10-16T22:31:22.143086+00:00；逐项显示原始观测日。
+报告生成时间：2026-10-16T22:45:53.722436+00:00；逐项显示原始观测日。
 
 一、美股市场表现
 - 标普 500 收盘：7659.44 点（观测日 2026-10-16）
@@ -29,28 +29,28 @@
 - AMZN：250.00 美元，-1.87%（观测日 2026-10-16）
   来源：https://finance.yahoo.com/quote/AMZN/history/
 - GOOGL：340.59 美元，-2.47%（观测日 2026-10-16）
-  来源：https://docs.alpaca.markets/us/reference/stockbars
+  来源：https://finance.yahoo.com/quote/GOOGL/history/
 - META：709.33 美元，-3.72%（观测日 2026-10-16）
   来源：https://finance.yahoo.com/quote/META/history/
 - 暂无经核实内容。
 
 三、美债收益率
-- 2 年期美债收益率日变动：-5.00 bp（观测日 2026-10-15）
-  来源：https://fred.stlouisfed.org/series/DGS2
-- 5 年期美债收益率日变动：-9.00 bp（观测日 2026-10-15）
-  来源：https://fred.stlouisfed.org/series/DGS5
-- 10 年期美债收益率日变动：-9.00 bp（观测日 2026-10-15）
-  来源：https://fred.stlouisfed.org/series/DGS10
-- 30 年期美债收益率日变动：-9.00 bp（观测日 2026-10-15）
-  来源：https://fred.stlouisfed.org/series/DGS30
-- 2 年期美债收益率水平：4.77%（观测日 2026-10-15）
-  来源：https://fred.stlouisfed.org/series/DGS2
-- 5 年期美债收益率水平：4.91%（观测日 2026-10-15）
-  来源：https://fred.stlouisfed.org/series/DGS5
-- 10 年期美债收益率水平：5.10%（观测日 2026-10-15）
-  来源：https://fred.stlouisfed.org/series/DGS10
-- 30 年期美债收益率水平：5.43%（观测日 2026-10-15）
-  来源：https://fred.stlouisfed.org/series/DGS30
+- 2 年期美债收益率日变动：-3.00 bp（观测日 2026-10-16）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 5 年期美债收益率日变动：-2.00 bp（观测日 2026-10-16）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 10 年期美债收益率日变动：-1.00 bp（观测日 2026-10-16）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 30 年期美债收益率日变动：+0.00 bp（观测日 2026-10-16）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 2 年期美债收益率水平：4.74%（观测日 2026-10-16）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 5 年期美债收益率水平：4.89%（观测日 2026-10-16）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 10 年期美债收益率水平：5.09%（观测日 2026-10-16）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
+- 30 年期美债收益率水平：5.43%（观测日 2026-10-16）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve
 
 四、跨资产行情
 - 布伦特期货收盘：109.69 美元/桶（观测日 2026-10-16）
@@ -65,9 +65,9 @@
   来源：https://finance.yahoo.com/quote/SIZ26.CMX/history/
 - 白银日涨跌：-0.04%（观测日 2026-10-16）
   来源：https://finance.yahoo.com/quote/SIZ26.CMX/history/
-- BTC/USD 现货收盘：81692.29 美元/BTC（观测日 2026-10-16）
+- BTC/USD 现货收盘：81707.55 美元/BTC（观测日 2026-10-16）
   来源：https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full
-- BTC/USD 现货日涨跌：-0.53%（观测日 2026-10-16）
+- BTC/USD 现货日涨跌：-0.52%（观测日 2026-10-16）
   来源：https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full
 
 五、市场驱动因素
@@ -87,7 +87,7 @@
 - 暂无经核实内容。
 
 
-尚缺：研究解释、美债收益率当日变动。
+尚缺：研究解释。
 
 数据说明
 可选数据未提供：比特币期货行情。
