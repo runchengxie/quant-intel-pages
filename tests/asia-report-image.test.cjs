@@ -566,3 +566,81 @@ test('zero counts stay labelled and integer returns can replace covered prose', 
   assert.match(svg, /上涨率: 0%/);
   assert.doesNotMatch(svg, /NaN|Infinity/);
 });
+
+
+const dedupDimensions = ['流动性', '广度', '赚钱效应', '亏钱风险', '趋势确认', '轮动质量'];
+const dedupScores = [27.8, 43.4, 62.5, 24.8, 46, 78.5];
+const dedupDimensionBody = '### 六维观察\n| 维度 | 观察分 | 状态 | 证据 |\n|---|---|---|---|\n'
+  + dedupDimensions.map((label, i) => `| ${label} | ${dedupScores[i]} | 中性 | 证据 ${i} |`).join('\n');
+const dedupConceptBody = '### 九、热门概念 TOP5\n| 概念 | 涨幅 | 龙头 | 涨停数 |\n|---|---|---|---|\n'
+  + ['甲', '乙', '丙', '丁', '戊'].map((label, i) => `| ${label}概念 | +${i + 1}.00% | 龙头(+9.99%) | ${i} |`).join('\n');
+function dedupCharts() {
+  const point = (label, value, unit = '%') => ({ label, value, unit, observation_date: evening.date,
+    source_label: '测试公开数据', source_url: 'https://example.com/verified' });
+  return [
+    { key: 'topic', status: 'ok', points: ['甲', '乙', '丙', '丁', '戊'].map((label, i) => point(`${label}概念`, i + 1)) },
+    { key: 'sentiment', status: 'ok', points: dedupDimensions.map((label, i) => point(label, dedupScores[i], i === 3 ? '观察分（风险）' : '观察分')) },
+    ...['dashboard', 'moneyflow', 'weekly_chart'].map(key => ({ key, status: 'ok', points: [point(`${key}独有数据`, 10)] })),
+  ];
+}
+
+test('successful body modules remove their duplicate lower charts and retain other charts and sources', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  for (const locale of ['zh-CN', 'en-US']) {
+    const svg = buildAsiaReportSvg(evening, dedupCharts(), dedupDimensionBody + '\n' + dedupConceptBody, value => value, locale);
+    assert.equal((svg.match(/data-dimension=/g) || []).length, 6);
+    assert.match(svg, /data-table="concepts"/);
+    assert.doesNotMatch(svg, />(?:市场温度|热点概念|Market temperature|Hot concepts) · /);
+    for (const key of ['dashboard', 'moneyflow', 'weekly_chart']) assert.match(svg, new RegExp(`${key}独有数据`));
+    assert.match(svg, /example.com/);
+    assert.doesNotMatch(svg, /NaN|undefined/);
+  }
+});
+
+for (const [name, markdown, temperature, concepts] of [
+  ['both body modules missing', '', true, true],
+  ['only dimensions rendered', dedupDimensionBody, false, true],
+  ['only concepts rendered', dedupConceptBody, true, false],
+  ['headings and empty tables', '### 六维观察\nN/A\n### 九、热门概念 TOP5\n| 概念 | 涨幅 | 龙头 | 涨停数 |\n|---|---|---|---|', true, true],
+  ['malformed concepts table', dedupDimensionBody + '\n' + dedupConceptBody.replace('| 概念 |', '| wrong |'), false, true],
+  ['partial dimension scores', dedupDimensionBody.replace('| 广度 | 43.4 |', '| 广度 | N/A |') + '\n' + dedupConceptBody, true, false],
+  ['partial concepts return', dedupDimensionBody + '\n' + dedupConceptBody.replace('+2.00%', 'N/A'), false, true],
+  ['partial concept rows', dedupDimensionBody + '\n' + dedupConceptBody.split('\n').slice(0, -1).join('\n'), false, true],
+]) {
+  test(`lower charts remain independent fallbacks for ${name}`, async () => {
+    const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+    const svg = buildAsiaReportSvg(evening, dedupCharts(), markdown);
+    assert.equal(svg.includes('>市场温度 · 已核实</text>'), temperature);
+    assert.equal(svg.includes('>热点概念 · 已核实</text>'), concepts);
+    if (temperature) assert.match(svg, />78.5 观察分<\/text>/);
+    if (concepts) assert.match(svg, /戊概念/);
+  });
+}
+
+test('lower charts retain different dates, values and units instead of discarding distinct facts', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  for (const update of [{ observation_date: '2026-09-29' }, { value: 88 }, { unit: '不同口径' }]) {
+    const charts = dedupCharts();
+    for (const chart of charts.slice(0, 2)) chart.points[0] = { ...chart.points[0], ...update };
+    const svg = buildAsiaReportSvg(evening, charts, dedupDimensionBody + '\n' + dedupConceptBody);
+    assert.match(svg, />市场温度 · 已核实<\/text>/);
+    assert.match(svg, />热点概念 · 已核实<\/text>/);
+  }
+});
+
+
+test('deduplication keeps lower chart warnings and empty missing or skipped diagnostics', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  for (const status of ['ok', 'degraded', 'missing', 'skipped']) {
+    const charts = dedupCharts();
+    for (const chart of charts.slice(0, 2)) {
+      chart.status = status;
+      chart.reason = '来源审核警告';
+      if (status === 'missing' || status === 'skipped') chart.points = [];
+    }
+    const svg = buildAsiaReportSvg(evening, charts, dedupDimensionBody + '\n' + dedupConceptBody);
+    assert.match(svg, /来源审核警告/);
+    assert.match(svg, />市场温度 · /);
+    assert.match(svg, />热点概念 · /);
+  }
+});
