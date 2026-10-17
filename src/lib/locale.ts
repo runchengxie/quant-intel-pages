@@ -86,6 +86,23 @@ export function usResearchText(source: string, locale: Locale): string {
 
 /** Stable semantic keys; each label has an English and Chinese presentation. */
 export const ASIA_IMAGE_LABELS = {
+  asiaOverview: ['亚洲市场概览', 'Asian market overview'],
+  dataWarnings: ['数据警告：', 'Data warnings: '],
+  sourceTimeSemantics: ['来源时间为交易所日历规定的实际收盘时间；日线时间戳仅标识当地交易日。', 'Source times are exchange-calendar closes. Daily bar timestamps identify local sessions.'],
+  hongKongCloseData: ['香港收盘数据', 'Hong Kong close data'],
+  japanCloseData: ['日本收盘数据', 'Japan close data'],
+  koreaCloseData: ['韩国收盘数据', 'Korea close data'],
+  evidence: ['证据', 'Evidence'],
+  rawClose: ['收盘', 'Close'],
+  rawReturn: ['涨跌幅', 'Daily return'],
+  sessionStatus: ['状态', 'Status'],
+  sessionClosed: ['已收盘', 'Closed session'],
+  sessionPending: ['未收盘', 'Not yet closed'],
+  hangSeng: ['恒生指数', 'Hang Seng'],
+  nikkei225: ['日经225', 'Nikkei 225'],
+  kospi: ['KOSPI', 'KOSPI'],
+  marketRowMissing: ['原报告未提供可核实的市场行', 'No verifiable market row in the source report'],
+  overviewSources: ['完整来源链接及证据见网页报告。', 'Full source links and evidence are available in the web report.'],
   holidayDescription: ['包含各亚洲市场的交易状态、当日收盘与涨跌幅。', 'Includes Asian market session status, current closes and daily returns.'],
   holidayTitle: ['各市场交易状态与收盘', 'Market sessions and closes'],
   holidayNote: ['A 股今日休市。开市市场使用当日数据；休市市场不展示旧行情。', 'Mainland China is closed today. Open markets use current session data; closed markets have no carried-over prices.'],

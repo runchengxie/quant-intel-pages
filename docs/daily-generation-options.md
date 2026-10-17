@@ -20,3 +20,9 @@ Deploy publishes reviewed Platform snapshots with explicit public markers to Pag
 The website workflow preserves `market-intel-ledger-<run_id>-1`, containing the validated `data/` and `reports/`. Deploy uses this ledger to verify publication inputs. A successful build confirms snapshot validation and static rendering. Confirm production publication using Deploy publisher state and actual Pages URLs.
 
 Production credentials, stable release directories, and timers belong outside Git. Development tasks must not change or trigger them. Before changing production publishers, inspect pending receipts, rollback releases, and both report URL families in a separate deployment change.
+
+## Asian market overview handoff
+
+Platform publishes `### 亚洲市场概览` with six columns (`市场 | 指数 | 数据日期 | 收盘 | 涨跌幅 | 状态`) and exactly Hong Kong/Hang Seng, Japan/Nikkei 225 and Korea/KOSPI rows. Mainland indices remain in their own report module. Verified closes require the report’s session date plus source URL, exchange-close timestamp and evidence ID. Closed, unavailable and not-yet-closed markets carry em dashes instead of old prices. Pages renders these same Markdown facts and source notes without requesting quotes or inferring calendars. Malformed/stale or unproven rows stay explicit as fallback text while other verified markets remain visible. Historical four-column mainland-holiday tables remain supported.
+
+This presentation is backward compatible and does not require the new Platform producer to be deployed before existing reports can build. New module generation requires the matching Platform repair; no runtime or scheduler is changed by this Pages PR.

@@ -2,6 +2,7 @@ import { dailyReturn, type ReportTable } from './asia-report-tables.ts';
 
 /** Keep chart space inside the numeric column, beside the exact published text. */
 export const tableColumns: Record<string, number[]> = {
+  'asia-overview': [80, 140, 140, 130, 120, 242],
   indices: [210, 140, 320, 182], industry: [205, 235, 145, 115, 152],
   turnover: [220, 330, 302], concepts: [190, 300, 242, 120], movers: [220, 300, 332],
 };

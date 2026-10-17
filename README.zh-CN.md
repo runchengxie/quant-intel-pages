@@ -45,6 +45,7 @@ python3 -m http.server 8000 --directory "$preview_root"
 
 `src/legacy/` 和 `src/lib/market-daily-utils.js` 仍作为兼容浏览器的备用页面脚本发布，迁移时必须保留脚本 URL 和浏览器全局接口。所有自有 Astro 页面已纳入严格类型检查。Insight 展示字段在 JSON 边界校验，来源身份、哈希和证据保持语言无关。生成文件和已安装的 Platform CLI 则按各自边界单独排除。
 
+亚洲晚报图片同时消费普通交易日和内地休市版的同一亚洲市场概览。香港、日本、韩国分别保留交易日期、休市/缺失/未收盘状态及来源；网页不抓取或回填行情，历史休市版表格仍可阅读。
 旧版控制器及其三个工具模块以 `src/legacy-source/` 中的严格检查 TypeScript 为准。修改这些模块或 `market-daily-utils.ts` 后运行 `npm run legacy:build`；`npm run check` 会拒绝过期的兼容产物。生成的 JavaScript 保留原有 URL、浏览器全局和 CommonJS 导出。旧版入口的浏览器测试覆盖报告和日期筛选、主题偏好持久化、可选数据加载失败和安全文本渲染。并行运行浏览器测试时，设置 `PLAYWRIGHT_PORT` 使用独立端口。
 
 定时晨报和晚报发布使用事实型报告，不生成 AI 解读。历史解读仍可阅读；即使没有解读历史，也不会阻止发布。

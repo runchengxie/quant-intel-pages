@@ -61,3 +61,5 @@ Market overview charts use
 only complete return distributions whose bucket counts match reported coverage.
 The bucket containing zero is distinguished from advancing-stock counts.
 Malformed or missing facts stay visible as text without invented graphics.
+
+Asian evening images also consume the producer’s dated Asian-market overview on ordinary and mainland-holiday editions. Hong Kong, Japan and Korea retain independent session dates, closed/missing/pending states, and source attribution; the website does not fetch or backfill quotes. Legacy holiday tables remain readable.
