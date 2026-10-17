@@ -19,7 +19,7 @@
 
 ```bash
 npm ci
-python -m pip install --group dev
+uv sync --locked --group dev --no-install-project
 python scripts/build_site.py --output /tmp/quant-market-intel-check
 npm run check
 npm run test:browser
