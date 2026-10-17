@@ -441,6 +441,7 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
     return parts.join('').replaceAll('__HEIGHT__', String(y + 28))
       .replaceAll('font-family="sans-serif"', `font-family="${FONT}"`);
   }
+  const renderedChartFacts = new Map<string, Map<string, number>>();
   addText(String(report.summary ?? ''));
   if (overview) {
     addHeading(labels.asiaOverview[0]);
@@ -462,6 +463,11 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
       addHeading(title);
       if (table.key === 'movers') separatedMovers(draw, table);
       else alignedTable(draw, table);
+      if (table.key === 'concepts' && table.rows.length && !table.fallback.length
+        && table.rows.every(row => dailyReturn(row[1]) !== null)) {
+        renderedChartFacts.set('topic', new Map(table.rows.slice(0, table.preview)
+          .map(row => [row[0], Number(row[1].slice(0, -1))])));
+      }
       continue;
     }
     if (heading === '### 六维观察') {
@@ -469,6 +475,9 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
       if (rows) {
         addHeading(title);
         sixDimensionBars(draw, rows);
+        if (rows.every(row => typeof row.score === 'number')) {
+          renderedChartFacts.set('sentiment', new Map(rows.map(row => [row.label, Number(row.score)])));
+        }
       }
       continue;
     }
@@ -491,6 +500,13 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
     };
     const originalPoints = usablePoints(chart);
     validPoints.push(...originalPoints);
+    // Only replace a chart after its body module rendered usable facts. Keep
+    // partial modules and any chart facts with a different date, value or unit.
+    const renderedFacts = renderedChartFacts.get(key);
+    if (renderedFacts && chart.status === 'ok' && !chart.reason && originalPoints.length
+      && originalPoints.every(point => point.observation_date === report.date
+      && renderedFacts.get(point.label) === point.value
+      && (key === 'topic' ? point.unit === '%' : ['观察分', '观察分（风险）'].includes(point.unit)))) continue;
     let points = originalPoints.filter(point => !reportFactAlreadyShown(point, report.date, markdown, parts.join('')));
     const countLabels = ['上涨家数', '下跌家数', '平盘家数'];
     const breadthPoints = originalPoints.filter(point => countLabels.includes(point.label));
