@@ -46,3 +46,5 @@ python3 -m http.server 8000 --directory "$preview_root"
 `src/legacy/` 和 `src/lib/market-daily-utils.js` 仍作为兼容浏览器的备用页面脚本发布，迁移时必须保留脚本 URL 和浏览器全局接口。所有自有 Astro 页面已纳入严格类型检查。Insight 展示字段在 JSON 边界校验，来源身份、哈希和证据保持语言无关。生成文件和已安装的 Platform CLI 则按各自边界单独排除。
 
 三个 legacy 工具模块以 `src/legacy-source/` 中的严格检查 TypeScript 为准。修改这些模块或 `market-daily-utils.ts` 后运行 `npm run legacy:build`；`npm run check` 会拒绝过期的兼容产物。生成 JS 保留原有 URL、浏览器全局和 CommonJS 导出。备用页面控制器（`src/legacy/app.js`）仍使用 JavaScript。
+
+亚洲晚报图片同时消费普通交易日和内地休市版的同一亚洲市场概览。香港、日本、韩国分别保留交易日期、休市/缺失/未收盘状态及来源；网页不抓取或回填行情，历史休市版表格仍可阅读。

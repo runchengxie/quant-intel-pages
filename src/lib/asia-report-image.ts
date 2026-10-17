@@ -1,3 +1,4 @@
+import { asiaMarketOverview } from './asia-market-overview.ts';
 import type { ChartCard, ChartPoint } from './chart-data.ts';
 import { dailyReturn, reportTable, type ReportTable } from './asia-report-tables.ts';
 import { ASIA_IMAGE_LABELS as labels, asiaImageLabel, type Locale } from './locale.ts';
@@ -71,13 +72,13 @@ function alignedTable(draw: SvgDraw, table: ReportTable): void {
   draw.parts.push('</g>');
   if (table.rows.length > table.preview) draw.text(draw.present(labels.preview[0]).replace('{shown}', String(table.preview)).replace('{total}', String(table.rows.length)), MUTED, 12);
   for (const line of table.fallback) draw.text(`${draw.present(labels.fallback[0])}: ${line}`, MUTED, 12);
-  for (const note of table.notes.slice(0, 2)) draw.text(note, MUTED, 12);
+  for (const note of table.notes.slice(0, table.key === 'asia-overview' ? Infinity : 2)) draw.text(note, MUTED, 12);
   if (table.key === 'industry') industryDecliners(draw, table.notes);
   if (table.key === 'indices') {
     if (table.rows.some(row => dailyReturn(row[2]) === null)) draw.text(labels.missingReturn[0], MUTED, 12);
     draw.text(labels.originalFacts[0], MUTED, 12);
   }
-  if (table.rows.length) draw.text(labels.tableBarNote[0], MUTED, 12);
+  if (table.rows.length && table.key !== 'asia-overview') draw.text(labels.tableBarNote[0], MUTED, 12);
 }
 
 function separatedMovers(draw: SvgDraw, table: ReportTable): void {
@@ -391,7 +392,11 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
     || !Array.isArray(charts) || typeof markdown !== 'string') return null;
   const isHoliday = /^## 亚洲市场收盘复盘/m.test(markdown);
   const sessions = isHoliday ? holidayRows(markdown, report.date) : null;
-  if (isHoliday && !sessions) return null;
+  const hasOverview = markdown.split('\n').some(line => line.trim() === '### 亚洲市场概览');
+  const overviewHoliday = hasOverview
+    && new RegExp(`^## 亚洲市场收盘复盘（${report.date.replaceAll('-', '')}）\\s*$`, 'm').test(markdown)
+    && markdown.includes('A 股今日休市。');
+  if (isHoliday && !sessions && !overviewHoliday) return null;
   // Preserve legacy English callers that supply only the fourth presenter argument.
   const selectedLocale = locale ?? (present('亚洲市场收盘复盘') === 'Asia market close review' ? 'en-US' : 'zh-CN');
   const catalog = new Map<string, string>(Object.entries(labels).map(([key, values]) =>
@@ -425,16 +430,22 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
     set y(value) { y = value; },
     text: addText,
   };
-  if (sessions) {
+  const overview = asiaMarketOverview(markdown, report.date, selectedLocale);
+  if (sessions || (isHoliday && overview)) {
     addText(labels.holidayNote[0], MUTED, 14);
-    addHeading(labels.holidayTitle[0]);
-    holidayTable(draw, sessions);
+    addHeading(overview ? labels.asiaOverview[0] : labels.holidayTitle[0]);
+    if (overview) alignedTable(draw, overview);
+    else if (sessions) holidayTable(draw, sessions);
     addText(labels.missingFooter[0], MUTED, 12);
     parts.push('</svg>');
     return parts.join('').replaceAll('__HEIGHT__', String(y + 28))
       .replaceAll('font-family="sans-serif"', `font-family="${FONT}"`);
   }
   addText(String(report.summary ?? ''));
+  if (overview) {
+    addHeading(labels.asiaOverview[0]);
+    alignedTable(draw, overview);
+  }
   for (const [heading, title, limit] of ([
     ['## 一、市场状态', '市场状态', 3], ['### 六维观察', '六维观察', 7],
     ['### 核心矛盾', '核心矛盾', 2], ['### 明日验证', '次日观察', 2],
