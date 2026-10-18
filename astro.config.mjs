@@ -6,4 +6,15 @@ export default defineConfig({
   base: '/quant-intel-pages',
   outDir: process.env.ASTRO_OUT_DIR || './dist',
   integrations: [react()],
+  vite: {
+    build: {
+      rolldownOptions: {
+        output: {
+          codeSplitting: {
+            groups: [{ name: 'chart-renderer', test: /[\\/]node_modules[\\/]zrender[\\/]/ }],
+          },
+        },
+      },
+    },
+  },
 });
