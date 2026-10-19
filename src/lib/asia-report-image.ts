@@ -78,7 +78,7 @@ function alignedTable(draw: SvgDraw, table: ReportTable): void {
     if (table.rows.some(row => dailyReturn(row[2]) === null)) draw.text(labels.missingReturn[0], MUTED, 12);
     draw.text(labels.originalFacts[0], MUTED, 12);
   }
-  if (table.rows.length && table.key !== 'asia-overview') draw.text(labels.tableBarNote[0], MUTED, 12);
+  if (table.rows.length) draw.text(labels.tableBarNote[0], MUTED, 12);
 }
 
 function separatedMovers(draw: SvgDraw, table: ReportTable): void {
@@ -431,6 +431,7 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
     text: addText,
   };
   const overview = asiaMarketOverview(markdown, report.date, selectedLocale);
+  addHeading(labels.marketCharts[0]);
   if (sessions || (isHoliday && overview)) {
     addText(labels.holidayNote[0], MUTED, 14);
     addHeading(overview ? labels.asiaOverview[0] : labels.holidayTitle[0]);
@@ -450,7 +451,7 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
   for (const [heading, title, limit] of ([
     ['## 一、市场状态', '市场状态', 3], ['### 六维观察', '六维观察', 7],
     ['### 核心矛盾', '核心矛盾', 2], ['### 明日验证', '次日观察', 2],
-    ['### 昨日验证复盘', '昨日验证', 2], ['### 二、指数总览', '指数总览', 4],
+    ['### 昨日验证复盘', '昨日验证', 2], ['### 二、指数总览', labels.aShareIndexOverview[0], 4],
     ['### 三、市场总览', '市场总览', Infinity], ['### 四、涨跌停', '涨跌停', Infinity],
     ['### 五、资金动向', '资金动向', Infinity], ['### 六、融资融券', '融资融券', 2],
     ['### 七、行业板块 TOP10', '行业板块', 4],
@@ -490,7 +491,6 @@ export function buildAsiaReportSvg(report: EveningReport, charts: ChartCard[], m
   }
   const provenance = markdown.split('\n').filter((line) => /^\*数据:/.test(line.trim()));
   for (const line of provenance) addText(line.replace(/^\*|\*$/g, ''), MUTED, 12);
-  addHeading('亚洲市场图表');
   const validPoints: ChartPoint[] = [];
   const chartTitles: Record<string, string> = { dashboard: '综合盘面', moneyflow: '资金流向', topic: '热点概念', sentiment: '市场温度', weekly_chart: '周度概览' };
   const statusTitles: Record<string, string> = { ok: '已核实', degraded: '部分缺项', missing: '缺项', skipped: '跳过' };
