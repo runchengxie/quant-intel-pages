@@ -86,6 +86,8 @@ export function usResearchText(source: string, locale: Locale): string {
 
 /** Stable semantic keys; each label has an English and Chinese presentation. */
 export const ASIA_IMAGE_LABELS = {
+  marketCharts: ['亚洲市场图表', 'Asian market charts'],
+  aShareIndexOverview: ['A股指数总览', 'A-share index overview'],
   asiaOverview: ['亚洲市场概览', 'Asian market overview'],
   dataWarnings: ['数据警告：', 'Data warnings: '],
   sourceTimeSemantics: ['来源时间为交易所日历规定的实际收盘时间；日线时间戳仅标识当地交易日。', 'Source times are exchange-calendar closes. Daily bar timestamps identify local sessions.'],

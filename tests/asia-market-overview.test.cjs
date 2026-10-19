@@ -120,3 +120,29 @@ test('producer error summaries and close-time semantics remain visible alongside
     assert.ok(svg.includes(locale === 'zh-CN' ? '日线时间戳仅标识当地交易日' : 'Daily bar timestamps identify local sessions'));
   }
 });
+
+for (const holiday of [false, true]) test(`Asian chart heading precedes overview for holiday=${holiday}`, async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  const markdown = holiday ? `## 亚洲市场收盘复盘（20261016）\nA 股今日休市。\n${body().split('### 二、指数总览')[0]}` : body();
+  const svg = buildAsiaReportSvg(report, [], markdown);
+  assert.equal((svg.match(/>亚洲市场图表</g) || []).length, 1);
+  assert.ok(svg.indexOf('>亚洲市场图表<') < svg.indexOf('data-table="asia-overview"'));
+  if (!holiday) assert.match(svg, />A股指数总览</);
+});
+
+test('Asian returns share a zero-centered scale beside exact closes and percentages', async () => {
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  const changed = [rows[0].replace('+0.52%', '-0.52%'), rows[1].replace('+1.39%', '+0.00%'), rows[2]];
+  const svg = buildAsiaReportSvg(report, [], body(changed));
+  const table = svg.match(/<g data-table="asia-overview">([\s\S]*?)<\/g>/)[1];
+  const bars = [...table.matchAll(/<rect data-metric="asia-overview-return" data-value="([^"]+)" x="([^"]+)" y="[^"]+" width="([^"]+)"/g)];
+  assert.equal(bars.length, 3);
+  const [negative, zero, positive] = bars.map(match => match.slice(1).map(Number));
+  assert.ok(negative[1] < zero[1]);
+  assert.equal(zero[2], 0);
+  assert.equal(positive[1], zero[1]);
+  assert.ok(Math.abs(negative[2] / positive[2] - 0.52 / 2.05) < 1e-9);
+  for (const value of ['24186.83', '65324.29', '5668.05', '-0.52%', '+0.00%', '+2.05%']) assert.ok(table.includes(value));
+  const partial = buildAsiaReportSvg(report, [], body([changed[0], '| 日本 | 日经225 | — | — | — | 休市 |', changed[2]], [sources[0], sources[2]]));
+  assert.equal((partial.match(/data-metric="asia-overview-return"/g) || []).length, 2);
+});
