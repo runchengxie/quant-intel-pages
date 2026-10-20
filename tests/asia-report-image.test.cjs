@@ -644,3 +644,26 @@ test('deduplication keeps lower chart warnings and empty missing or skipped diag
     assert.match(svg, />热点概念 · /);
   }
 });
+
+test('mover names preserve returns, old reports and escape hostile markup', async () => {
+  const { reportTable } = await import('../src/lib/asia-report-tables.ts');
+  const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
+  const heading = '### ' + String.fromCodePoint(0x5341, 0x3001, 0x6781, 0x7aef, 0x5f02, 0x52a8);
+  const group = String.fromCodePoint(0x6da8, 0x5e45, 0x524d, 0x4e94);
+  const long = 'Long company name '.repeat(15);
+  const markdown = heading + '\n' + group + ': 600001.SH A &amp; &lt;script&gt;&#12289;B(+2.00%)' +
+    String.fromCodePoint(0x3001) + '920001.BJ(+1.00%)' +
+    String.fromCodePoint(0x3001) + '300001.SZ ' + long.trim() + '(0.00%)';
+  const table = reportTable(markdown, heading);
+  assert.equal(table.rows.length, 3);
+  assert.deepEqual(table.rows[0], [group, '600001.SH A & <script>' + String.fromCodePoint(0x3001) + 'B', '+2.00%']);
+  assert.equal(table.rows[1][1], '920001.BJ');
+  assert.equal(table.rows[2][2], '0.00%');
+  assert.equal(table.fallback.length, 0);
+  const svg = buildAsiaReportSvg(evening, [], markdown);
+  assert.match(svg, /A &amp; &lt;script&gt;/);
+  assert.doesNotMatch(svg, /<script>/);
+  assert.match(svg, /data-value="2"/);
+  assert.match(svg, /data-value="0"/);
+  assert.ok((svg.match(/Long company name/g) || []).length >= 10);
+});

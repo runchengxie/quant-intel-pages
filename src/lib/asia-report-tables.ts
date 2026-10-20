@@ -19,6 +19,15 @@ export function sectionLines(markdown: string, heading: string): string[] {
     .filter((line) => line && line !== '---' && !/^\*数据:/.test(line));
 }
 
+const decodeName = (value: string): string => value
+  .replace(/&#(\d+);/g, (entity, number) => {
+    const code = Number(number);
+    return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : entity;
+  })
+  .replace(/&(?:quot|#x27|lt|gt|amp);/g, entity => ({
+    '&quot;': '"', '&#x27;': "'", '&lt;': '<', '&gt;': '>', '&amp;': '&',
+  }[entity] ?? entity));
+
 const cells = (line: string): string[] => line.split(/(?<!\\)\|/).slice(1, -1)
   .map((cell) => cell.trim().replace(/\\\|/g, '|'));
 
@@ -57,14 +66,14 @@ export function reportTable(markdown: string, heading: string): ReportTable | nu
     }
   } else if (heading === '### 十、极端异动') {
     table.key = 'movers';
-    table.headers = [labels.moversGroup[0], labels.ticker[0], labels.return[0]];
+    table.headers = [labels.moversGroup[0], labels.tickerName[0], labels.return[0]];
     table.preview = 10;
     for (const line of lines) {
       const match = /^(涨幅前五|跌幅前五):\s*(.+)$/.exec(line);
       if (!match) { table.fallback.push(line); continue; }
       for (const entry of match[2].split('、')) {
-        const row = /^([\d]{6}\.(?:SZ|SH|BJ))\(([+-]?\d+(?:\.\d+)?%)\)$/.exec(entry.trim());
-        if (row) table.rows.push([match[1], row[1], row[2]]);
+        const row = /^([\d]{6}\.(?:SZ|SH|BJ))(?: (.+))?\(([+-]?\d+(?:\.\d+)?%)\)$/.exec(entry.trim());
+        if (row) table.rows.push([match[1], row[2] ? row[1] + " " + decodeName(row[2]) : row[1], row[3]]);
         else table.fallback.push(entry);
       }
     }

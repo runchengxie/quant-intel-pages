@@ -90,10 +90,13 @@ function separatedMovers(draw: SvgDraw, table: ReportTable): void {
     draw.parts.push(`<g data-table="movers-${key}">`);
     draw.text(title);
     for (const row of rows) {
-      draw.parts.push(draw.node(66, draw.y, row[1], { size: 13 }));
+      const identity = cellLines(row[1], 480);
+      for (const [index, line] of identity.entries()) {
+        draw.parts.push(draw.node(66, draw.y + index * 18, line, { size: 13 }));
+      }
       tableCellBar(draw, table, row, 2, 574, 332);
       draw.parts.push(draw.node(894, draw.y, row[2], { size: 13, anchor: 'end', color: row[2].startsWith('-') ? DOWN : UP }));
-      draw.y += 32;
+      draw.y += Math.max(32, identity.length * 18 + 14);
     }
     draw.parts.push('</g>');
   }
