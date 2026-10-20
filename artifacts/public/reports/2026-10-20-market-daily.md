@@ -1,9 +1,9 @@
 # 美股市场日报（2026-10-20）
 
 数据状态：degraded
-报告生成时间：2026-10-20T22:32:27.327628+00:00（美东报告日 2026-10-20）
+报告生成时间：2026-10-20T23:16:21.927656+00:00（美东报告日 2026-10-20）
 
-尚缺：研究解释、美债收益率当日变动。
+尚缺：研究解释。
 
 ## 美股市场表现
 
@@ -33,19 +33,19 @@
 
 | 美债期限 | 收益率水平 | 日变动 | 观测日 | 来源 |
 |---|---:|---:|---|---|
-| 2 年期 | 4.77% | +3.00 bp | 2026-10-19 | [FRED](https://fred.stlouisfed.org/series/DGS2) |
-| 5 年期 | 4.94% | +5.00 bp | 2026-10-19 | [FRED](https://fred.stlouisfed.org/series/DGS5) |
-| 10 年期 | 5.15% | +6.00 bp | 2026-10-19 | [FRED](https://fred.stlouisfed.org/series/DGS10) |
-| 30 年期 | 5.48% | +5.00 bp | 2026-10-19 | [FRED](https://fred.stlouisfed.org/series/DGS30) |
+| 2 年期 | 4.79% | +2.00 bp | 2026-10-20 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve) |
+| 5 年期 | 4.94% | +0.00 bp | 2026-10-20 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve) |
+| 10 年期 | 5.12% | -3.00 bp | 2026-10-20 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve) |
+| 30 年期 | 5.42% | -6.00 bp | 2026-10-20 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202610?_format=csv&field_tdr_date_value_month=202610&page=&type=daily_treasury_yield_curve) |
 
 ## 布伦特、金银与比特币
 
 | 品种 | 价格 | 日涨跌 | 观测日 | 来源 |
 |---|---:|---:|---|---|
-| 布伦特期货 | 108.90 美元/桶 | -0.59% | 2026-10-20 | [Yahoo Finance](https://finance.yahoo.com/quote/BZZ26.NYM/history/) |
-| COMEX 黄金期货 | 4,149.10 美元/金衡盎司 | -0.26% | 2026-10-20 | [Yahoo Finance](https://finance.yahoo.com/quote/GCZ26.CMX/history/) |
-| COMEX 白银期货 | 58.22 美元/金衡盎司 | +1.64% | 2026-10-20 | [Yahoo Finance](https://finance.yahoo.com/quote/SIZ26.CMX/history/) |
-| BTC/USD 现货 | 82,981.79 美元/BTC | +1.40% | 2026-10-20 | [FMP](https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full) |
+| 布伦特期货 | 109.12 美元/桶 | -0.39% | 2026-10-20 | [Yahoo Finance](https://finance.yahoo.com/quote/BZZ26.NYM/history/) |
+| COMEX 黄金期货 | 4,138.30 美元/金衡盎司 | -0.52% | 2026-10-20 | [Yahoo Finance](https://finance.yahoo.com/quote/GCZ26.CMX/history/) |
+| COMEX 白银期货 | 58.07 美元/金衡盎司 | +1.39% | 2026-10-20 | [Yahoo Finance](https://finance.yahoo.com/quote/SIZ26.CMX/history/) |
+| BTC/USD 现货 | 82,892.35 美元/BTC | +1.29% | 2026-10-20 | [FMP](https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full) |
 
 ## 市场驱动因素
 
@@ -68,7 +68,7 @@
 
 | 数据链路 | 状态 | 说明 |
 |---|---|---|
-| 美债收益率 | 较早观测值 | 尚未取得应有观测日数据 |
+| 美债收益率 | 已核实 | 应有观测日数据齐全 |
 | 宏观数据 | 已核实 | 详见逐项观测日与来源 |
 | 指数行情 | 已核实 | 目标交易日数据齐全 |
 | 研究材料 | 有缺项 | 研究材料尚未接入，不提供未经核实的解释 |
