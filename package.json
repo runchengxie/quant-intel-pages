@@ -19,15 +19,15 @@
     "marked": "17.0.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "sanitize-html": "2.17.7"
+    "sanitize-html": "2.18.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@playwright/test": "1.63.0",
     "@types/node": "^26.6.3",
     "@types/sanitize-html": "^2.16.2",
+    "esbuild": "0.28.2",
     "tsx": "^4.23.15",
-    "typescript": "^6.0.3",
-    "esbuild": "0.28.2"
+    "typescript": "^6.0.3"
   }
 }
