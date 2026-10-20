@@ -130,6 +130,7 @@ export const ASIA_IMAGE_LABELS = {
   missingReturn: ['日涨跌缺项；不绘制柱形。', 'Daily return missing; no bar drawn.'],
   direction: ['正值上涨 · 负值下跌 · 方向不表示数据审核状态。', 'Positive: up · Negative: down · Direction does not indicate data review status.'],
   ticker: ['代码', 'Ticker'],
+  tickerName: ['代码 / 名称', 'Ticker / Name'],
   moversGroup: ['分组', 'Group'],
   advanceRate: ['上涨率', 'Advancing share'],
   gainers: ['涨幅前五', 'Top gainers'],
