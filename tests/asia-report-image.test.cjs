@@ -528,7 +528,7 @@ test('large finite published table values never overflow bar geometry', async ()
 
 test('chart-covered prose disappears while uncharted representatives survive', async () => {
   const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
-  const markdown = readFileSync(path.join(__dirname, '../artifacts/public/reports/2026-10-14-evening.md'), 'utf8');
+  const markdown = readFileSync(path.join(__dirname, 'fixtures/asia-evening-dedup/report.md'), 'utf8');
   const svg = buildAsiaReportSvg({ ...evening, id: '2026-10-14-evening', date: '2026-10-14' }, [], markdown);
   assert.doesNotMatch(svg, /全市场中位数涨跌 -1.94% \|/);
   assert.doesNotMatch(svg, /大单资金代理 -695.53亿 \|/);
@@ -541,8 +541,8 @@ test('chart-covered prose disappears while uncharted representatives survive', a
 
 test('lower dashboard omits exact duplicates but retains mean, dates and coverage', async () => {
   const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
-  const markdown = readFileSync(path.join(__dirname, '../artifacts/public/reports/2026-10-14-evening.md'), 'utf8');
-  const charts = JSON.parse(readFileSync(path.join(__dirname, '../artifacts/public/data/charts/2026-10-14-evening.json'), 'utf8')).charts;
+  const markdown = readFileSync(path.join(__dirname, 'fixtures/asia-evening-dedup/report.md'), 'utf8');
+  const charts = JSON.parse(readFileSync(path.join(__dirname, 'fixtures/asia-evening-dedup/charts.json'), 'utf8')).charts;
   const svg = buildAsiaReportSvg({ ...evening, id: '2026-10-14-evening', date: '2026-10-14' }, charts, markdown);
   assert.doesNotMatch(svg, />市场广度</);
   assert.match(svg, /平均涨跌/);
