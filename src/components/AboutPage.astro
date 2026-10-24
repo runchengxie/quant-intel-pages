@@ -1,0 +1,42 @@
+---
+import '../styles/site.css';
+import '../styles/editorial.css';
+import SiteHeader from './SiteHeader.astro';
+import ThemeInit from './ThemeInit.astro';
+import { siteLabels, type SiteLocale } from '../lib/site-locale';
+interface Props { locale: SiteLocale }
+const { locale } = Astro.props;
+const t = siteLabels[locale];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const home = `${base}/${locale === 'en' ? 'en/' : '?locale=zh-CN'}`;
+const switchHref = `${base}/${locale === 'en' ? '' : 'en/'}about/${locale === 'en' ? '?locale=zh-CN' : ''}`;
+---
+<!doctype html>
+<html lang={locale === 'en' ? 'en-US' : 'zh-CN'}>
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.aboutTitle} · Quant Market Intel</title><meta name="description" content={t.intro} />
+    <ThemeInit />
+    {locale === 'zh' && <script is:inline define:vars={{ englishRoute: `${base}/en/about/` }}>if (new URLSearchParams(location.search).get('locale') !== 'zh-CN') location.replace(englishRoute + location.hash);</script>}
+  </head>
+  <body>
+    <SiteHeader locale={locale} active="about" switchHref={switchHref} />
+    <main class="report-shell about-page">
+      <section class="panel"><h1>{t.aboutTitle}</h1><p class="intro">{t.intro}</p>
+        <h2>{t.publications}</h2>
+        <div class="about-publications">
+          <article><h3><a href={`${home}#us-session`}>{t.us}</a></h3><p>{t.usDescription}</p></article>
+          <article><h3><a href={`${home}#asia-session`}>{t.asia}</a></h3><p>{t.asiaDescription}</p></article>
+          <article><h3><a href={`${base}/${locale === 'en' ? 'en/' : ''}weekly/${locale === 'zh' ? '?locale=zh-CN' : ''}`}>{t.weekly}</a></h3><p>{t.weeklyDescription}</p></article>
+        </div>
+        <h2>{t.datesTitle}</h2><p>{t.dates}</p>
+        <h2>{t.readingTitle}</h2><p>{t.reading}</p>
+        <h2>{t.limitsTitle}</h2><p>{t.limits}</p>
+        <h2>{t.linksTitle}</h2><ul><li><a href="https://runchengxie.github.io/quant-intel-platform/docs/">{t.docs}</a></li><li><a href="https://github.com/runchengxie/quant-intel-pages">{t.source}</a></li></ul>
+      </section>
+    </main>
+  </body>
+</html>
+<style>
+.about-page{max-width:1040px}.about-page a{color:var(--desk-accent)}.about-page h1{font-size:clamp(1.8rem,4vw,2.6rem);margin-top:0}.about-page p,.about-page li{line-height:1.85;color:var(--desk-muted)}.about-page h2{margin-top:2rem;font-size:1.3rem}.about-publications{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.about-publications h3{font-size:1rem}.about-publications p{font-size:.9rem}@media(max-width:700px){.about-publications{grid-template-columns:1fr;gap:0}}
+</style>

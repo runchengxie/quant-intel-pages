@@ -2,6 +2,8 @@
 import "../styles/site.css";
 import "../styles/editorial.css";
 import "../styles/weekly-native.css";
+import SiteHeader from "./SiteHeader.astro";
+import ThemeInit from "./ThemeInit.astro";
 import WeeklyTrend from "./WeeklyTrend.astro";
 import { weeklyReportPresentation } from "../lib/weekly-report-text.ts";
 import {
@@ -14,10 +16,13 @@ import { renderMarkdown } from "../lib/markdown.ts";
 interface Props {
   locale: WeeklyLocale;
   report?: WeeklyRecap;
+  landing?: boolean;
 }
-const { locale, report } = Astro.props;
-const t = weeklyLabels[locale];
+const { locale, report: datedReport, landing = false } = Astro.props;
 const reports = loadWeeklyRecaps();
+const report = landing ? reports[0] : datedReport;
+const history = reports.filter(row => row.date !== report?.date);
+const t = weeklyLabels[locale];
 const presentation = report
   ? weeklyReportPresentation(report.markdown, locale)
   : undefined;
@@ -42,33 +47,15 @@ const route = (language: WeeklyLocale, date = "") =>
     <title>{report?`${report.date} · `:''}{t.title}</title>
     {locale === "zh" && <script
       is:inline
-      define:vars={{ englishRoute: route("en", report?.date) }}
+      define:vars={{ englishRoute: route("en", landing ? undefined : report?.date) }}
     >
       if (new URLSearchParams(location.search).get("locale") !== "zh-CN")
         location.replace(englishRoute + location.hash);
     </script>}
+    <ThemeInit />
   </head>
   <body class="weekly-page">
-    <header class="topbar">
-      <a
-        class="brand"
-        href={`${base}/${locale === "en" ? "en/" : "?locale=zh-CN"}`}
-      >
-        QUANT MARKET INTEL
-      </a>
-      <nav class="top-nav" aria-label={t.title}>
-        <a href={`${base}/${locale === "en" ? "en/" : "?locale=zh-CN"}`}>
-          {t.home}
-        </a>
-        <a href={route(locale)}>{t.history}</a>
-        <a
-          href={route(locale === "en" ? "zh" : "en", report?.date)}
-          lang={locale === "en" ? "zh-CN" : "en"}
-        >
-          {t.switch}
-        </a>
-      </nav>
-    </header>
+    <SiteHeader locale={locale} active="weekly" switchHref={route(locale === "en" ? "zh" : "en", landing ? undefined : report?.date)} />
     <main class="shell">
       <div class="content">
         <section class="panel">
@@ -81,9 +68,11 @@ const route = (language: WeeklyLocale, date = "") =>
               data-report-date={report.date}
               data-report-content-hash={report.content_hash}
             >
+              <p class="eyebrow">{landing ? t.latest : t.edition}</p>
               <h2>
                 <time datetime={report.date}>{report.date}</time>
               </h2>
+              <p class="link-row"><a data-weekly-permalink href={route(locale, report.date)}>{t.permalink}</a></p>
               <p>
                 {t.generated}:{" "}
                 <time datetime={report.generated_at}>
@@ -210,25 +199,16 @@ const route = (language: WeeklyLocale, date = "") =>
                 <p>SHA256: {report.content_hash}</p>
               </details>
             </article>
-          ) : reports.length ? (
-            <ul>
-              {reports.map((row) => (
-                <li>
-                  <a href={route(locale, row.date)}>
-                    {row.date} · {t.read}
-                  </a>
-                </li>
-              ))}
-            </ul>
           ) : (
             <p>{t.empty}</p>
           )}
         </section>
         {report && (
-          <section class="panel">
+          <section class="panel" data-weekly-history>
             <h2>{t.history}</h2>
+            {history.length === 0 && <p class="section-note">{t.noHistory}</p>}
             <ul>
-              {reports.map((row) => (
+              {history.map((row) => (
                 <li>
                   <a href={route(locale, row.date)}>{row.date}</a>
                 </li>

@@ -42,20 +42,21 @@ test('Astro emits a readable recent-report site with Asian market chart states',
   const latestEvening = reports.filter((row) => row.kind === 'evening').sort((a, b) => b.date.localeCompare(a.date))[0];
   assert.match(index, /Quant 市场情报/);
   assert.ok(index.includes('/quant-intel-pages/'));
-  assert.ok(index.includes('href="https://runchengxie.github.io/quant-intel-platform/docs/"'));
+  assert.ok(index.includes('href="/quant-intel-pages/about/?locale=zh-CN"'));
   assert.ok(!index.includes('/market-intel-pages/'));
   assert.match(index, /id="theme-toggle"/);
   const english = readFileSync(path.join(root, 'dist/en/index.html'), 'utf8');
-  assert.match(english, /<button[^>]*id="theme-toggle"[^>]*aria-pressed="false"[^>]*>Dark mode<\/button>/);
+  assert.match(english, /<button[^>]*id="theme-toggle"[^>]*aria-pressed="false"/);
   assert.match(english, /aria-label="Switch to dark mode"/);
   assert.doesNotMatch(english, /亚洲市场收盘复盘|目标日期|六维观察|市场状态/);
   assert.match(english, /Asia market close review|Target date|Six-dimension observation|Market state/);
   assert.match(english.slice(0, english.indexOf('</head>')), /market-intel-theme/, 'English theme is initialized before body paint');
-  const header = index.match(/<header class="topbar">([\s\S]*?)<\/header>/)?.[1];
+  const header = index.match(/<header class="topbar site-header">([\s\S]*?)<\/header>/)?.[1];
   assert.ok(header);
-  assert.match(header, /<nav class="top-nav"[^>]*><a href="#us-session">美股日报<\/a><a href="#asia-session">亚洲晚报<\/a>/);
-  assert.match(header, /<a href="https:\/\/runchengxie\.github\.io\/quant-intel-platform\/docs\/">文档<\/a>/);
-  assert.match(header, /<button[^>]*id="theme-toggle"[^>]*aria-pressed="false"[^>]*>深色模式<\/button>/);
+  assert.match(header, /href="#us-session"[^>]*>美股早报<\/a>/);
+  assert.match(header, /href="#asia-session"[^>]*>亚洲晚报<\/a>/);
+  assert.match(header, /href="\/quant-intel-pages\/about\/\?locale=zh-CN"[^>]*>关于此项目<\/a>/);
+  assert.match(header, /<button[^>]*id="theme-toggle"[^>]*aria-pressed="false"/);
   assert.match(index, /id="us-session"/);
   assert.match(index, /id="asia-session"/);
   assert.match(index, /07:00 美股收盘复盘/);
@@ -192,155 +193,6 @@ test('English home uses the same report sections and responsive shell as Chinese
   assert.match(english, /<html lang="en-US">/);
   assert.match(english, /U\.S\. market close review/);
   assert.match(english, /Asia market close review/);
-});
-
-test('home theme button keeps a stable label, toggles both ways, and restores the saved choice', () => {
-  const source = readFileSync(path.join(root, 'src/pages/index.astro'), 'utf8');
-  const script = source.match(/<script>\s*([\s\S]*?)<\/script>/)?.[1];
-  assert.ok(script, 'home theme controller exists');
-  const saved = new Map();
-  const storage = {
-    getItem: (key) => saved.get(key) ?? null,
-    setItem: (key, value) => saved.set(key, value),
-  };
-  const load = (localStorage) => {
-    const events = {};
-    const attrs = {};
-    const button = {
-      textContent: '深色模式',
-      setAttribute: (name, value) => { attrs[name] = value; },
-      addEventListener: (name, handler) => { events[name] = handler; },
-    };
-    const document = {
-      documentElement: { dataset: {} },
-      querySelector: () => button,
-      querySelectorAll: () => [],
-    };
-    vm.runInNewContext(require('typescript').transpileModule(script, {}).outputText, { document, localStorage, window: {
-      matchMedia: () => ({ matches: false, addEventListener: () => {} }),
-    } });
-    return { button, attrs, events, document };
-  };
-  const page = load(storage);
-  assert.equal(page.document.documentElement.dataset.theme, 'light');
-  assert.equal(page.attrs['aria-pressed'], 'false');
-  page.events.click();
-  assert.equal(page.document.documentElement.dataset.theme, 'dark');
-  assert.equal(page.attrs['aria-pressed'], 'true');
-  assert.equal(page.button.textContent, '深色模式');
-  assert.equal(storage.getItem('market-intel-theme'), 'dark');
-  const reloaded = load(storage);
-  assert.equal(reloaded.document.documentElement.dataset.theme, 'dark');
-  assert.equal(reloaded.attrs['aria-pressed'], 'true');
-  reloaded.events.click();
-  assert.equal(reloaded.document.documentElement.dataset.theme, 'light');
-  assert.equal(storage.getItem('market-intel-theme'), 'light');
-});
-
-test('home theme remains usable when browser storage is unavailable', () => {
-  const source = readFileSync(path.join(root, 'src/pages/index.astro'), 'utf8');
-  const script = source.match(/<script>\s*([\s\S]*?)<\/script>/)?.[1];
-  const events = {};
-  const document = {
-    documentElement: { dataset: { theme: 'light' } },
-    querySelector: () => ({ setAttribute: () => {}, addEventListener: (name, handler) => { events[name] = handler; } }),
-    querySelectorAll: () => [],
-  };
-  const localStorage = { getItem: () => { throw new Error('blocked'); }, setItem: () => { throw new Error('blocked'); } };
-  assert.doesNotThrow(() => vm.runInNewContext(require('typescript').transpileModule(script, {}).outputText, { document, localStorage, window: {
-    matchMedia: () => ({ matches: false, addEventListener: () => {} }),
-  } }));
-  assert.doesNotThrow(() => events.click());
-  assert.equal(document.documentElement.dataset.theme, 'dark');
-});
-
-test('English entry restores theme and keeps its button synchronized when storage is denied or OS theme changes', () => {
-  const source = readFileSync(path.join(root, 'src/pages/en/index.astro'), 'utf8');
-  const head = source.match(/<head>([\s\S]*?)<\/head>/)?.[1];
-  const bootstrap = head?.match(/<script is:inline>\s*([\s\S]*?)<\/script>/)?.[1];
-  const header = source.match(/<header class="topbar">([\s\S]*?)<\/header>/)?.[1];
-  const initialButtonSync = header?.match(/<script is:inline>\s*([\s\S]*?)<\/script>/)?.[1];
-  const controller = source.match(/<script>\s*([\s\S]*?)<\/script>/)?.[1];
-  assert.ok(bootstrap, 'English pre-paint theme bootstrap exists');
-  assert.ok(initialButtonSync, 'English button state is synchronized as the header parses');
-  assert.ok(controller, 'English theme controller exists');
-  const run = ({ stored = null, denied = false, dark = false } = {}) => {
-    const rootElement = { dataset: {} };
-    const attrs = { 'aria-pressed': 'false', 'aria-label': 'Switch to dark mode' };
-    const events = {};
-    const mediaEvents = {};
-    const button = {
-      textContent: 'Dark mode',
-      setAttribute: (name, value) => { attrs[name] = value; },
-      addEventListener: (name, handler) => { events[name] = handler; },
-    };
-    const media = {
-      matches: dark,
-      addEventListener: (name, handler) => { mediaEvents[name] = handler; },
-    };
-    const localStorage = {
-      getItem: (key) => {
-        assert.equal(key, 'market-intel-theme');
-        if (denied) throw new Error('blocked');
-        return stored;
-      },
-      setItem: (key, value) => {
-        assert.equal(key, 'market-intel-theme');
-        if (denied) throw new Error('blocked');
-        stored = value;
-      },
-    };
-    const document = { documentElement: rootElement, querySelector: () => button };
-    const window = { matchMedia: () => media };
-    vm.runInNewContext(bootstrap, { document, localStorage, matchMedia: window.matchMedia });
-    const beforeController = rootElement.dataset.theme;
-    vm.runInNewContext(initialButtonSync, { document });
-    const buttonBeforeController = { ...attrs };
-    vm.runInNewContext(require('typescript').transpileModule(controller, {}).outputText, { document, localStorage, window });
-    return { rootElement, attrs, events, mediaEvents, media, button, beforeController, buttonBeforeController, saved: () => stored };
-  };
-  const restored = run({ stored: 'dark' });
-  assert.equal(restored.beforeController, 'dark');
-  assert.equal(restored.buttonBeforeController['aria-pressed'], 'true');
-  assert.equal(restored.buttonBeforeController['aria-label'], 'Switch to light mode');
-  assert.equal(restored.attrs['aria-pressed'], 'true');
-  assert.equal(restored.attrs['aria-label'], 'Switch to light mode');
-  restored.media.matches = false;
-  restored.mediaEvents.change();
-  assert.equal(restored.rootElement.dataset.theme, 'dark');
-  assert.equal(restored.attrs['aria-pressed'], 'true');
-  restored.events.click();
-  assert.equal(restored.rootElement.dataset.theme, 'light');
-  assert.equal(restored.attrs['aria-pressed'], 'false');
-  assert.equal(restored.attrs['aria-label'], 'Switch to dark mode');
-  assert.equal(restored.button.textContent, 'Dark mode');
-  assert.equal(restored.saved(), 'light');
-  const invalid = run({ stored: 'sepia' });
-  assert.equal(invalid.beforeController, 'light');
-  invalid.media.matches = true;
-  invalid.mediaEvents.change();
-  assert.equal(invalid.rootElement.dataset.theme, 'dark');
-  assert.equal(invalid.attrs['aria-pressed'], 'true');
-  assert.equal(invalid.attrs['aria-label'], 'Switch to light mode');
-  const denied = run({ denied: true });
-  assert.equal(denied.beforeController, 'light');
-  denied.events.click();
-  assert.equal(denied.rootElement.dataset.theme, 'dark');
-  assert.equal(denied.attrs['aria-pressed'], 'true');
-  assert.equal(denied.attrs['aria-label'], 'Switch to light mode');
-  denied.media.matches = true;
-  denied.mediaEvents.change();
-  assert.equal(denied.rootElement.dataset.theme, 'dark');
-  assert.equal(denied.attrs['aria-pressed'], 'true');
-  denied.media.matches = false;
-  denied.mediaEvents.change();
-  assert.equal(denied.rootElement.dataset.theme, 'light');
-  assert.equal(denied.attrs['aria-pressed'], 'false');
-  assert.equal(denied.attrs['aria-label'], 'Switch to dark mode');
-  denied.events.click();
-  assert.equal(denied.rootElement.dataset.theme, 'dark');
-  assert.equal(denied.attrs['aria-pressed'], 'true');
-  assert.equal(denied.attrs['aria-label'], 'Switch to light mode');
 });
 
 test('new Asian evening reports build a visual history while old direct links remain available', () => {

@@ -1,0 +1,26 @@
+.topbar.site-header { height: auto; min-height: 76px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 28px; background: var(--desk-surface, #fffaf4); padding: 14px max(24px, calc((100vw - 1320px) / 2)); }
+.site-header .brand b { display: inline; font-weight: 700; }
+.site-header .brand-mark { background: var(--desk-accent, #aa5139); color: var(--desk-surface, #fffaf4); }
+.site-header .brand { white-space: nowrap; font-size: 11px; letter-spacing: .09em; gap: 10px; }
+.site-header .top-nav { display: flex; justify-content: flex-end; flex-wrap: wrap; overflow: visible; white-space: normal; width: auto; gap: 8px 24px; margin: 0; min-width: 0; }
+.site-header .top-nav a { font-size: 13px; padding: 7px 0; color: var(--desk-muted, #766558); border-bottom: 2px solid transparent; }
+.site-header .top-nav a:hover, .site-header .top-nav a[aria-current] { color: var(--desk-accent, #aa5139); border-bottom-color: currentColor; }
+.site-utilities { display: flex; gap: 16px; align-items: center; }
+.locale-switch { font-size: 12px; font-weight: 700; color: var(--desk-ink, #342b25); text-decoration: none; white-space: nowrap; }
+.site-header .theme-toggle { min-width: 56px; min-height: 36px; padding: 6px 9px; white-space: nowrap; border-radius: 999px; font: 700 12px system-ui; color: var(--desk-ink, #342b25); background: var(--desk-surface, #fffaf4); }
+.locale-switch:focus-visible { outline: 3px solid var(--desk-accent, #aa5139); outline-offset: 4px; }
+@media (max-width: 1100px) {
+  .topbar.site-header { grid-template-columns: minmax(0, 1fr) auto; gap: 10px 16px; }
+  .site-header .top-nav { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; gap: 4px 24px; }
+  .site-utilities { grid-column: 2; grid-row: 1; }
+}
+@media (max-width: 600px) {
+  .topbar.site-header { padding: 14px 16px 8px; gap: 14px 12px; }
+  .site-header .brand { font-size: 10px; letter-spacing: .03em; gap: 7px; }
+  .site-header .brand-mark { width: 26px; height: 26px; border-radius: 8px; font-size: 15px; }
+  .site-header .top-nav { gap: 2px 16px; }
+  .site-header .top-nav a { font-size: 12px; }
+  .site-utilities { gap: 12px; }
+}
+
+@media (max-width: 360px) { .site-header .brand b { display: none; } }
