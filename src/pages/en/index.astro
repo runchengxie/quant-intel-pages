@@ -12,6 +12,7 @@ import { buildAsiaReportSvg } from '../../lib/asia-report-image.ts';
 import { localePath, US_REPORT_LABELS, ASIA_RESEARCH_LABELS } from '../../lib/locale.ts';
 import { toEnglishPresentation, asiaResearchPresentation } from '../../lib/english-content.ts';
 import type { Evidence } from '../../lib/insights.ts';
+import { weeklyLabels } from '../../lib/weekly-locale.ts';
 import { publicReportIdentity } from '../../lib/report-image-identity.ts';
 
 const labels = Object.fromEntries(Object.entries(US_REPORT_LABELS).map(([key, pair]) => [key, pair[1]]));
@@ -63,7 +64,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <body>
     <header class="topbar">
       <a class="brand" href={localePath('en-US', base)}><span class="brand-mark">Q</span><span>QUANT <b>MARKET INTEL</b></span></a>
-      <nav class="top-nav" aria-label="Primary navigation"><a href="#reports">Reports</a><a href={"https://runchengxie.github.io/quant-intel-platform/docs/"}>Documentation</a><a href={localePath('zh-CN', base)}>中文</a></nav>
+      <nav class="top-nav" aria-label="Primary navigation"><a href={`${base}/en/weekly/`}>{weeklyLabels.en.title}</a><a href="#reports">Reports</a><a href={"https://runchengxie.github.io/quant-intel-platform/docs/"}>Documentation</a><a href={localePath('zh-CN', base)}>中文</a></nav>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">Dark mode</button>
       <script is:inline>const dark = document.documentElement.dataset.theme === 'dark'; const button = document.querySelector('#theme-toggle'); button.setAttribute('aria-pressed', String(dark)); button.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');</script>
     </header>

@@ -26,3 +26,24 @@ Production credentials, stable release directories, and timers belong outside Gi
 Platform publishes `### 亚洲市场概览` with six columns (`市场 | 指数 | 数据日期 | 收盘 | 涨跌幅 | 状态`) and exactly Hong Kong/Hang Seng, Japan/Nikkei 225 and Korea/KOSPI rows. Mainland indices remain in their own report module. Verified closes require the report’s session date plus source URL, exchange-close timestamp and evidence ID. Closed, unavailable and not-yet-closed markets carry em dashes instead of old prices. Pages renders these same Markdown facts and source notes without requesting quotes or inferring calendars. Malformed/stale or unproven rows stay explicit as fallback text while other verified markets remain visible. Historical four-column mainland-holiday tables remain supported.
 
 This presentation is backward compatible and does not require the new Platform producer to be deployed before existing reports can build. New module generation requires the matching Platform repair; no runtime or scheduler is changed by this Pages PR.
+
+### Weekly public handoff
+
+Platform owns `market-export-weekly-recap` and `market-import-weekly-recap`.
+The explicit public bundle contains `weekly_recap.json`, `<date>-weekly.md` and
+`<date>-weekly.png`; imports retain at most five cutoff dates in
+`artifacts/public/data/weekly_recaps.json` and update `weekly_recap.json`.
+The installed pinned Platform snapshot exporter must admit these records and
+attachments before the Pages adapter builds them. No sibling source is imported.
+
+Pages independently checks the exact allowlist, Friday report identity, aware
+creation timestamp, source dates, ordered bounded series, canonical Python JSON
+SHA256, and the matching Markdown and PNG. It renders sanitized Markdown and retains
+only supplied observations: 12-week return in percent, wealth index, size relative
+strength, and crowding from zero to one. English pages explicitly identify the
+original Chinese full report. Locale links preserve the dated report route.
+
+This source change adds reading and chart routes; it does not install schedules or
+send images. Deployment and exact live identity verification precede delivery under
+the separate Deploy publication transaction. A successful local build alone does
+not establish that a weekly report has been deployed.

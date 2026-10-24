@@ -63,3 +63,17 @@ The bucket containing zero is distinguished from advancing-stock counts.
 Malformed or missing facts stay visible as text without invented graphics.
 
 Asian evening images also consume the producer’s dated Asian-market overview on ordinary and mainland-holiday editions. Hong Kong, Japan and Korea retain independent session dates, closed/missing/pending states, and source attribution; the website does not fetch or backfill quotes. Legacy holiday tables remain readable.
+
+Weekly market/style reports are available from the home navigation at `/en/weekly/`
+(English) and `/weekly/?locale=zh-CN` (Chinese). Dated pages retain the trading cutoff
+in their URL. Each page exposes the approved PNG for direct download, the complete
+sanitized source report, source identities, and optional interactive historical
+observations with accessible tables. ECharts loads only when the historical chart
+section opens; the image and report remain readable without JavaScript.
+
+The weekly input is optional until a public bundle is imported. Present weekly data
+fails the build if its schema, Python canonical content digest, attachment hash,
+identity, date order, provenance, or bounded five-report history is inconsistent.
+Python 3 is required at build time to preserve the producer's canonical JSON numeric
+spelling. Browser tests stage synthetic weekly inputs and build output outside the repository;
+the fixture is never inserted into production artifacts.

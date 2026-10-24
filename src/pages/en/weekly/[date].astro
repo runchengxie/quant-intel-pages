@@ -1,0 +1,13 @@
+---
+import WeeklyPage from "../../../components/WeeklyPage.astro";
+import { loadWeeklyRecaps } from "../../../lib/weekly-recap.ts";
+export function getStaticPaths() {
+  return loadWeeklyRecaps().map((report) => ({
+    params: { date: report.date },
+    props: { report },
+  }));
+}
+const { report } = Astro.props;
+---
+
+<WeeklyPage locale="en" report={report} />
