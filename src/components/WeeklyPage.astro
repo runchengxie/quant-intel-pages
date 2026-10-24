@@ -82,7 +82,7 @@ const route = (language: WeeklyLocale, date = "") =>
               <p>{t.fallback}</p>
               <div class="link-row">
                 <a
-                  href={`${base}/${report.image.source_url}`}
+                  href={`${base}/${report.image.source_url}?v=${report.image.sha256}`}
                   download={`${report.report_id}.png`}
                 >
                   {t.download}
@@ -91,7 +91,7 @@ const route = (language: WeeklyLocale, date = "") =>
               </div>
               <img
                 class="weekly-image"
-                src={`${base}/${report.image.source_url}`}
+                src={`${base}/${report.image.source_url}?v=${report.image.sha256}`}
                 width={report.image.width}
                 height={report.image.height}
                 alt={`${t.title} · ${report.date}`}

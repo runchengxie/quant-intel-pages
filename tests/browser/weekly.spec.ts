@@ -34,7 +34,14 @@ test("weekly routes expose static evidence, preserve locale and load charts only
   ).toBe(8);
   await expect(
     page.getByRole("link", { name: "Download report image" }),
-  ).toHaveAttribute("href", `${base}/reports/2026-10-23-weekly.png`);
+  ).toHaveAttribute(
+    "href",
+    `${base}/reports/2026-10-23-weekly.png?v=6f5b9de097b5e83d2f5e3923112ac9390f98b6369add29c6a8b3fa190da8dfef`,
+  );
+  await expect(page.locator(".weekly-image")).toHaveAttribute(
+    "src",
+    `${base}/reports/2026-10-23-weekly.png?v=6f5b9de097b5e83d2f5e3923112ac9390f98b6369add29c6a8b3fa190da8dfef`,
+  );
   const pendingDownload = page.waitForEvent("download");
   await page.getByRole("link", { name: "Download report image" }).click();
   const download = await pendingDownload;
