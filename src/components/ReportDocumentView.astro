@@ -1,18 +1,30 @@
 ---
-import type {ReportDocument} from '../lib/report-document';
+import type {ReportDocument, ReportSource} from '../lib/report-document';
 import {reportRowGeometry,reportLineGeometry} from '../lib/report-document-geometry';
 import {reportDocumentLabels} from '../lib/report-document-labels';
 interface Props {document:ReportDocument}
 const {document}=Astro.props;const weekly=document.id.endsWith('-weekly');const t=reportDocumentLabels[document.locale];
 const number=(v:number)=>v.toLocaleString(document.locale==='en'?'en-US':'zh-CN',{maximumFractionDigits:2});
+const sourceKey = (sources: ReportSource[] = []) => JSON.stringify(sources.map(s => [s.url, s.label]).sort());
+const uniqueSources = (sources: ReportSource[]) => [...new Map(sources.map(s => [sourceKey([s]), s])).values()];
 ---
 <div class:list={["report-document",{"document-weekly":weekly}]} data-report-document={document.id} data-weekly-trend-grid={weekly?true:undefined}>
  {document.panels.map(panel=>{
   const chart=panel.kind==='line'?reportLineGeometry(panel):null;
   const total=(panel.rows??[]).reduce((n,r)=>n+(typeof r.value==='number'&&r.value>=0?r.value:0),0);
   const Panel=panel.disclosure?'details':'section';const Heading=panel.disclosure?'summary':'header';
-  return <Panel class:list={["report-section document-panel",{"document-line-panel":panel.kind==='line'}]} data-report-panel={panel.id} data-weekly-static-chart={weekly&&panel.kind==='line'?true:undefined}>
+  const rows = panel.rows ?? [];
+  const layout = panel.disclosure ? 'disclosure' : panel.kind === 'text' ? 'prose'
+   : ['indices', 'crossAssets', 'additional-observations', 'asia-overview', 'asia-sessions'].includes(panel.id) ? 'metrics'
+   : panel.id === 'dimensions' ? 'scores' : panel.id === 'distribution' ? 'distribution' : 'figure';
+  const sharedDate = rows.length && rows.every(row => row.observationDate === rows[0].observationDate) ? rows[0].observationDate : undefined;
+  const sharedSources = rows.length && rows.every(row => sourceKey(row.sources) === sourceKey(rows[0].sources)) ? rows[0].sources ?? [] : [];
+  const sharedScale = rows.length && rows.every(row => JSON.stringify(row.scale) === JSON.stringify(rows[0].scale)) ? rows[0].scale : undefined;
+  const panelSources = uniqueSources([...(panel.sources ?? []), ...sharedSources]);
+  const records = rows.filter(row => row.records?.length);
+  return <Panel class:list={["report-section document-panel", `document-${layout}`, {"document-line-panel":panel.kind==='line', "document-wide": panel.kind==='stack-history'}]} style={layout==='metrics'?`--document-columns:${Math.min(Math.max(rows.length,1),4)}`:undefined} data-report-panel={panel.id} data-weekly-static-chart={weekly&&panel.kind==='line'?true:undefined}>
    <Heading class="document-heading"><h3>{panel.title}</h3>{panel.unit&&<span>{panel.unit}</span>}</Heading>
+   <div class="document-panel-body">
    {panel.kind==='stack'&&panel.rows?.length?<>
     <div class="document-stack" aria-hidden="true">{panel.rows.map((row,i)=><span style={`width:${total?(row.value??0)/total*100:0}%;background:var(--desk-${row.tone??(['positive','negative','muted'][i%3])})`}></span>)}</div>
     <dl class="document-stack-labels">{panel.rows.map(row=><div data-report-row={row.id}><dt>{row.label}</dt><dd>{row.valueText??row.value??'—'}</dd></div>)}</dl>
@@ -30,20 +42,22 @@ const number=(v:number)=>v.toLocaleString(document.locale==='en'?'en-US':'zh-CN'
     const geometry=reportRowGeometry(panel,row);
     return <div class:list={['document-row',{'document-prose-row':panel.kind==='text'}]} data-report-row={row.id}>
      <div class="document-row-heading"><h4>{row.label}</h4>{row.valueText&&<strong class={geometry?.tone}>{row.valueText}</strong>}</div>
-     {row.cells?.length&&<dl class="document-cells">{row.cells.map(cell=><div><dt>{cell.label}</dt><dd>{cell.text}</dd></div>)}</dl>}
+     {row.cells && row.cells.length > 0 &&<dl class="document-cells">{row.cells.map(cell=><div><dt>{cell.label}</dt><dd>{cell.text}</dd></div>)}</dl>}
      {geometry&&<div class="document-bar" aria-hidden="true"><span class="document-zero" style={`left:${geometry.zero}%`}></span><span class:list={['document-bar-fill',geometry.tone]} style={`left:${geometry.left}%;width:${geometry.width}%`}></span></div>}
-     {row.scale&&geometry&&<p class="document-axis">{t.axis}: {number(geometry.min)} … {number(geometry.max)}{panel.unit?' '+panel.unit:''}</p>}
+     {row.scale&&!sharedScale&&geometry&&<p class="document-axis">{t.axis}: {number(geometry.min)} … {number(geometry.max)}{panel.unit?' '+panel.unit:''}</p>}
      {row.details?.map(detail=><p class="report-caption">{detail}</p>)}
-     {(row.observationDate||row.sources?.length)&&<p class="report-caption document-evidence">{row.observationDate&&<time datetime={row.observationDate}>{row.observationDate}</time>}{row.sources?.map(source=><a href={source.url} rel="noreferrer">{source.label}</a>)}</p>}
-     {row.records?.length&&<details class="document-records"><summary>{t.records}</summary>{row.records.map(record=><p class="report-caption">{record}</p>)}</details>}
+     {((row.observationDate&&!sharedDate)||(row.sources && row.sources.length > 0 && !sharedSources.length))&&<p class="report-caption document-evidence">{row.observationDate&&!sharedDate&&<time datetime={row.observationDate}>{row.observationDate}</time>}{!sharedSources.length&&row.sources?.map(source=><a href={source.url} rel="noreferrer">{source.label}</a>)}</p>}
     </div>;
    })}</div>}
    {panel.paragraphs?.map(paragraph=><p class="document-paragraph">{paragraph}</p>)}
-   {panel.notes?.map(note=>note.trim()&&<p class="report-caveat">{note}</p>)}
-   {panel.sources?.length&&<p class="report-caption document-evidence">{panel.sources.map(source=><a href={source.url} rel="noreferrer">{source.label}</a>)}</p>}
+   {sharedScale&&<p class="document-axis">{t.axis}: {number(sharedScale[0])} … {number(sharedScale[1])}{panel.unit?' '+panel.unit:''}</p>}
+   {(sharedDate||panelSources.length>0)&&<p class="report-caption document-evidence">{sharedDate&&<time datetime={sharedDate}>{sharedDate}</time>}{panelSources.map(source=><a href={source.url} rel="noreferrer">{source.label}</a>)}</p>}
+   {panel.notes && panel.notes.length > 0 &&<div class="document-panel-notes">{panel.notes.map(note=>note.trim()&&<p class="report-caveat">{note}</p>)}</div>}
+   {records.length>0&&<details class="document-records"><summary>{t.records}</summary>{records.map(row=><div><h4>{row.label}</h4>{row.records!.map(record=><p class="report-caption">{record}</p>)}</div>)}</details>}
+   </div>
   </Panel>;
  })}
  {document.notes?.map(note=><p class="report-caveat">{note}</p>)}
- {document.records?.length&&<details class="document-records"><summary>{t.records}</summary>{document.records.map(record=><p class="report-caption">{record}</p>)}</details>}
- {document.sources?.length&&<details class="document-records"><summary>{t.source}</summary><ul>{document.sources.map(source=><li><a href={source.url} rel="noreferrer">{source.label}</a></li>)}</ul></details>}
+ {document.records && document.records.length > 0 &&<details class="document-records"><summary>{t.records}</summary>{document.records.map(record=><p class="report-caption">{record}</p>)}</details>}
+ {document.sources && document.sources.length > 0 &&<details class="document-records"><summary>{t.source}</summary><ul>{document.sources.map(source=><li><a href={source.url} rel="noreferrer">{source.label}</a></li>)}</ul></details>}
 </div>

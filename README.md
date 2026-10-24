@@ -102,6 +102,18 @@ combines its closing level or price with its return bar. Asia retains the image
 edition's chart inventory; additional rows, evidence and the full original are
 available in folded sections rather than repeated below the charts.
 
+The native page uses primary metric strips, paired secondary figures and separate
+prose columns on wide screens, then stacks figures on phones. Images use their own
+linear composition with the same content and design tokens. Common observation
+dates and identical sources appear once per panel; differing source URLs and
+observation dates remain associated with their individual rows.
+
+Asia's optional supplemental chart bundle is separate from chartable facts in the
+daily report. An absent bundle produces one expandable availability note, rather
+than five empty charts. Published data limitations remain visible, and historical
+series retain their actual observation dates. This presentation does not backfill
+late chart bundles or change the publisher's source-identity checks.
+
 The optional **Image edition** preserves the publisher's container IDs and image
 identity controls. Weekly offers a newly styled derivative while retaining the
 immutable original published PNG. The delivery integration uses the derivative

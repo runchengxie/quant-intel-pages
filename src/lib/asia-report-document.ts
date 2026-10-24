@@ -1,5 +1,6 @@
 import type { ReportDocument, ReportPanel, ReportRow } from './report-document.ts';
-import type { ChartCard, ChartPoint } from './chart-data.ts';
+import type { LoadedCharts } from './reports.ts';
+import type { ChartPoint } from './chart-data.ts';
 import { holidayRows } from './asia-report-image.ts';
 import { asiaMarketOverview } from './asia-market-overview.ts';
 import { reportTable, sectionLines, dailyReturn } from './asia-report-tables.ts';
@@ -9,7 +10,7 @@ import { asiaImageLabel } from './locale.ts';
 import { ASIA_DOCUMENT_LOCALE } from './asia-document-locale.ts';
 
 /** Published source adapters share the image validators; no market facts are inferred. */
-export function buildAsiaReportDocument(report: {id:string;date:string;kind:string;summary?:unknown}, charts:ChartCard[], markdown:string, locale:'en'|'zh'): ReportDocument {
+export function buildAsiaReportDocument(report: {id:string;date:string;kind:string;summary?:unknown}, charts:LoadedCharts, markdown:string, locale:'en'|'zh'): ReportDocument {
  const labels = ASIA_DOCUMENT_LOCALE[locale];
  const present = (s:string) => locale === 'en' ? toEnglishPresentation(s) : s;
  const sectionTitle=(heading:string)=>present(heading.replace(/^#+\s*/,'').replace(/^[一二三四五六七八九十]+、/,''));
@@ -89,14 +90,19 @@ export function buildAsiaReportDocument(report: {id:string;date:string;kind:stri
   const remaining=lines.filter(l=>!consumed.has(normalizePanelLine(l)));if(remaining.length){if(!rows.length)fallback(id,remaining);else panels.find(p=>p.id===id)!.notes!.push(...remaining.map(l=>present(normalizePanelLine(l))));}
  }
  const chartNames:Record<string,string>={dashboard:'综合盘面',moneyflow:'资金流向',topic:'热点概念',sentiment:'市场温度',weekly_chart:'周度概览'};
- for(const key of Object.keys(chartNames)){
-  const chart=charts.find(c=>c.key===key);const points=(chart&&['ok','degraded'].includes(chart.status)?chart.points:[]).filter(p=>validPoint(p));
+ const chartStatus:string[]=[];
+ const bundleAbsent=charts.availability==='absent';
+ if(bundleAbsent)chartStatus.push(labels.supplementalAbsent);
+ else if(!charts.length)chartStatus.push(labels.supplementalEmpty);
+ for(const key of bundleAbsent?[]:Object.keys(chartNames)){
+  const chart=charts.find(c=>c.key===key);if(!chart)continue;const points=(chart&&['ok','degraded'].includes(chart.status)?chart.points:[]).filter(p=>validPoint(p));
   const remaining=points.filter(p=>!facts.has(fact(p.label,p.value,p.unit,p.observation_date)));
   const unique=remaining.filter((p,i)=>remaining.findIndex(other=>fact(p.label,p.value,p.unit,p.observation_date)===fact(other.label,other.value,other.unit,other.observation_date))===i);
   for(const point of unique)facts.add(fact(point.label,point.value,point.unit,point.observation_date));
-  if(!unique.length&&chart?.status==='ok'&&!chart.reason&&points.length)continue;
+  if(chart.status!=='ok'||chart.reason||!points.length)chartStatus.push(`${present(chartNames[key])}: ${present(({ok:'已核实',degraded:'部分缺项',missing:'缺项',skipped:'跳过'} as const)[chart.status])}${chart.reason?` · ${present(chart.reason)}`:''}${!points.length?` · ${labels.missing}`:''}`);
+  if(!unique.length)continue;
   const panel:ReportPanel={id:`chart-${key}`,title:present(chartNames[key]),kind:'rows',rows:unique.map((p,i)=>({id:`${key}-${i}`,label:present(p.label),value:p.value,valueText:`${p.value} ${present(p.unit)}`,kind:['观察分','观察分（风险）'].includes(p.unit)&&p.value>=0&&p.value<=100?'score':key==='moneyflow'||p.unit==='%'?'signed':p.unit==='家'?'count':'amount',scale:['观察分','观察分（风险）'].includes(p.unit)&&p.value>=0&&p.value<=100?[0,100]:undefined,observationDate:p.observation_date,sources:[{label:p.source_label,url:p.source_url}]})),notes:[present(({ok:'已核实',degraded:'部分缺项',missing:'缺项',skipped:'跳过'} as const)[chart?.status||'missing']),present(chart?.reason||(!unique.length?labels.missing:''))].filter(Boolean)};
-  panels.push(panel);
+
   const countNames=['上涨家数','下跌家数','平盘家数'];
   const breadthDates=new Map<string,Map<string,ChartPoint[]>>();
   for(const point of unique){
@@ -117,7 +123,9 @@ export function buildAsiaReportDocument(report: {id:string;date:string;kind:stri
   panel.rows=panel.rows!.filter(row=>!stackedPoints.some(point=>row.label===present(point.label)&&row.observationDate===point.observation_date&&row.value===point.value));
   const groups=new Map<string,ChartPoint[]>();for(const p of unique.filter(point=>!stackedPoints.includes(point))){const match=/^(.+) (\d{4}-\d{2}-\d{2})$/.exec(p.label);if(match){const group=JSON.stringify([match[1],p.unit]);groups.set(group,[...(groups.get(group)||[]),p]);}}
   for(const [group,values] of groups){if(values.length<2)continue;const [label,unit]=JSON.parse(group);panel.rows=panel.rows!.filter(r=>!values.some(p=>r.label===present(p.label)&&r.observationDate===p.observation_date));panels.push({id:`trend-${key}-${panels.length}`,title:present(label),kind:'line',unit:present(unit),series:[{label:present(label),values:values.map(p=>({date:p.observation_date,value:p.value})).sort((a,b)=>a.date.localeCompare(b.date))}],sources:values.map(p=>({label:p.source_label,url:p.source_url}))});}
+  if(panel.rows?.length)panels.push(panel);
  }
+ if(chartStatus.length)panels.push({id:'supplemental-chart-status',title:labels.supplementalTitle,kind:'text',disclosure:bundleAbsent||!charts.length,paragraphs:chartStatus});
  const known=new Set(['## 一、市场状态','### 六维观察','### 核心矛盾','### 明日验证','### 昨日验证复盘','### 数据完整度与校准','### 二、指数总览','### 三、市场总览','### 四、涨跌停','### 五、资金动向','### 六、融资融券','### 七、行业板块 TOP10','### 八、高成交核心票 TOP10','### 九、热门概念 TOP5','### 十、极端异动','### 亚洲市场概览']);
  for(const heading of markdown.split('\n').filter(l=>/^### /.test(l)&&!known.has(l.trim())))fallback(`source-${panels.length}`,[heading,...sectionLines(markdown,heading)]);
  const order=['summary','asia-overview','state','dimensions','contradiction','next-session','previous-session','indices','overview','overview-turnover','overview-breadth','overview-advance-rate','intraday','distribution','limits','limits-over-five','limits-board','flow','flow-counts','financing','industry','industry-decliners','turnover','concepts','movers','calibration'];
