@@ -65,7 +65,8 @@ Malformed or missing facts stay visible as text without invented graphics.
 Asian evening images also consume the producer’s dated Asian-market overview on ordinary and mainland-holiday editions. Hong Kong, Japan and Korea retain independent session dates, closed/missing/pending states, and source attribution; the website does not fetch or backfill quotes. Legacy holiday tables remain readable.
 
 Weekly market/style reports are available from the home navigation at `/en/weekly/`
-(English) and `/weekly/?locale=zh-CN` (Chinese). Dated pages retain the trading cutoff
+(English) and `/weekly/?locale=zh-CN` (Chinese). The landing page opens the latest
+edition directly, with earlier public editions below. Dated pages retain the trading cutoff
 in their URL. Each page presents responsive native text, localized summary cards and four static
 SVG trend panels. English report text preserves the source numbers and caveats;
 unrecognized new source passages are flagged, with the full Chinese original in
@@ -79,3 +80,9 @@ identity, date order, provenance, or bounded five-report history is inconsistent
 Python 3 is required at build time to preserve the producer's canonical JSON numeric
 spelling. Browser tests stage synthetic weekly inputs and build output outside the repository;
 the fixture is never inserted into production artifacts.
+
+All report pages share navigation for U.S. Morning, Asia Evening, Weekly Style Analysis
+and About, followed by language and theme controls. The language switch retains the
+current edition or home section; the theme follows the system until explicitly chosen
+and persists across pages. `/en/about/` and `/about/?locale=zh-CN` explain the reports,
+dates, sources and limitations, and link to detailed methods.

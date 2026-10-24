@@ -12,18 +12,19 @@ const routes = [
   {
     name: 'English', path: `${base}/en/`, language: 'en-US',
     requiredLinks: [
-      { label: 'Reports', href: '#reports' },
-      { label: 'Documentation', href: 'https://runchengxie.github.io/quant-intel-platform/docs/' },
-      { label: '中文', href: `${base}/?locale=zh-CN` },
+      { label: 'U.S. Morning', href: '#us-session' },
+      { label: 'Asia Evening', href: '#asia-session' },
+      { label: 'Weekly Style Analysis', href: `${base}/en/weekly/` },
+      { label: 'About', href: `${base}/en/about/` },
     ],
   },
   {
     name: 'Chinese', path: `${base}/?locale=zh-CN`, language: 'zh-CN',
     requiredLinks: [
-      { label: '美股日报', href: '#us-session' },
+      { label: '美股早报', href: '#us-session' },
       { label: '亚洲晚报', href: '#asia-session' },
-      { label: '文档', href: 'https://runchengxie.github.io/quant-intel-platform/docs/' },
-      { label: 'English', href: `${base}/en/` },
+      { label: '每周风格分析', href: `${base}/weekly/?locale=zh-CN` },
+      { label: '关于此项目', href: `${base}/about/?locale=zh-CN` },
     ],
   },
 ];
@@ -282,7 +283,7 @@ test('report locale switch preserves the report and provides shareable locale ro
   await page.goto(chineseRoute);
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
   await expect(page.locator('.report-heading h1')).toBeVisible();
-  await expect(page.locator('.top-note')).toContainText(historicalEvening.date);
+  await expect(page.locator('.report-heading time')).toContainText(historicalEvening.date);
   await expect(page.getByRole('link', { name: 'English', exact: true }))
     .toHaveAttribute('href', englishRoute);
   await page.getByRole('link', { name: 'English', exact: true }).click();
@@ -290,7 +291,7 @@ test('report locale switch preserves the report and provides shareable locale ro
   await expect(page).toHaveURL(new RegExp(`${reportId}/$`));
   await expect(page.locator('html')).toHaveAttribute('lang', 'en-US');
   await expect(page.locator('.report-heading h1')).toBeVisible();
-  await expect(page.locator('.top-note')).toContainText(historicalEvening.date);
+  await expect(page.locator('.report-heading time')).toContainText(historicalEvening.date);
   await expect(page.getByRole('link', { name: '中文', exact: true }))
     .toHaveAttribute('href', chineseRoute);
   await page.getByRole('link', { name: '中文', exact: true }).click();
@@ -298,7 +299,7 @@ test('report locale switch preserves the report and provides shareable locale ro
   await expect(page).toHaveURL(new RegExp(`${reportId}/$`));
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
   await expect(page.locator('.report-heading h1')).toBeVisible();
-  await expect(page.locator('.top-note')).toContainText(historicalEvening.date);
+  await expect(page.locator('.report-heading time')).toContainText(historicalEvening.date);
 });
 
 

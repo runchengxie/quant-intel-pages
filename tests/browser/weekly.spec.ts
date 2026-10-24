@@ -11,12 +11,11 @@ test("weekly routes expose static evidence, preserve locale and load charts only
   });
   await page.goto(`${base}/en/`);
   await page
-    .getByRole("link", { name: "Weekly market and style research" })
+    .getByRole("link", { name: "Weekly Style Analysis" })
     .click();
   await expect(page).toHaveURL(/\/en\/weekly\/$/);
-  await page
-    .getByRole("link", { name: "2026-10-23 · Read full report" })
-    .click();
+  await expect(page.locator("[data-weekly-report]")).toHaveAttribute("data-report-date", "2026-10-23");
+  await page.locator("[data-weekly-permalink]").click();
   expect(
     (await page.locator("main .content").boundingBox())!.width,
   ).toBeGreaterThan(900);
