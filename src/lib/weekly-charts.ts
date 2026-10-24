@@ -17,7 +17,7 @@ export function weeklyChartOption(
         ];
   return {
     tooltip: { trigger: "axis" },
-    legend: { type: "scroll" },
+    legend: { type: "scroll", top: 0 },
     grid: { left: 65, right: 65, top: 60, bottom: 80 },
     xAxis: { type: "category", data: rows.map((r: any) => r.date) },
     yAxis: [

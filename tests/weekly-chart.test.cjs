@@ -17,6 +17,7 @@ test("weekly charts keep original values and dates on separate unit axes", () =>
   assert.equal(option.series[1].yAxisIndex, 1);
   assert.equal(option.tooltip.trigger, "axis");
   assert.equal(option.dataZoom.length, 2);
+  assert.equal(option.legend.top, 0);
   const size = weeklyChartOption(
     "size",
     [

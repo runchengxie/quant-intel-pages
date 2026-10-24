@@ -1,6 +1,6 @@
 # Quant Market Intel Pages
 
-This repository owns the static website for daily market reports. `quant-intel-platform` owns report generation, evidence review, and the validated public snapshot exporter. `quant-intel-deploy` owns scheduled production publishers.
+This repository owns the static website for daily and weekly market reports. `quant-intel-platform` owns report generation, evidence review, and the validated public snapshot exporter. `quant-intel-deploy` owns scheduled production publishers.
 
 [中文说明](README.zh-CN.md)
 

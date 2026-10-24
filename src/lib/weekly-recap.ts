@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { spawnSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { dataRoot } from "./reports.ts";
@@ -41,10 +41,10 @@ p=json.load(sys.stdin)
 reports=p["reports"] if sys.argv[1]=="index" else [p]
 if sys.argv[2]=="strict":
     for report in reports:
-        assert all(type(report["image"][key]) is int for key in ("width","height"))
-        assert type(report["summary"]["value_streak_weeks"]) is int
+        if not all(type(report["image"][key]) is int for key in ("width","height")) or type(report["summary"]["value_streak_weeks"]) is not int:
+            raise ValueError("weekly integer fields required")
 print(json.dumps([hashlib.sha256(json.dumps({k:v for k,v in r.items() if k!="content_hash"},sort_keys=True,separators=(",",":"),ensure_ascii=False,allow_nan=False).encode()).hexdigest() for r in reports]))`;
-  const result = spawnSync(
+  const result = execFileSync(
     "python3",
     [
       "-c",
@@ -52,10 +52,15 @@ print(json.dumps([hashlib.sha256(json.dumps({k:v for k,v in r.items() if k!="con
       index ? "index" : "single",
       strictIntegers ? "strict" : "hash",
     ],
-    { input: raw, encoding: "utf8", maxBuffer: 8_000_000, timeout: 10000 },
+    {
+      input: raw,
+      encoding: "utf8",
+      maxBuffer: 8_000_000,
+      timeout: 10000,
+      stdio: ["pipe", "pipe", "pipe"],
+    },
   );
-  requireValid(result.status === 0);
-  return JSON.parse(result.stdout);
+  return JSON.parse(result);
 }
 export function weeklyContentHash(
   payload: object,
