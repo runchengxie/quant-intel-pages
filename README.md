@@ -9,7 +9,7 @@ This repository owns the static website for daily and weekly market reports. `qu
 Requirements: Python 3.11, Node.js 24, npm, uv, and the `market-export-site-snapshot` command installed from the pinned Platform commit.
 
 ```bash
-uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@7b5ab6a318c62292ca3a10178e98d93449c85da7"
+uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@c761aaa22cebd72283063ca11c4f1632f1c439fc"
 npm ci
 uv sync --locked --group dev --no-install-project
 preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)
