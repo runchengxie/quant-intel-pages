@@ -1,0 +1,27 @@
+.weekly-page .shell { grid-template-columns: minmax(0, 1fr); max-width: 1140px; }
+.weekly-page h1 { font-size: clamp(1.7rem, 4vw, 2.5rem); line-height: 1.2; letter-spacing: -.035em; }
+.weekly-page [data-weekly-report] > h2 { border-top: 1px solid var(--desk-line); padding-top: 1.2rem; }
+.weekly-page [data-weekly-report] > p { color: var(--desk-muted); font-size: .875rem; }
+.weekly-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 28px 0; }
+.weekly-summary > div { min-width: 0; padding: 18px 20px; background: #fffdf9; border: 1px solid var(--desk-line); border-radius: 12px; }
+.weekly-summary dt { color: var(--desk-muted); font-size: .82rem; }
+.weekly-summary dd { margin: 7px 0 0; color: var(--desk-accent); font-size: clamp(1.2rem, 2.4vw, 1.65rem); font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.weekly-trend-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.weekly-trend-grid > * { min-width: 0; }
+.weekly-report-body { margin-top: 32px; padding-top: 10px; border-top: 1px solid var(--desk-line); }
+.weekly-report-body .markdown-body { font-size: 1rem; line-height: 1.8; max-width: 78ch; }
+.weekly-translation-note { padding: 12px 16px; background: #f8ecdd; border-left: 3px solid var(--desk-accent); color: var(--desk-muted); font-size: .875rem; }
+.weekly-page .secondary-report { border-top: 1px solid var(--desk-line); padding-top: 16px; }
+.weekly-page .secondary-report summary { min-height: 32px; }
+.weekly-table { overflow-x: auto; }
+.weekly-table table { border-collapse: collapse; width: 100%; font-size: .875rem; font-variant-numeric: tabular-nums; }
+.weekly-table th, .weekly-table td { text-align: left; padding: .6rem; border-bottom: 1px solid var(--desk-line); }
+.weekly-page pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .weekly-page .topbar { height: auto; min-height: 64px; flex-wrap: wrap; gap: 14px; padding-top: 16px; padding-bottom: 16px; }
+  .weekly-page .top-nav { gap: 20px; margin-right: 0; flex-wrap: wrap; }
+  .weekly-page .panel { padding: 18px 16px; }
+  .weekly-summary, .weekly-trend-grid { grid-template-columns: minmax(0, 1fr); }
+  .weekly-summary > div { padding: 15px 17px; }
+  .weekly-page .shell { padding-top: 24px; }
+}

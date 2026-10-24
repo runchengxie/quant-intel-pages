@@ -1,7 +1,14 @@
 ---
 import "../styles/site.css";
 import "../styles/editorial.css";
-import { weeklyLabels, type WeeklyLocale } from "../lib/weekly-locale.ts";
+import "../styles/weekly-native.css";
+import WeeklyTrend from "./WeeklyTrend.astro";
+import { weeklyReportPresentation } from "../lib/weekly-report-text.ts";
+import {
+  weeklyLabels,
+  weeklyStateLabel,
+  type WeeklyLocale,
+} from "../lib/weekly-locale.ts";
 import { loadWeeklyRecaps, type WeeklyRecap } from "../lib/weekly-recap.ts";
 import { renderMarkdown } from "../lib/markdown.ts";
 interface Props {
@@ -11,6 +18,17 @@ interface Props {
 const { locale, report } = Astro.props;
 const t = weeklyLabels[locale];
 const reports = loadWeeklyRecaps();
+const presentation = report
+  ? weeklyReportPresentation(report.markdown, locale)
+  : undefined;
+const number = (value: number, digits = 2) =>
+  new Intl.NumberFormat(locale === "en" ? "en-US" : "zh-CN", {
+    maximumFractionDigits: digits,
+  }).format(value);
+const weeks = (value: number) =>
+  new Intl.NumberFormat(locale === "en" ? "en-US" : "zh-CN", {
+    style: "unit", unit: "week", unitDisplay: "long",
+  }).format(value);
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const route = (language: WeeklyLocale, date = "") =>
   `${base}/${language === "en" ? "en/" : ""}weekly/${date ? `${date}/` : ""}${language === "zh" ? "?locale=zh-CN" : ""}`;
@@ -30,7 +48,7 @@ const route = (language: WeeklyLocale, date = "") =>
         location.replace(englishRoute + location.hash);
     </script>}
   </head>
-  <body>
+  <body class="weekly-page">
     <header class="topbar">
       <a
         class="brand"
@@ -59,6 +77,7 @@ const route = (language: WeeklyLocale, date = "") =>
           {report ? (
             <article
               data-weekly-report
+              data-weekly-native
               data-report-date={report.date}
               data-report-content-hash={report.content_hash}
             >
@@ -79,7 +98,7 @@ const route = (language: WeeklyLocale, date = "") =>
                   · Asia/Shanghai
                 </time>
               </p>
-              <p>{t.fallback}</p>
+
               <div class="link-row">
                 <a
                   href={`${base}/${report.image.source_url}?v=${report.image.sha256}`}
@@ -89,14 +108,33 @@ const route = (language: WeeklyLocale, date = "") =>
                 </a>
                 <a href={`${base}/${report.source_url}`}>{t.source}</a>
               </div>
-              <img
-                class="weekly-image"
-                src={`${base}/${report.image.source_url}?v=${report.image.sha256}`}
-                width={report.image.width}
-                height={report.image.height}
-                alt={`${t.title} · ${report.date}`}
-                loading="eager"
-              />
+              <dl class="weekly-summary" data-weekly-summary>
+                <div><dt>{t.valueState}</dt><dd>{weeklyStateLabel(report.summary.value_regime, locale)}</dd></div>
+                <div><dt>{t.valueStreak}</dt><dd>{weeks(report.summary.value_streak_weeks)}</dd></div>
+                <div><dt>{t.returns}</dt><dd>{number(report.summary.value_return_12w_percent)}%</dd></div>
+                <div><dt>{t.sizeSignal}</dt><dd>{weeklyStateLabel(report.summary.size_signal, locale)}</dd></div>
+                <div><dt>{t.smallCrowding}</dt><dd>{number(report.summary.small_crowding, 4)}</dd></div>
+                <div><dt>{t.largeCrowding}</dt><dd>{number(report.summary.large_crowding, 4)}</dd></div>
+              </dl>
+              <section class="weekly-trends" aria-label={t.trendPanels}>
+                <h3>{t.trendPanels}</h3>
+                <div class="weekly-trend-grid" data-weekly-trend-grid>
+                  <WeeklyTrend title={t.returns} rows={report.series.value} fields={[{key:"return_12w_percent",label:t.returns,color:"#aa5139"}]} locale={locale} unit="%" includeZero />
+                  <WeeklyTrend title={t.wealth} rows={report.series.value} fields={[{key:"wealth_index",label:t.wealth,color:"#aa5139"}]} locale={locale} unit={t.wealth} />
+                  <WeeklyTrend title={t.strength} rows={report.series.size} fields={[{key:"relative_strength",label:t.strength,color:"#5c7182"}]} locale={locale} unit={t.ratio} />
+                  <WeeklyTrend title={t.size} rows={report.series.size} fields={[{key:"small_crowding",label:t.small,color:"#aa5139"},{key:"large_crowding",label:t.large,color:"#5c7182"}]} locale={locale} unit="0–1" domain={[0,1]} />
+                </div>
+              </section>
+              <section class="weekly-report-body" data-weekly-report-body>
+                <h3>{t.reportBody}</h3>
+                {presentation!.untranslated.length > 0 && <p class="weekly-translation-note" data-weekly-translation-fallback>{t.translationFallback}</p>}
+                <div class="markdown-body" set:html={renderMarkdown(presentation!.markdown)} />
+              </section>
+              <details class="secondary-report" data-weekly-original>
+                <summary>{t.original}</summary>
+                <p><a href={`${base}/${report.source_url}`}>{t.source}</a></p>
+                <div class="markdown-body" lang="zh-CN" set:html={renderMarkdown(report.markdown)} />
+              </details>
               <details class="secondary-report" data-weekly-interactive>
                 <summary>{t.interactive}</summary>
                 <div
@@ -166,10 +204,6 @@ const route = (language: WeeklyLocale, date = "") =>
                   </div>
                 ))}
               </details>
-              <div
-                class="markdown-body"
-                set:html={renderMarkdown(report.markdown)}
-              />
               <details class="secondary-report">
                 <summary>{t.sources}</summary>
                 <pre>{JSON.stringify(report.sources,null,2)}</pre>
@@ -208,35 +242,6 @@ const route = (language: WeeklyLocale, date = "") =>
       import { initializeWeeklyCharts } from "../lib/weekly-charts.ts";
       initializeWeeklyCharts();
     </script>}
-    <style>
-      .shell {
-        grid-template-columns: minmax(0, 1fr);
-        max-width: 1140px;
-      }
-      .weekly-image {
-        display: block;
-        width: 100%;
-        height: auto;
-        margin: 1.5rem auto;
-        max-width: 1000px;
-      }
-      .weekly-table {
-        overflow-x: auto;
-      }
-      table {
-        border-collapse: collapse;
-        width: 100%;
-      }
-      th,
-      td {
-        text-align: left;
-        padding: 0.6rem;
-        border-bottom: 1px solid var(--line, #ccc);
-      }
-      pre {
-        white-space: pre-wrap;
-        overflow-wrap: anywhere;
-      }
-    </style>
+
   </body>
 </html>
