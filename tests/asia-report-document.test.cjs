@@ -43,8 +43,8 @@ test('stale Asia sessions and missing chart status stay visible without unsafe n
  const doc=buildAsiaReportDocument(report,[{key:'dashboard',status:'missing',title:'dashboard',reason:'T+1 delayed',points:[{label:'bad',value:Infinity,unit:'亿',observation_date:report.date,source_label:'bad',source_url:'javascript:alert(1)'}]}],source,'en');
  assert.equal(doc.panels.find(p=>p.id==='asia-overview').rows.length,2);
  assert.ok(doc.panels.find(p=>p.id==='asia-overview-fallback'));
- assert.deepEqual(doc.panels.find(p=>p.id==='chart-dashboard').rows,[]);
- assert.ok(doc.panels.find(p=>p.id==='chart-dashboard').notes.includes('T+1 delayed'));
+ assert.ok(!doc.panels.some(p=>p.id==='chart-dashboard'));
+ assert.ok(doc.panels.find(p=>p.id==='supplemental-chart-status').paragraphs.some(p=>p.includes('T+1 delayed')));
 });
 test('native view shares document and folds sanitized original source',()=>{
  const component=fs.readFileSync('src/components/AsiaNativeReport.astro','utf8');
@@ -105,4 +105,40 @@ test('modern mainland holiday renders only validated independent overview and so
  const original=fs.readFileSync('artifacts/public/reports/2026-10-23-evening.md','utf8');
  const source=`## 亚洲市场收盘复盘（20261023）\nA 股今日休市。\n数据警告: A股休市\n${original.slice(original.indexOf('### 亚洲市场概览'))}`;
  const doc=buildAsiaReportDocument(report,[],source,'en');assert.equal(doc.panels.find(p=>p.id==='asia-overview').rows.length,3);assert.ok(!doc.panels.some(p=>p.id.startsWith('chart-')));assert.equal(doc.sources.length,3);assert.ok(doc.notes.length>0);
+});
+test('absent optional bundle produces one accurate disclosure while daily facts remain',async()=>{
+ const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
+ const {loadChart}=await import('../src/lib/reports.ts');
+ const charts=loadChart(report.id);
+ assert.equal(charts.availability,'absent');
+ for(const locale of ['zh','en']){
+  const doc=buildAsiaReportDocument(report,charts,fs.readFileSync('artifacts/public/reports/2026-10-23-evening.md','utf8'),locale);
+  assert.ok(!doc.panels.some(p=>p.id.startsWith('chart-')));
+  const status=doc.panels.find(p=>p.id==='supplemental-chart-status');
+  assert.equal(status.disclosure,true);assert.equal(status.paragraphs.length,1);
+  assert.match(status.paragraphs[0],locale==='zh'?/补充图表文件未发布/:/supplemental chart file has not been published/);
+  assert.equal(doc.panels.find(p=>p.id==='indices').rows.length,7);
+ }
+});
+test('fully consumed chart rows leave histories and one reason disclosure, never empty panels',async()=>{
+ const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
+ const points=['2026-10-21','2026-10-22'].map((date,i)=>({label:`成交额 ${date}`,value:12000+i,unit:'亿',observation_date:date,source_label:'Evidence',source_url:'https://example.com/source'}));
+ const charts=[{key:'dashboard',status:'degraded',title:'Dashboard',reason:'Only two sessions verified',points},{key:'topic',status:'missing',title:'Topic',reason:'Ranking audit mismatch',points:[]},{key:'moneyflow',status:'skipped',title:'Flow',reason:'Source not licensed',points:[]}];
+ const doc=buildAsiaReportDocument(report,charts,'','en');
+ assert.ok(!doc.panels.some(p=>p.id.startsWith('chart-')));
+ assert.equal(doc.panels.filter(p=>p.kind==='line').length,1);
+ const status=doc.panels.find(p=>p.id==='supplemental-chart-status');
+ for(const card of charts)assert.ok(status.paragraphs.some(p=>p.includes(card.reason)));
+ assert.equal(status.disclosure,false,'published data limitations must stay visible');
+});
+test('published historical bundle retains unique observations and its financing limitation',async()=>{
+ const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
+ const {loadChart}=await import('../src/lib/reports.ts');
+ const historical={id:'2026-10-22-evening',date:'2026-10-22',kind:'evening'};
+ const charts=loadChart(historical.id);assert.equal(charts.availability,'published');
+ const doc=buildAsiaReportDocument(historical,charts,fs.readFileSync(`artifacts/public/reports/${historical.id}.md`,'utf8'),'zh');
+ assert.ok(doc.panels.some(p=>p.kind==='line'||p.kind==='stack-history'));
+ assert.ok(doc.panels.filter(p=>p.id.startsWith('chart-')).every(p=>p.rows.length));
+ assert.ok(doc.panels.find(p=>p.id==='supplemental-chart-status').paragraphs.some(p=>p.includes('融资余额仅覆盖部分交易所')));
+ assert.ok(!doc.panels.find(p=>p.id==='supplemental-chart-status').paragraphs.some(p=>p.includes('补充图表文件未发布')));
 });

@@ -51,14 +51,19 @@ export function loadReports(): ReportRecord[] {
   return reports.filter((row) => dates.includes(row.date));
 }
 
-export function loadChart(reportId: string): ChartCard[] {
+export type LoadedCharts = ChartCard[] & { availability?: 'absent' | 'published' };
+
+export function loadChart(reportId: string): LoadedCharts {
   if (!/^\d{4}-\d{2}-\d{2}-(?:morning|evening)$/.test(reportId)) throw new Error('invalid chart identity');
   const chart = readJson(`data/charts/${reportId}.json`);
   if (chart && !isPublicChartPayload(chart, reportId)) throw new Error('unreviewed or mismatched chart file');
-  return isRecord(chart) && Array.isArray(chart.charts) && chart.charts.every(isChartCard) ? chart.charts : CHART_KEYS.map((key) => ({
+  if (isRecord(chart) && Array.isArray(chart.charts) && chart.charts.every(isChartCard)) {
+    return Object.assign(chart.charts, { availability: 'published' as const });
+  }
+  return Object.assign(CHART_KEYS.map((key) => ({
     key, title: key === 'sentiment' && reportId.endsWith('-evening') ? '市场温度计' : CHART_TITLES[key],
     status: 'missing' as const, reason: '尚无通过逐点审核的公开图表数据', points: [],
-  }));
+  })), { availability: 'absent' as const });
 }
 
 function isChartCard(value: unknown): value is ChartCard {
