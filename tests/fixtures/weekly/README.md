@@ -1,0 +1,1 @@
+Synthetic public weekly bundle supplied by the Platform contract tests. No production observations or customer data. Includes Python float spellings to check canonical hashing compatibility. Only browser test input staging includes this report; it is never copied into production artifacts.

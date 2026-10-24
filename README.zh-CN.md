@@ -1,6 +1,6 @@
 # Quant 市场情报网页
 
-本仓库负责日报静态网站。`quant-intel-platform` 负责报告生成、证据审核和公开快照校验导出；`quant-intel-deploy` 负责生产定时发布。
+本仓库负责日报和周报静态网站。`quant-intel-platform` 负责报告生成、证据审核和公开快照校验导出；`quant-intel-deploy` 负责生产定时发布。
 
 [English README](README.md)
 
@@ -9,7 +9,7 @@
 需要 Python 3.11、Node.js 24、npm、uv，以及从固定 Platform 提交安装的 `market-export-site-snapshot` 命令。
 
 ```bash
-uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@7b5ab6a318c62292ca3a10178e98d93449c85da7"
+uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@c761aaa22cebd72283063ca11c4f1632f1c439fc"
 npm ci
 uv sync --locked --group dev --no-install-project
 preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)
@@ -53,3 +53,10 @@ python3 -m http.server 8000 --directory "$preview_root"
 亚洲报告图片在同一张表中展示指数数值和以零为中心的涨跌幅条形。行业、成交额、概念和涨跌幅榜表格保留已发布的数字，并增加按列缩放的条形。已有图表覆盖的市场概览、涨跌停和资金流段落会省略；未覆盖的文字和格式异常的事实仍会显示。上涨和下跌 Top 5 分组展示，并共用涨跌幅刻度。仅当底部仪表盘计数与已绘制事实在数值、单位、日期和已知来源契约上都一致时才省略。市场概览图只采用完整且分桶数量与报告覆盖数一致的涨跌分布，并区分包含零值的分桶与上涨股票计数。缺失或格式异常的事实继续以文字呈现，不会被转换成猜测图表。
 
 亚洲晚报图片将“亚洲市场图表”放在顶部；亚洲市场概览保留收盘点位、日期和交易状态，并以零轴条形及百分比显示涨跌幅。A 股指数独立标为“A股指数总览”。
+
+
+## 周报阅读与数据交接
+
+首页导航提供周报入口：英文 `/en/weekly/`，中文 `/weekly/?locale=zh-CN`。按日期打开报告后可下载审核通过的原始 PNG，阅读完整正文、来源标识和历史观测表。交互图表仅在展开时加载；关闭 JavaScript 后仍可查看图片和完整报告。英文页面明确说明正文使用中文原文。
+
+周报输入采用 Platform 的公开交接格式，最多保留五个报告日期。页面构建会独立校验字段白名单、周五截止日期、来源日期、观测顺序、内容哈希和图片哈希；不一致时停止构建。Python 3 仅用于构建时的规范 JSON 哈希计算。浏览器测试在仓库外使用合成样本，不修改生产报告。生产发布、线上身份核验和图片发送由 Deploy 负责。

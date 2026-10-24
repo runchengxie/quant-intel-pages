@@ -1,0 +1,242 @@
+---
+import "../styles/site.css";
+import "../styles/editorial.css";
+import { weeklyLabels, type WeeklyLocale } from "../lib/weekly-locale.ts";
+import { loadWeeklyRecaps, type WeeklyRecap } from "../lib/weekly-recap.ts";
+import { renderMarkdown } from "../lib/markdown.ts";
+interface Props {
+  locale: WeeklyLocale;
+  report?: WeeklyRecap;
+}
+const { locale, report } = Astro.props;
+const t = weeklyLabels[locale];
+const reports = loadWeeklyRecaps();
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const route = (language: WeeklyLocale, date = "") =>
+  `${base}/${language === "en" ? "en/" : ""}weekly/${date ? `${date}/` : ""}${language === "zh" ? "?locale=zh-CN" : ""}`;
+---
+
+<!doctype html>
+<html lang={locale === "en" ? "en" : "zh-CN"}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{report?`${report.date} · `:''}{t.title}</title>
+    {locale === "zh" && <script
+      is:inline
+      define:vars={{ englishRoute: route("en", report?.date) }}
+    >
+      if (new URLSearchParams(location.search).get("locale") !== "zh-CN")
+        location.replace(englishRoute + location.hash);
+    </script>}
+  </head>
+  <body>
+    <header class="topbar">
+      <a
+        class="brand"
+        href={`${base}/${locale === "en" ? "en/" : "?locale=zh-CN"}`}
+      >
+        QUANT MARKET INTEL
+      </a>
+      <nav class="top-nav" aria-label={t.title}>
+        <a href={`${base}/${locale === "en" ? "en/" : "?locale=zh-CN"}`}>
+          {t.home}
+        </a>
+        <a href={route(locale)}>{t.history}</a>
+        <a
+          href={route(locale === "en" ? "zh" : "en", report?.date)}
+          lang={locale === "en" ? "zh-CN" : "en"}
+        >
+          {t.switch}
+        </a>
+      </nav>
+    </header>
+    <main class="shell">
+      <div class="content">
+        <section class="panel">
+          <h1>{t.title}</h1>
+          <p>{t.limitations}</p>
+          {report ? (
+            <article
+              data-weekly-report
+              data-report-date={report.date}
+              data-report-content-hash={report.content_hash}
+            >
+              <h2>
+                <time datetime={report.date}>{report.date}</time>
+              </h2>
+              <p>
+                {t.generated}:{" "}
+                <time datetime={report.generated_at}>
+                  {new Intl.DateTimeFormat(
+                    locale === "en" ? "en-US" : "zh-CN",
+                    {
+                      dateStyle: "medium",
+                      timeStyle: "long",
+                      timeZone: "Asia/Shanghai",
+                    },
+                  ).format(new Date(report.generated_at))}{" "}
+                  · Asia/Shanghai
+                </time>
+              </p>
+              <p>{t.fallback}</p>
+              <div class="link-row">
+                <a
+                  href={`${base}/${report.image.source_url}?v=${report.image.sha256}`}
+                  download={`${report.report_id}.png`}
+                >
+                  {t.download}
+                </a>
+                <a href={`${base}/${report.source_url}`}>{t.source}</a>
+              </div>
+              <img
+                class="weekly-image"
+                src={`${base}/${report.image.source_url}?v=${report.image.sha256}`}
+                width={report.image.width}
+                height={report.image.height}
+                alt={`${t.title} · ${report.date}`}
+                loading="eager"
+              />
+              <details class="secondary-report" data-weekly-interactive>
+                <summary>{t.interactive}</summary>
+                <div
+                  data-weekly-charts
+                  data-labels={JSON.stringify(t)}
+                  data-series={JSON.stringify(report.series)}
+                >
+                  <h3>{t.value}</h3>
+                  <div
+                    data-weekly-value
+                    role="img"
+                    aria-label={t.value}
+                    style="height:360px"
+                  ></div>
+                  <h3>{t.size}</h3>
+                  <div
+                    data-weekly-size
+                    role="img"
+                    aria-label={t.size}
+                    style="height:360px"
+                  ></div>
+                  <p role="status" data-chart-status></p>
+                </div>
+              </details>
+              <details class="secondary-report">
+                <summary>{t.table}</summary>
+                {(["value", "size"] as const).map((kind) => (
+                  <div class="weekly-table">
+                    <h3>{kind === "value" ? t.value : t.size}</h3>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th scope="col">{t.date}</th>
+                          {(kind === "value"
+                            ? [t.returns, t.wealth]
+                            : [t.strength, t.small, t.large]
+                          ).map((label) => (
+                            <th scope="col">{label}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {report.series[kind].map(
+                          (row: Record<string, string | number>) => (
+                            <tr>
+                              <th scope="row">{row.date}</th>
+                              {(kind === "value"
+                                ? ["return_12w_percent", "wealth_index"]
+                                : [
+                                    "relative_strength",
+                                    "small_crowding",
+                                    "large_crowding",
+                                  ]
+                              ).map((key) => (
+                                <td>
+                                  {new Intl.NumberFormat(
+                                    locale === "en" ? "en-US" : "zh-CN",
+                                    { maximumFractionDigits: 6 },
+                                  ).format(Number(row[key]))}
+                                </td>
+                              ))}
+                            </tr>
+                          ),
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+              </details>
+              <div
+                class="markdown-body"
+                set:html={renderMarkdown(report.markdown)}
+              />
+              <details class="secondary-report">
+                <summary>{t.sources}</summary>
+                <pre>{JSON.stringify(report.sources,null,2)}</pre>
+                <p>SHA256: {report.content_hash}</p>
+              </details>
+            </article>
+          ) : reports.length ? (
+            <ul>
+              {reports.map((row) => (
+                <li>
+                  <a href={route(locale, row.date)}>
+                    {row.date} · {t.read}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>{t.empty}</p>
+          )}
+        </section>
+        {report && (
+          <section class="panel">
+            <h2>{t.history}</h2>
+            <ul>
+              {reports.map((row) => (
+                <li>
+                  <a href={route(locale, row.date)}>{row.date}</a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+    </main>
+    {report && <script>
+      import { initializeWeeklyCharts } from "../lib/weekly-charts.ts";
+      initializeWeeklyCharts();
+    </script>}
+    <style>
+      .shell {
+        grid-template-columns: minmax(0, 1fr);
+        max-width: 1140px;
+      }
+      .weekly-image {
+        display: block;
+        width: 100%;
+        height: auto;
+        margin: 1.5rem auto;
+        max-width: 1000px;
+      }
+      .weekly-table {
+        overflow-x: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 0.6rem;
+        border-bottom: 1px solid var(--line, #ccc);
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+    </style>
+  </body>
+</html>
