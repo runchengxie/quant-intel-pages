@@ -2,6 +2,7 @@
 import "../styles/site.css";
 import "../styles/editorial.css";
 import "../styles/weekly-native.css";
+import '../styles/report-editorial.css';
 import SiteHeader from "./SiteHeader.astro";
 import ThemeInit from "./ThemeInit.astro";
 import WeeklyTrend from "./WeeklyTrend.astro";
@@ -54,13 +55,11 @@ const route = (language: WeeklyLocale, date = "") =>
     </script>}
     <ThemeInit />
   </head>
-  <body class="weekly-page">
+  <body class="editorial-site weekly-page">
     <SiteHeader locale={locale} active="weekly" switchHref={route(locale === "en" ? "zh" : "en", landing ? undefined : report?.date)} />
     <main class="shell">
       <div class="content">
         <section class="panel">
-          <h1>{t.title}</h1>
-          <p>{t.limitations}</p>
           {report ? (
             <article
               data-weekly-report
@@ -68,10 +67,15 @@ const route = (language: WeeklyLocale, date = "") =>
               data-report-date={report.date}
               data-report-content-hash={report.content_hash}
             >
-              <p class="eyebrow">{landing ? t.latest : t.edition}</p>
-              <h2>
-                <time datetime={report.date}>{report.date}</time>
-              </h2>
+              <div class="report-edition"><span>{landing ? t.latest : t.edition}</span><time datetime={report.date}>{report.date}</time></div>
+              <h1>{t.title}</h1>
+              <p class="report-lede" data-weekly-regime>{t.valueState} · {weeklyStateLabel(report.summary.value_regime, locale)} · {weeks(report.summary.value_streak_weeks)}</p>
+              <dl class="weekly-summary" data-weekly-summary>
+                <div><dt>{t.returns}</dt><dd>{number(report.summary.value_return_12w_percent)}%</dd></div>
+                <div><dt>{t.sizeSignal}</dt><dd>{weeklyStateLabel(report.summary.size_signal, locale)}</dd></div>
+                <div><dt>{t.smallCrowding}</dt><dd>{number(report.summary.small_crowding, 4)}</dd></div>
+                <div><dt>{t.largeCrowding}</dt><dd>{number(report.summary.large_crowding, 4)}</dd></div>
+              </dl>
               <p class="link-row"><a data-weekly-permalink href={route(locale, report.date)}>{t.permalink}</a></p>
               <p>
                 {t.generated}:{" "}
@@ -97,21 +101,14 @@ const route = (language: WeeklyLocale, date = "") =>
                 </a>
                 <a href={`${base}/${report.source_url}`}>{t.source}</a>
               </div>
-              <dl class="weekly-summary" data-weekly-summary>
-                <div><dt>{t.valueState}</dt><dd>{weeklyStateLabel(report.summary.value_regime, locale)}</dd></div>
-                <div><dt>{t.valueStreak}</dt><dd>{weeks(report.summary.value_streak_weeks)}</dd></div>
-                <div><dt>{t.returns}</dt><dd>{number(report.summary.value_return_12w_percent)}%</dd></div>
-                <div><dt>{t.sizeSignal}</dt><dd>{weeklyStateLabel(report.summary.size_signal, locale)}</dd></div>
-                <div><dt>{t.smallCrowding}</dt><dd>{number(report.summary.small_crowding, 4)}</dd></div>
-                <div><dt>{t.largeCrowding}</dt><dd>{number(report.summary.large_crowding, 4)}</dd></div>
-              </dl>
+
               <section class="weekly-trends" aria-label={t.trendPanels}>
                 <h3>{t.trendPanels}</h3>
                 <div class="weekly-trend-grid" data-weekly-trend-grid>
-                  <WeeklyTrend title={t.returns} rows={report.series.value} fields={[{key:"return_12w_percent",label:t.returns,color:"#aa5139"}]} locale={locale} unit="%" includeZero />
-                  <WeeklyTrend title={t.wealth} rows={report.series.value} fields={[{key:"wealth_index",label:t.wealth,color:"#aa5139"}]} locale={locale} unit={t.wealth} />
-                  <WeeklyTrend title={t.strength} rows={report.series.size} fields={[{key:"relative_strength",label:t.strength,color:"#5c7182"}]} locale={locale} unit={t.ratio} />
-                  <WeeklyTrend title={t.size} rows={report.series.size} fields={[{key:"small_crowding",label:t.small,color:"#aa5139"},{key:"large_crowding",label:t.large,color:"#5c7182"}]} locale={locale} unit="0–1" domain={[0,1]} />
+                  <WeeklyTrend title={t.returns} rows={report.series.value} fields={[{key:"return_12w_percent",label:t.returns,color:"var(--desk-positive)"}]} locale={locale} unit="%" includeZero />
+                  <WeeklyTrend title={t.wealth} rows={report.series.value} fields={[{key:"wealth_index",label:t.wealth,color:"var(--desk-positive)"}]} locale={locale} unit={t.wealth} />
+                  <WeeklyTrend title={t.strength} rows={report.series.size} fields={[{key:"relative_strength",label:t.strength,color:"var(--desk-negative)"}]} locale={locale} unit={t.ratio} />
+                  <WeeklyTrend title={t.size} rows={report.series.size} fields={[{key:"small_crowding",label:t.small,color:"var(--desk-positive)"},{key:"large_crowding",label:t.large,color:"var(--desk-negative)"}]} locale={locale} unit="0–1" domain={[0,1]} />
                 </div>
               </section>
               <section class="weekly-report-body" data-weekly-report-body>
@@ -198,9 +195,10 @@ const route = (language: WeeklyLocale, date = "") =>
                 <pre>{JSON.stringify(report.sources,null,2)}</pre>
                 <p>SHA256: {report.content_hash}</p>
               </details>
+              <p class="report-caption">{t.limitations}</p>
             </article>
           ) : (
-            <p>{t.empty}</p>
+            <><h1>{t.title}</h1><p>{t.empty}</p></>
           )}
         </section>
         {report && (

@@ -19,12 +19,12 @@ for (const locale of ['en', 'zh'] as const) {
       await page.locator('#theme-toggle').click();
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
       const bg = await page.locator('.weekly-summary > div').first().evaluate(el => getComputedStyle(el).backgroundColor);
-      expect(bg).toBe('rgb(33, 29, 26)');
-      await expect(page.locator('[data-weekly-permalink]')).toHaveCSS('color', 'rgb(226, 164, 135)');
+      expect(bg).toBe('rgba(0, 0, 0, 0)');
+      await expect(page.locator('[data-weekly-permalink]')).toHaveCSS('color', 'rgb(219, 172, 152)');
       await header.locator('.top-nav a').nth(3).click();
       await expect(page).toHaveURL(about);
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-      await expect(page.locator('main a').first()).toHaveCSS('color', 'rgb(226, 164, 135)');
+      await expect(page.locator('main a').first()).toHaveCSS('color', 'rgb(219, 172, 152)');
       await expect(page.locator('main h1')).toHaveText(locale === 'en' ? 'About this project' : '关于此项目');
       await expect(page.locator('main a[href="https://runchengxie.github.io/quant-intel-platform/docs/"]')).toBeVisible();
       await page.locator('[data-locale-switch]').click();

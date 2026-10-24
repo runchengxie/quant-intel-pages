@@ -69,7 +69,8 @@ test('both locales separate China and Hong Kong news and preserve factual charts
     await expect(news).toHaveAttribute('data-news-status', 'missing');
     await expect(news.locator('[data-news-market="cn"]')).toBeVisible();
     await expect(news.locator('[data-news-market="hk"]')).toBeVisible();
-    await expect(page.locator('#asia-daily-chart svg')).toBeVisible();
+    await expect(page.locator('[data-native-asia]')).toBeVisible();
+    await expect(page.locator('#asia-daily-chart svg')).toBeHidden();
     if (route.language === 'en-US') await expect(news).not.toContainText('暂无');
   }
 });
@@ -99,6 +100,7 @@ function brightness(color: string) {
 
 async function chartColors(page: Page, selector: string) {
   const svg = page.locator(selector);
+  await svg.locator('xpath=ancestor::details[@data-report-export][1]').evaluate((node) => node.setAttribute('open', ''));
   await expect(svg, `expected report SVG at ${selector}`).toBeVisible();
   return svg.evaluate((node) => {
     const root = getComputedStyle(node);

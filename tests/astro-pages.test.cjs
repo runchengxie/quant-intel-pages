@@ -59,8 +59,8 @@ test('Astro emits a readable recent-report site with Asian market chart states',
   assert.match(header, /<button[^>]*id="theme-toggle"[^>]*aria-pressed="false"/);
   assert.match(index, /id="us-session"/);
   assert.match(index, /id="asia-session"/);
-  assert.match(index, /07:00 美股收盘复盘/);
-  assert.match(index, /19:00 亚洲市场收盘复盘/);
+  assert.match(index, /id="market-title">美股早报/);
+  assert.match(index, /id="asia-session-title">亚洲晚报/);
   assert.doesNotMatch(index, /晚报与历史晨报|旧晨报保留归档|id="kind-filter"|id="date-filter"/);
   const latestEveningDate = reports.filter((row) => row.kind === 'evening').map((row) => row.date).sort().at(-1);
   const hasVisualHistory = reports.some((row) => row.kind === 'evening' && row.date >= '2026-09-25' && row.date < latestEveningDate);
@@ -191,8 +191,8 @@ test('English home uses the same report sections and responsive shell as Chinese
     assert.ok(english.includes(marker), `English home is missing ${marker}`);
   }
   assert.match(english, /<html lang="en-US">/);
-  assert.match(english, /U\.S\. market close review/);
-  assert.match(english, /Asia market close review/);
+  assert.match(english, /reportEditorialLabels\.en\.usTitle/);
+  assert.match(english, /reportEditorialLabels\.en\.asiaTitle/);
 });
 
 test('new Asian evening reports build a visual history while old direct links remain available', () => {
@@ -399,7 +399,7 @@ test('both rendered locales expose independent producer assessments', () => {
       }],
     }));
     execFileSync('npm', ['run', 'build'], { cwd: root, env: { ...process.env, ASTRO_DATA_ROOT: data, ASTRO_OUT_DIR: output }, stdio: 'pipe' });
-    for (const [entry, labels] of [['index.html', ['行情齐全', '研究未接入', '已发布']], ['en/index.html', ['Market data complete', 'Research not included', 'Published']]]) {
+    for (const [entry, labels] of [['index.html', ['行情齐全', '本期无研究解读', '已发布']], ['en/index.html', ['Market data complete', 'No research commentary in this edition', 'Published']]]) {
       const html = readFileSync(path.join(output, entry), 'utf8');
       const current = html.slice(html.indexOf('id="us-session"'), html.indexOf('class="market-history"'));
       for (const label of labels) assert.ok(current.includes(label));

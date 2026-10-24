@@ -51,3 +51,12 @@ This source change adds reading and chart routes; it does not install schedules 
 send images. Deployment and exact live identity verification precede delivery under
 the separate Deploy publication transaction. A successful local build alone does
 not establish that a weekly report has been deployed.
+
+### Native reading and preserved image export
+
+The editorial frontend renders admitted daily reports as native HTML. The image
+SVG remains unchanged inside an optional `details[data-report-export]`; exporters
+continue selecting the unique `#market-daily-chart svg` / `#asia-daily-chart svg`
+and matching identity button. Static HTML extraction does not require opening
+the details element. Report source/hash contracts and delivery receipts do not
+change with this presentation update.

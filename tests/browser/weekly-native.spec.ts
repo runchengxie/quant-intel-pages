@@ -12,7 +12,7 @@ for (const locale of ["en", "zh"] as const) {
       page.on("request", request => { if (/weekly\.png/.test(request.url())) png.push(request.url()); });
       await page.goto(path(locale));
       await expect(page.locator("[data-weekly-native]")).toHaveAttribute("data-report-date", date);
-      await expect(page.locator("[data-weekly-summary] > div")).toHaveCount(6);
+      await expect(page.locator("[data-weekly-summary] > div")).toHaveCount(4);
       await expect(page.locator("[data-weekly-static-chart] svg")).toHaveCount(4);
       await expect(page.locator("[data-weekly-report-body] .markdown-body")).toContainText("Public weekly facts");
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
