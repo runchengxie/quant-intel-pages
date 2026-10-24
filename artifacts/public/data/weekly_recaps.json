@@ -1,0 +1,2079 @@
+{
+  "schema_version": "market_intel_pages.weekly_recaps.v1",
+  "reports": [
+    {
+      "schema_version": "market_intel_pages.weekly_recap.v1",
+      "publication": "public",
+      "report_id": "2026-10-23-weekly",
+      "date": "2026-10-23",
+      "generated_at": "2026-10-24T03:58:04.073020+00:00",
+      "markdown": "# 本周市场背景\n2026-10-19 当周，数据截至 2026-10-23\n\n盘面特征：震荡偏弱。本周 5 个交易日，2 天上涨、3 天下跌。日均上涨家数占比 47%，个股平均涨幅 +0.00%。\n\n成交情况：周总成交额 7.88 万亿元，日均 1.58 万亿元。\n\n资金动向：全周主力资金净流出 341 亿元。\n\n涨停统计：全周涨停 268 只，日均涨停 53.6 只。\n涨停数量处于中等水平。\n\n外盘黄金：本周从 4159 美元降至 4044 美元，周涨跌幅为 -2.7%，整体走弱。\n黄金本周波动较大（2.7%）。A 股贵金属板块下周开盘可能受到外盘影响。\n\n# 市场风格周报\n2026-10-19 当周，数据截至 2026-10-23\n\n## 价值因子\n\n计算方法：行业中性化。\n\n数据状态：完整，已覆盖本期目标截止日。\n\n### 01 当前状态\n\n中性，已持续 3 周。\n\n### 02 证据\n\n- 过去 12 周累计：+2.3%（高于约 52% 的历史样本）\n- 过去 52 周累计：+9.8%\n- 当前回撤：0.0%（周频历史最大回撤 -19.0%）\n- 过去 12 周年化波动率：18.6%\n- 过去 12 周上涨周占比：75%\n\n### 03 历史参考\n\n历史上，当前状态共出现 668 周，分布在 51 段连续时期。后续收益的统计区间有重叠，独立样本数少于周数。\n\n- 后续 4 周：收益中位数 +0.6%，正收益比例 57%（665 周样本）\n- 后续 13 周：收益中位数 +2.3%，正收益比例 68%（665 周样本）\n- 后续 26 周：收益中位数 +3.7%，正收益比例 71%（653 周样本）\n- 后续 52 周：收益中位数 +9.5%，正收益比例 74%（627 周样本）\n\n只取每段状态的第一周，后续 13 周正收益比例为 70%（50 个样本）。全样本的后续 13 周正收益比例为 68%。\n\n### 04 下周观察\n\n- 当前方向不明显。\n- 配置上可保持当前的价值风格比例，避免根据单周波动频繁调整。\n\n### 不同计算方法\n\n各方法的含义见说明文档。本期数据如下：\n\n- 基础市净率倒数（截至 2026-10-23）：过去 12 周累计 +2.3%，高于约 52% 的历史样本。过去 52 周累计 +9.8%，当前回撤 0.0%。历史上，后续 13 周收益中位数 +2.3%，正收益比例 68%。\n- 综合价值指标（截至 2026-10-23）：过去 12 周累计 -2.3%，高于约 21% 的历史样本。过去 52 周累计 +4.2%，当前回撤 -2.3%。历史上，后续 13 周收益中位数 +1.7%，正收益比例 65%。\n\n基础市净率倒数和综合价值指标每周更新。可交易筛选的两项结果来自最近一次单独回算，更新频率较低，截止日期也可能更早。比较时请先对齐数据日期。\n\n## 大小盘因子（风格）\n数据截至 2026-10-23\n\n### 01 当前状态\n\n拥挤区间：低拥挤。\n- 小盘拥挤度：0.493\n- 大盘拥挤度：0.798。低于 0.10 时触发小盘高拥挤。\n\n方向信号：大盘占优（采用 20 日和 60 日均线）。\n\n### 02 证据怎么读\n\n拥挤程度用于选择均线周期。高拥挤时采用 5 日和 20 日均线，及时观察风格变化。低拥挤时采用 20 日和 60 日均线，侧重观察中期趋势。\n\n方向由沪深 300 与中证 1000 的相对强弱决定。短期均线高于长期均线时，大盘占优。其余情况下，小盘占优。拥挤程度只影响均线周期。\n\n### 04 下周观察\n\n- 观察相对强弱短均线是否跌破长均线。\n- 观察近 20 日拥挤证据是否回落至 0.90 以下。\n\n本信号用于观察市场风格，不构成交易建议。\n",
+      "source_url": "reports/2026-10-23-weekly.md",
+      "image": {
+        "source_url": "reports/2026-10-23-weekly.png",
+        "width": 1200,
+        "height": 5463,
+        "sha256": "1e4a40c3983c003eb62750b9a178d1d811fd1822680783b63f71bd8d21a1bf83"
+      },
+      "summary": {
+        "value_regime": "NEUTRAL",
+        "value_streak_weeks": 3,
+        "value_return_12w_percent": 2.253937892253477,
+        "small_crowding": 0.4933849959096956,
+        "large_crowding": 0.7981999034205252,
+        "size_signal": "large_cap"
+      },
+      "series": {
+        "value": [
+          {
+            "date": "2024-11-01",
+            "return_12w_percent": -1.468423959276155,
+            "wealth_index": 5.711884296897465
+          },
+          {
+            "date": "2024-11-08",
+            "return_12w_percent": -1.8279783485914303,
+            "wealth_index": 5.704262404734361
+          },
+          {
+            "date": "2024-11-15",
+            "return_12w_percent": -0.6541827061494976,
+            "wealth_index": 5.774875445456896
+          },
+          {
+            "date": "2024-11-22",
+            "return_12w_percent": 0.9418516836317004,
+            "wealth_index": 5.888964712554776
+          },
+          {
+            "date": "2024-11-29",
+            "return_12w_percent": 0.4715248126735405,
+            "wealth_index": 5.850303158281906
+          },
+          {
+            "date": "2024-12-06",
+            "return_12w_percent": 1.1113915366718796,
+            "wealth_index": 5.863968113102544
+          },
+          {
+            "date": "2024-12-13",
+            "return_12w_percent": 0.22044516489578836,
+            "wealth_index": 5.8156959303102305
+          },
+          {
+            "date": "2024-12-20",
+            "return_12w_percent": -0.5212093162663578,
+            "wealth_index": 5.816284185794694
+          },
+          {
+            "date": "2024-12-27",
+            "return_12w_percent": 2.813616928663154,
+            "wealth_index": 5.961128932379569
+          },
+          {
+            "date": "2025-01-03",
+            "return_12w_percent": 4.153986956256106,
+            "wealth_index": 6.001727312829064
+          },
+          {
+            "date": "2025-01-10",
+            "return_12w_percent": 5.572082272301482,
+            "wealth_index": 5.924771963275003
+          },
+          {
+            "date": "2025-01-17",
+            "return_12w_percent": 4.8998762201670765,
+            "wealth_index": 5.891132017014206
+          },
+          {
+            "date": "2025-01-24",
+            "return_12w_percent": 3.532851969927364,
+            "wealth_index": 5.913676713800378
+          },
+          {
+            "date": "2025-01-31",
+            "return_12w_percent": 4.61147897708627,
+            "wealth_index": 5.967313266326521
+          },
+          {
+            "date": "2025-02-07",
+            "return_12w_percent": 2.4384646068803084,
+            "wealth_index": 5.915693739285782
+          },
+          {
+            "date": "2025-02-14",
+            "return_12w_percent": 0.47136680470816206,
+            "wealth_index": 5.916723337350735
+          },
+          {
+            "date": "2025-02-21",
+            "return_12w_percent": -0.6180626564793235,
+            "wealth_index": 5.814144619169733
+          },
+          {
+            "date": "2025-02-28",
+            "return_12w_percent": 0.4010434356529924,
+            "wealth_index": 5.887485172288925
+          },
+          {
+            "date": "2025-03-07",
+            "return_12w_percent": 0.8175564022493198,
+            "wealth_index": 5.863242524723835
+          },
+          {
+            "date": "2025-03-14",
+            "return_12w_percent": 2.3696193749804806,
+            "wealth_index": 5.95410798276521
+          },
+          {
+            "date": "2025-03-21",
+            "return_12w_percent": 0.7514778308783221,
+            "wealth_index": 6.0059254947764735
+          },
+          {
+            "date": "2025-03-28",
+            "return_12w_percent": 0.7544521598205955,
+            "wealth_index": 6.047007474167246
+          },
+          {
+            "date": "2025-04-04",
+            "return_12w_percent": 2.5664581308938894,
+            "wealth_index": 6.076828755063395
+          },
+          {
+            "date": "2025-04-11",
+            "return_12w_percent": 2.08034751263928,
+            "wealth_index": 6.0136880353964575
+          },
+          {
+            "date": "2025-04-18",
+            "return_12w_percent": 2.1555139496497455,
+            "wealth_index": 6.041146840303534
+          },
+          {
+            "date": "2025-04-25",
+            "return_12w_percent": 1.5721435201485612,
+            "wealth_index": 6.061127995170038
+          },
+          {
+            "date": "2025-05-02",
+            "return_12w_percent": 1.7069556261607,
+            "wealth_index": 6.016672006394955
+          },
+          {
+            "date": "2025-05-09",
+            "return_12w_percent": 1.6364299065871002,
+            "wealth_index": 6.013546367533159
+          },
+          {
+            "date": "2025-05-16",
+            "return_12w_percent": 3.5824151589455067,
+            "wealth_index": 6.0224314173698845
+          },
+          {
+            "date": "2025-05-23",
+            "return_12w_percent": 1.725935294325609,
+            "wealth_index": 5.989099356825645
+          },
+          {
+            "date": "2025-05-30",
+            "return_12w_percent": 2.8352707797580035,
+            "wealth_index": 6.029481326773674
+          },
+          {
+            "date": "2025-06-06",
+            "return_12w_percent": 0.5951183084014877,
+            "wealth_index": 5.989541969472637
+          },
+          {
+            "date": "2025-06-13",
+            "return_12w_percent": -0.6411430344976154,
+            "wealth_index": 5.967418921809597
+          },
+          {
+            "date": "2025-06-20",
+            "return_12w_percent": 0.036025060064326375,
+            "wealth_index": 6.049185912241908
+          },
+          {
+            "date": "2025-06-27",
+            "return_12w_percent": -0.8819394432435179,
+            "wealth_index": 6.023234805374126
+          },
+          {
+            "date": "2025-07-04",
+            "return_12w_percent": 0.8270360741923888,
+            "wealth_index": 6.063423404838577
+          },
+          {
+            "date": "2025-07-11",
+            "return_12w_percent": 0.7684567591164315,
+            "wealth_index": 6.087570441525996
+          },
+          {
+            "date": "2025-07-18",
+            "return_12w_percent": -0.2691401507768809,
+            "wealth_index": 6.044815066145057
+          },
+          {
+            "date": "2025-07-25",
+            "return_12w_percent": 1.7162409674647217,
+            "wealth_index": 6.119932596246687
+          },
+          {
+            "date": "2025-08-01",
+            "return_12w_percent": 1.100234715994186,
+            "wealth_index": 6.079709492331166
+          },
+          {
+            "date": "2025-08-08",
+            "return_12w_percent": 0.15765122576443247,
+            "wealth_index": 6.031925854320193
+          },
+          {
+            "date": "2025-08-15",
+            "return_12w_percent": -0.9340534865518779,
+            "wealth_index": 5.933157965470162
+          },
+          {
+            "date": "2025-08-22",
+            "return_12w_percent": -2.366343638692159,
+            "wealth_index": 5.8868030789514325
+          },
+          {
+            "date": "2025-08-29",
+            "return_12w_percent": -2.2614605991009062,
+            "wealth_index": 5.854090837766403
+          },
+          {
+            "date": "2025-09-05",
+            "return_12w_percent": -1.027509993420117,
+            "wealth_index": 5.906103096038759
+          },
+          {
+            "date": "2025-09-12",
+            "return_12w_percent": -2.8276445494049063,
+            "wealth_index": 5.878136436511032
+          },
+          {
+            "date": "2025-09-19",
+            "return_12w_percent": -2.694440431462708,
+            "wealth_index": 5.860942331496192
+          },
+          {
+            "date": "2025-09-26",
+            "return_12w_percent": -3.026787733576708,
+            "wealth_index": 5.879896448986105
+          },
+          {
+            "date": "2025-10-03",
+            "return_12w_percent": -3.5391472720777473,
+            "wealth_index": 5.872122358308919
+          },
+          {
+            "date": "2025-10-10",
+            "return_12w_percent": -1.0469840737548863,
+            "wealth_index": 5.981526815114582
+          },
+          {
+            "date": "2025-10-17",
+            "return_12w_percent": -1.7008231890711767,
+            "wealth_index": 6.015843363494198
+          },
+          {
+            "date": "2025-10-24",
+            "return_12w_percent": -1.441822520953251,
+            "wealth_index": 5.992050871662204
+          },
+          {
+            "date": "2025-10-31",
+            "return_12w_percent": -0.8585180999431508,
+            "wealth_index": 5.980140679085704
+          },
+          {
+            "date": "2025-11-07",
+            "return_12w_percent": 2.353429389298145,
+            "wealth_index": 6.072790648743022
+          },
+          {
+            "date": "2025-11-14",
+            "return_12w_percent": 3.181628807610082,
+            "wealth_index": 6.074099301558627
+          },
+          {
+            "date": "2025-11-21",
+            "return_12w_percent": 3.3241023482416088,
+            "wealth_index": 6.048686808772794
+          },
+          {
+            "date": "2025-11-28",
+            "return_12w_percent": 1.097591612160298,
+            "wealth_index": 5.9709279882264195
+          },
+          {
+            "date": "2025-12-05",
+            "return_12w_percent": 2.709381473734185,
+            "wealth_index": 6.037397576122681
+          },
+          {
+            "date": "2025-12-12",
+            "return_12w_percent": 1.5626070886617605,
+            "wealth_index": 5.95252583183053
+          },
+          {
+            "date": "2025-12-19",
+            "return_12w_percent": 3.3192144332634177,
+            "wealth_index": 6.0750628205817945
+          },
+          {
+            "date": "2025-12-26",
+            "return_12w_percent": 1.8669213703611298,
+            "wealth_index": 5.98175026550994
+          },
+          {
+            "date": "2026-01-02",
+            "return_12w_percent": -0.15166179601620033,
+            "wealth_index": 5.972455124117591
+          },
+          {
+            "date": "2026-01-09",
+            "return_12w_percent": -2.2394720940667745,
+            "wealth_index": 5.881120230145977
+          },
+          {
+            "date": "2026-01-16",
+            "return_12w_percent": -1.8016788520682003,
+            "wealth_index": 5.884093358302298
+          },
+          {
+            "date": "2026-01-23",
+            "return_12w_percent": -0.5629687776402936,
+            "wealth_index": 5.946474354203486
+          },
+          {
+            "date": "2026-01-30",
+            "return_12w_percent": -0.43256374907153505,
+            "wealth_index": 6.046521957839555
+          },
+          {
+            "date": "2026-02-06",
+            "return_12w_percent": -0.22630950630020408,
+            "wealth_index": 6.060353037417086
+          },
+          {
+            "date": "2026-02-13",
+            "return_12w_percent": -0.4743111333676331,
+            "wealth_index": 6.019997213816246
+          },
+          {
+            "date": "2026-02-20",
+            "return_12w_percent": 0.8218023343537384,
+            "wealth_index": 6.019997213816246
+          },
+          {
+            "date": "2026-02-27",
+            "return_12w_percent": -0.13096321447318982,
+            "wealth_index": 6.029490806186463
+          },
+          {
+            "date": "2026-03-06",
+            "return_12w_percent": 2.0894803704508025,
+            "wealth_index": 6.076902690632643
+          },
+          {
+            "date": "2026-03-13",
+            "return_12w_percent": 1.8883420503362336,
+            "wealth_index": 6.189780786407184
+          },
+          {
+            "date": "2026-03-20",
+            "return_12w_percent": 2.793453674598889,
+            "wealth_index": 6.148847688107158
+          },
+          {
+            "date": "2026-03-27",
+            "return_12w_percent": 1.7943483264597493,
+            "wealth_index": 6.079621772685757
+          },
+          {
+            "date": "2026-04-03",
+            "return_12w_percent": 3.2119383387894107,
+            "wealth_index": 6.070018185568335
+          },
+          {
+            "date": "2026-04-10",
+            "return_12w_percent": 2.0853603547034805,
+            "wealth_index": 6.006797908430074
+          },
+          {
+            "date": "2026-04-17",
+            "return_12w_percent": -0.7150628480157684,
+            "wealth_index": 5.903953325329792
+          },
+          {
+            "date": "2026-04-24",
+            "return_12w_percent": -2.0864618846940797,
+            "wealth_index": 5.920363581839576
+          },
+          {
+            "date": "2026-05-01",
+            "return_12w_percent": -3.0526838850381655,
+            "wealth_index": 5.875349616867435
+          },
+          {
+            "date": "2026-05-08",
+            "return_12w_percent": -4.888273750593308,
+            "wealth_index": 5.725723270226821
+          },
+          {
+            "date": "2026-05-15",
+            "return_12w_percent": -6.210461386724397,
+            "wealth_index": 5.646127611370306
+          },
+          {
+            "date": "2026-05-22",
+            "return_12w_percent": -7.609221436246793,
+            "wealth_index": 5.5706934992655945
+          },
+          {
+            "date": "2026-05-29",
+            "return_12w_percent": -7.002597745031136,
+            "wealth_index": 5.651361639850666
+          },
+          {
+            "date": "2026-06-05",
+            "return_12w_percent": -8.316121199705629,
+            "wealth_index": 5.675031114213471
+          },
+          {
+            "date": "2026-06-12",
+            "return_12w_percent": -7.774122338672451,
+            "wealth_index": 5.670828746415075
+          },
+          {
+            "date": "2026-06-19",
+            "return_12w_percent": -11.09659646624095,
+            "wealth_index": 5.404990677897094
+          },
+          {
+            "date": "2026-06-26",
+            "return_12w_percent": -11.652934759067968,
+            "wealth_index": 5.362682926540495
+          },
+          {
+            "date": "2026-07-03",
+            "return_12w_percent": -9.58157204781951,
+            "wealth_index": 5.43125223906693
+          },
+          {
+            "date": "2026-07-10",
+            "return_12w_percent": -4.781311697861801,
+            "wealth_index": 5.621666914349498
+          },
+          {
+            "date": "2026-07-17",
+            "return_12w_percent": 3.7481509424742487,
+            "wealth_index": 6.142267745230199
+          },
+          {
+            "date": "2026-07-24",
+            "return_12w_percent": 6.412824690972707,
+            "wealth_index": 6.25212548777888
+          },
+          {
+            "date": "2026-07-31",
+            "return_12w_percent": 12.399042889861157,
+            "wealth_index": 6.435658154257004
+          },
+          {
+            "date": "2026-08-07",
+            "return_12w_percent": 6.607765990626291,
+            "wealth_index": 6.019210511461794
+          },
+          {
+            "date": "2026-08-14",
+            "return_12w_percent": 7.134099536142213,
+            "wealth_index": 5.968112318356605
+          },
+          {
+            "date": "2026-08-21",
+            "return_12w_percent": 7.068567922190483,
+            "wealth_index": 6.050831975892128
+          },
+          {
+            "date": "2026-08-28",
+            "return_12w_percent": 7.418538525379037,
+            "wealth_index": 6.096035483748644
+          },
+          {
+            "date": "2026-09-04",
+            "return_12w_percent": 8.140191763051185,
+            "wealth_index": 6.132445080927493
+          },
+          {
+            "date": "2026-09-11",
+            "return_12w_percent": 13.790811135007974,
+            "wealth_index": 6.15038273415067
+          },
+          {
+            "date": "2026-09-18",
+            "return_12w_percent": 12.015760657013598,
+            "wealth_index": 6.007050071788134
+          },
+          {
+            "date": "2026-09-25",
+            "return_12w_percent": 11.38997348150248,
+            "wealth_index": 6.049870428810164
+          },
+          {
+            "date": "2026-10-02",
+            "return_12w_percent": 10.672107846431068,
+            "wealth_index": 6.221617270216007
+          },
+          {
+            "date": "2026-10-09",
+            "return_12w_percent": 3.302739433227586,
+            "wealth_index": 6.345130844146337
+          },
+          {
+            "date": "2026-10-16",
+            "return_12w_percent": 4.713234313698522,
+            "wealth_index": 6.546802811604364
+          },
+          {
+            "date": "2026-10-23",
+            "return_12w_percent": 2.253937892253477,
+            "wealth_index": 6.580713892011701
+          }
+        ],
+        "size": [
+          {
+            "date": "2025-08-15",
+            "relative_strength": 0.5904253977684779,
+            "small_crowding": 0.8529982407927266,
+            "large_crowding": 0.19081606950504815
+          },
+          {
+            "date": "2025-08-18",
+            "relative_strength": 0.5857482377657196,
+            "small_crowding": 0.8543294115033921,
+            "large_crowding": 0.18515703891484334
+          },
+          {
+            "date": "2025-08-19",
+            "relative_strength": 0.5831094734621984,
+            "small_crowding": 0.8539290112130116,
+            "large_crowding": 0.1742361671466799
+          },
+          {
+            "date": "2025-08-20",
+            "relative_strength": 0.5846852956431375,
+            "small_crowding": 0.8504101183032252,
+            "large_crowding": 0.18658420996575026
+          },
+          {
+            "date": "2025-08-21",
+            "relative_strength": 0.5911854380964121,
+            "small_crowding": 0.8315626045991527,
+            "large_crowding": 0.2183689084885021
+          },
+          {
+            "date": "2025-08-22",
+            "relative_strength": 0.5945991598246982,
+            "small_crowding": 0.8152275634825268,
+            "large_crowding": 0.24989127262698502
+          },
+          {
+            "date": "2025-08-25",
+            "relative_strength": 0.5976710706781525,
+            "small_crowding": 0.8028793015952708,
+            "large_crowding": 0.3077339926695503
+          },
+          {
+            "date": "2025-08-26",
+            "relative_strength": 0.5955473863377613,
+            "small_crowding": 0.8087532408954292,
+            "large_crowding": 0.2940320725884608
+          },
+          {
+            "date": "2025-08-27",
+            "relative_strength": 0.5978497168596768,
+            "small_crowding": 0.7975946263149191,
+            "large_crowding": 0.31869241338749255
+          },
+          {
+            "date": "2025-08-28",
+            "relative_strength": 0.5993978791853769,
+            "small_crowding": 0.7941815400989543,
+            "large_crowding": 0.31989127665933226
+          },
+          {
+            "date": "2025-08-29",
+            "relative_strength": 0.604510624853477,
+            "small_crowding": 0.7834455284874344,
+            "large_crowding": 0.4021426258315973
+          },
+          {
+            "date": "2025-09-01",
+            "relative_strength": 0.6030691460932722,
+            "small_crowding": 0.7661243543763809,
+            "large_crowding": 0.4286305968324104
+          },
+          {
+            "date": "2025-09-02",
+            "relative_strength": 0.6139629480506823,
+            "small_crowding": 0.7115046380462848,
+            "large_crowding": 0.48898115117492186
+          },
+          {
+            "date": "2025-09-03",
+            "relative_strength": 0.6188298124965605,
+            "small_crowding": 0.6912478027025892,
+            "large_crowding": 0.5270592940908951
+          },
+          {
+            "date": "2025-09-04",
+            "relative_strength": 0.6199563668139417,
+            "small_crowding": 0.684025285354226,
+            "large_crowding": 0.5519057356818777
+          },
+          {
+            "date": "2025-09-05",
+            "relative_strength": 0.6155851352263358,
+            "small_crowding": 0.6901585579099481,
+            "large_crowding": 0.5443360372061892
+          },
+          {
+            "date": "2025-09-08",
+            "relative_strength": 0.6110726768167398,
+            "small_crowding": 0.695761815602916,
+            "large_crowding": 0.5375012147940702
+          },
+          {
+            "date": "2025-09-09",
+            "relative_strength": 0.6139276770278641,
+            "small_crowding": 0.6790676971356043,
+            "large_crowding": 0.5738412727802854
+          },
+          {
+            "date": "2025-09-10",
+            "relative_strength": 0.6148356473829002,
+            "small_crowding": 0.6808667321558053,
+            "large_crowding": 0.5879385339900615
+          },
+          {
+            "date": "2025-09-11",
+            "relative_strength": 0.6146087748872435,
+            "small_crowding": 0.6826706413847332,
+            "large_crowding": 0.5933751257382811
+          },
+          {
+            "date": "2025-09-12",
+            "relative_strength": 0.6091968776989171,
+            "small_crowding": 0.7208244892709694,
+            "large_crowding": 0.5692578099346697
+          },
+          {
+            "date": "2025-09-15",
+            "relative_strength": 0.6112888190095028,
+            "small_crowding": 0.6927116464639642,
+            "large_crowding": 0.6077536107748722
+          },
+          {
+            "date": "2025-09-16",
+            "relative_strength": 0.6044309764079407,
+            "small_crowding": 0.7145276468397572,
+            "large_crowding": 0.5334299146033431
+          },
+          {
+            "date": "2025-09-17",
+            "relative_strength": 0.6024005228455372,
+            "small_crowding": 0.7385085814815238,
+            "large_crowding": 0.5312976408691497
+          },
+          {
+            "date": "2025-09-18",
+            "relative_strength": 0.6016408694984566,
+            "small_crowding": 0.7459178234847652,
+            "large_crowding": 0.5196295530635469
+          },
+          {
+            "date": "2025-09-19",
+            "relative_strength": 0.6052440562579435,
+            "small_crowding": 0.7001329165758232,
+            "large_crowding": 0.5347738679705252
+          },
+          {
+            "date": "2025-09-22",
+            "relative_strength": 0.603861545284649,
+            "small_crowding": 0.6867220355111388,
+            "large_crowding": 0.5386864973735653
+          },
+          {
+            "date": "2025-09-23",
+            "relative_strength": 0.6101155427937356,
+            "small_crowding": 0.6545566530739053,
+            "large_crowding": 0.5858805192307227
+          },
+          {
+            "date": "2025-09-24",
+            "relative_strength": 0.6060440770376526,
+            "small_crowding": 0.6852963919810415,
+            "large_crowding": 0.5625255915464946
+          },
+          {
+            "date": "2025-09-25",
+            "relative_strength": 0.6119336457766993,
+            "small_crowding": 0.6365610888307964,
+            "large_crowding": 0.5996639925687643
+          },
+          {
+            "date": "2025-09-26",
+            "relative_strength": 0.6150718097438607,
+            "small_crowding": 0.6142748727964936,
+            "large_crowding": 0.6427986617920207
+          },
+          {
+            "date": "2025-09-29",
+            "relative_strength": 0.6161852572079914,
+            "small_crowding": 0.5864037613180227,
+            "large_crowding": 0.6718408242937819
+          },
+          {
+            "date": "2025-09-30",
+            "relative_strength": 0.6126357896053646,
+            "small_crowding": 0.6103364890570819,
+            "large_crowding": 0.6831247310225448
+          },
+          {
+            "date": "2025-10-09",
+            "relative_strength": 0.6157753392978236,
+            "small_crowding": 0.6010199938189051,
+            "large_crowding": 0.7299293963535047
+          },
+          {
+            "date": "2025-10-10",
+            "relative_strength": 0.6128144870356009,
+            "small_crowding": 0.605317456422935,
+            "large_crowding": 0.708176528545327
+          },
+          {
+            "date": "2025-10-13",
+            "relative_strength": 0.6109206012806041,
+            "small_crowding": 0.580570468807889,
+            "large_crowding": 0.6819565708242938
+          },
+          {
+            "date": "2025-10-14",
+            "relative_strength": 0.6156206025422885,
+            "small_crowding": 0.5335234377922854,
+            "large_crowding": 0.7304614811460561
+          },
+          {
+            "date": "2025-10-15",
+            "relative_strength": 0.6155300717623653,
+            "small_crowding": 0.5315746419715284,
+            "large_crowding": 0.7192264447568317
+          },
+          {
+            "date": "2025-10-16",
+            "relative_strength": 0.6239561190042338,
+            "small_crowding": 0.48289328146885224,
+            "large_crowding": 0.7904178554198602
+          },
+          {
+            "date": "2025-10-17",
+            "relative_strength": 0.6282441386885584,
+            "small_crowding": 0.43777217831788096,
+            "large_crowding": 0.785437600628654
+          },
+          {
+            "date": "2025-10-20",
+            "relative_strength": 0.6268965931176363,
+            "small_crowding": 0.41848493399139647,
+            "large_crowding": 0.7741706680386352
+          },
+          {
+            "date": "2025-10-21",
+            "relative_strength": 0.6274294847903202,
+            "small_crowding": 0.3969021309503967,
+            "large_crowding": 0.7829732811264853
+          },
+          {
+            "date": "2025-10-22",
+            "relative_strength": 0.6280686687061777,
+            "small_crowding": 0.40174947542018435,
+            "large_crowding": 0.8061444881461036
+          },
+          {
+            "date": "2025-10-23",
+            "relative_strength": 0.6303068108325623,
+            "small_crowding": 0.38979367304534474,
+            "large_crowding": 0.8064350687983082
+          },
+          {
+            "date": "2025-10-24",
+            "relative_strength": 0.6281892101223587,
+            "small_crowding": 0.3836994003353975,
+            "large_crowding": 0.7954998497434393
+          },
+          {
+            "date": "2025-10-27",
+            "relative_strength": 0.6291898008522073,
+            "small_crowding": 0.35629574152411303,
+            "large_crowding": 0.7960418767643959
+          },
+          {
+            "date": "2025-10-28",
+            "relative_strength": 0.6273344510076652,
+            "small_crowding": 0.35452576847555206,
+            "large_crowding": 0.7786960989078442
+          },
+          {
+            "date": "2025-10-29",
+            "relative_strength": 0.6272644219926843,
+            "small_crowding": 0.3575865810731973,
+            "large_crowding": 0.776161999398121
+          },
+          {
+            "date": "2025-10-30",
+            "relative_strength": 0.6292394977275342,
+            "small_crowding": 0.3722366490381785,
+            "large_crowding": 0.7916671756928373
+          },
+          {
+            "date": "2025-10-31",
+            "relative_strength": 0.6182055100670009,
+            "small_crowding": 0.4467112722600495,
+            "large_crowding": 0.7106907814557819
+          },
+          {
+            "date": "2025-11-03",
+            "relative_strength": 0.6173162748929182,
+            "small_crowding": 0.44136715343398236,
+            "large_crowding": 0.7127018791101998
+          },
+          {
+            "date": "2025-11-04",
+            "relative_strength": 0.6211493025003002,
+            "small_crowding": 0.41956514500025965,
+            "large_crowding": 0.7406028183418483
+          },
+          {
+            "date": "2025-11-05",
+            "relative_strength": 0.6198716407823789,
+            "small_crowding": 0.42464396972553226,
+            "large_crowding": 0.7354734428820009
+          },
+          {
+            "date": "2025-11-06",
+            "relative_strength": 0.6214921763531777,
+            "small_crowding": 0.42343783609336016,
+            "large_crowding": 0.7520896969865236
+          },
+          {
+            "date": "2025-11-07",
+            "relative_strength": 0.6203752434075438,
+            "small_crowding": 0.42113241524086914,
+            "large_crowding": 0.7379612390098211
+          },
+          {
+            "date": "2025-11-10",
+            "relative_strength": 0.6207712990183392,
+            "small_crowding": 0.4107293141992524,
+            "large_crowding": 0.7280426602778102
+          },
+          {
+            "date": "2025-11-11",
+            "relative_strength": 0.6169333561956564,
+            "small_crowding": 0.4367905817228249,
+            "large_crowding": 0.7130100646743835
+          },
+          {
+            "date": "2025-11-12",
+            "relative_strength": 0.6205816442629937,
+            "small_crowding": 0.4224129967789592,
+            "large_crowding": 0.7200656234495306
+          },
+          {
+            "date": "2025-11-13",
+            "relative_strength": 0.6194620295167839,
+            "small_crowding": 0.46575244520746106,
+            "large_crowding": 0.7222724235113971
+          },
+          {
+            "date": "2025-11-14",
+            "relative_strength": 0.6168585741291598,
+            "small_crowding": 0.47041674886041523,
+            "large_crowding": 0.6809833293401475
+          },
+          {
+            "date": "2025-11-17",
+            "relative_strength": 0.6111931638386523,
+            "small_crowding": 0.5147569236268366,
+            "large_crowding": 0.6611669289814612
+          },
+          {
+            "date": "2025-11-18",
+            "relative_strength": 0.6133366053979372,
+            "small_crowding": 0.5327402508202678,
+            "large_crowding": 0.6658743210857834
+          },
+          {
+            "date": "2025-11-19",
+            "relative_strength": 0.6211131393017151,
+            "small_crowding": 0.47586256181840775,
+            "large_crowding": 0.6874530118677953
+          },
+          {
+            "date": "2025-11-20",
+            "relative_strength": 0.6218926709261734,
+            "small_crowding": 0.49935705712209755,
+            "large_crowding": 0.6851450358194032
+          },
+          {
+            "date": "2025-11-21",
+            "relative_strength": 0.6301350806619916,
+            "small_crowding": 0.4514936906262766,
+            "large_crowding": 0.7232931754192276
+          },
+          {
+            "date": "2025-11-24",
+            "relative_strength": 0.6215474983016971,
+            "small_crowding": 0.5120178731095288,
+            "large_crowding": 0.6699135643929266
+          },
+          {
+            "date": "2025-11-25",
+            "relative_strength": 0.6193706847874794,
+            "small_crowding": 0.5259289227113819,
+            "large_crowding": 0.6510599344057606
+          },
+          {
+            "date": "2025-11-26",
+            "relative_strength": 0.6232541006117874,
+            "small_crowding": 0.522606627065354,
+            "large_crowding": 0.6545224432983938
+          },
+          {
+            "date": "2025-11-27",
+            "relative_strength": 0.6221744843301796,
+            "small_crowding": 0.5555503261698296,
+            "large_crowding": 0.6510126516160999
+          },
+          {
+            "date": "2025-11-28",
+            "relative_strength": 0.6171982783639252,
+            "small_crowding": 0.5798212044028921,
+            "large_crowding": 0.6073599557299751
+          },
+          {
+            "date": "2025-12-01",
+            "relative_strength": 0.6195591143091314,
+            "small_crowding": 0.5684405426792196,
+            "large_crowding": 0.6355136423143761
+          },
+          {
+            "date": "2025-12-02",
+            "relative_strength": 0.6227572609336188,
+            "small_crowding": 0.5649782592713245,
+            "large_crowding": 0.6403766308470881
+          },
+          {
+            "date": "2025-12-03",
+            "relative_strength": 0.6251210426095922,
+            "small_crowding": 0.5493223790434942,
+            "large_crowding": 0.6170925248727394
+          },
+          {
+            "date": "2025-12-04",
+            "relative_strength": 0.6272287696646937,
+            "small_crowding": 0.5580975495942995,
+            "large_crowding": 0.6199372405886852
+          },
+          {
+            "date": "2025-12-05",
+            "relative_strength": 0.6243842758352736,
+            "small_crowding": 0.5983158212186134,
+            "large_crowding": 0.6004241399325766
+          },
+          {
+            "date": "2025-12-08",
+            "relative_strength": 0.6226223541488938,
+            "small_crowding": 0.5830018519273311,
+            "large_crowding": 0.5872461805608709
+          },
+          {
+            "date": "2025-12-09",
+            "relative_strength": 0.623016215452342,
+            "small_crowding": 0.5663557165283192,
+            "large_crowding": 0.5934826847373685
+          },
+          {
+            "date": "2025-12-10",
+            "relative_strength": 0.6198266739077888,
+            "small_crowding": 0.6091144100841861,
+            "large_crowding": 0.5540791023203107
+          },
+          {
+            "date": "2025-12-11",
+            "relative_strength": 0.6225639754249291,
+            "small_crowding": 0.6012945580962901,
+            "large_crowding": 0.5633546030222787
+          },
+          {
+            "date": "2025-12-12",
+            "relative_strength": 0.6214877621605359,
+            "small_crowding": 0.5822271217502754,
+            "large_crowding": 0.5632730640718573
+          },
+          {
+            "date": "2025-12-15",
+            "relative_strength": 0.6227953664467232,
+            "small_crowding": 0.5730459197396371,
+            "large_crowding": 0.5703739950757855
+          },
+          {
+            "date": "2025-12-16",
+            "relative_strength": 0.6262590474015612,
+            "small_crowding": 0.5687884681320889,
+            "large_crowding": 0.5664246206331687
+          },
+          {
+            "date": "2025-12-17",
+            "relative_strength": 0.6283494822643106,
+            "small_crowding": 0.5528450109509013,
+            "large_crowding": 0.5725288738533806
+          },
+          {
+            "date": "2025-12-18",
+            "relative_strength": 0.6260369475704479,
+            "small_crowding": 0.5894414969918802,
+            "large_crowding": 0.5523505130273809
+          },
+          {
+            "date": "2025-12-19",
+            "relative_strength": 0.623233177927213,
+            "small_crowding": 0.6188879427307028,
+            "large_crowding": 0.5347467199188952
+          },
+          {
+            "date": "2025-12-22",
+            "relative_strength": 0.6224900614830662,
+            "small_crowding": 0.6035963771965124,
+            "large_crowding": 0.5235754143062864
+          },
+          {
+            "date": "2025-12-23",
+            "relative_strength": 0.6250637612547035,
+            "small_crowding": 0.57875457855188,
+            "large_crowding": 0.5300913393566582
+          },
+          {
+            "date": "2025-12-24",
+            "relative_strength": 0.6173492063699295,
+            "small_crowding": 0.6387320821661829,
+            "large_crowding": 0.46375273394304706
+          },
+          {
+            "date": "2025-12-25",
+            "relative_strength": 0.6125219016950875,
+            "small_crowding": 0.6938619910082127,
+            "large_crowding": 0.42201806672205255
+          },
+          {
+            "date": "2025-12-26",
+            "relative_strength": 0.6123491802984036,
+            "small_crowding": 0.6868479306395614,
+            "large_crowding": 0.4164625110500553
+          },
+          {
+            "date": "2025-12-29",
+            "relative_strength": 0.6109133369962368,
+            "small_crowding": 0.7050434624091071,
+            "large_crowding": 0.40869759918601867
+          },
+          {
+            "date": "2025-12-30",
+            "relative_strength": 0.6122283458897695,
+            "small_crowding": 0.7174216187162725,
+            "large_crowding": 0.39559572592039605
+          },
+          {
+            "date": "2025-12-31",
+            "relative_strength": 0.6095807866051628,
+            "small_crowding": 0.7463077906192198,
+            "large_crowding": 0.37024624077281615
+          },
+          {
+            "date": "2026-01-05",
+            "relative_strength": 0.6084367697204497,
+            "small_crowding": 0.7522902491817516,
+            "large_crowding": 0.3533548658945568
+          },
+          {
+            "date": "2026-01-06",
+            "relative_strength": 0.6091230313140273,
+            "small_crowding": 0.7394095924154294,
+            "large_crowding": 0.35286904149425036
+          },
+          {
+            "date": "2026-01-07",
+            "relative_strength": 0.6041502957400553,
+            "small_crowding": 0.7563430720823976,
+            "large_crowding": 0.33460541517213643
+          },
+          {
+            "date": "2026-01-08",
+            "relative_strength": 0.5943173661230163,
+            "small_crowding": 0.7949651181649905,
+            "large_crowding": 0.2930791664539043
+          },
+          {
+            "date": "2026-01-09",
+            "relative_strength": 0.5854120938670947,
+            "small_crowding": 0.8180814759370252,
+            "large_crowding": 0.24952872912584773
+          },
+          {
+            "date": "2026-01-12",
+            "relative_strength": 0.5731613458386501,
+            "small_crowding": 0.8449341624855724,
+            "large_crowding": 0.20865838272722287
+          },
+          {
+            "date": "2026-01-13",
+            "relative_strength": 0.5803919763482553,
+            "small_crowding": 0.8304769831508438,
+            "large_crowding": 0.23070189132167224
+          },
+          {
+            "date": "2026-01-14",
+            "relative_strength": 0.5742802535434772,
+            "small_crowding": 0.8418309744269741,
+            "large_crowding": 0.21559423663298488
+          },
+          {
+            "date": "2026-01-15",
+            "relative_strength": 0.5765755335320338,
+            "small_crowding": 0.842233174570929,
+            "large_crowding": 0.21376115278430613
+          },
+          {
+            "date": "2026-01-16",
+            "relative_strength": 0.5747635598804396,
+            "small_crowding": 0.8433799319548676,
+            "large_crowding": 0.20528759091692222
+          },
+          {
+            "date": "2026-01-19",
+            "relative_strength": 0.5727871100991475,
+            "small_crowding": 0.8453186705883232,
+            "large_crowding": 0.19774454239284592
+          },
+          {
+            "date": "2026-01-20",
+            "relative_strength": 0.5766859468138361,
+            "small_crowding": 0.8360629408636695,
+            "large_crowding": 0.20235378924416073
+          },
+          {
+            "date": "2026-01-21",
+            "relative_strength": 0.5726542875730942,
+            "small_crowding": 0.8362512923026199,
+            "large_crowding": 0.19563379061358932
+          },
+          {
+            "date": "2026-01-22",
+            "relative_strength": 0.5684814818630242,
+            "small_crowding": 0.8344205932372901,
+            "large_crowding": 0.1945457572376519
+          },
+          {
+            "date": "2026-01-23",
+            "relative_strength": 0.5551456532069828,
+            "small_crowding": 0.8473573440719596,
+            "large_crowding": 0.18185030076169453
+          },
+          {
+            "date": "2026-01-26",
+            "relative_strength": 0.5626682033073118,
+            "small_crowding": 0.8352142873364407,
+            "large_crowding": 0.22663449112778844
+          },
+          {
+            "date": "2026-01-27",
+            "relative_strength": 0.5613941467761034,
+            "small_crowding": 0.8335818571966693,
+            "large_crowding": 0.21297215673377684
+          },
+          {
+            "date": "2026-01-28",
+            "relative_strength": 0.5616794307498358,
+            "small_crowding": 0.8295231902296818,
+            "large_crowding": 0.24060409486847978
+          },
+          {
+            "date": "2026-01-29",
+            "relative_strength": 0.5705414989284892,
+            "small_crowding": 0.8162923924864809,
+            "large_crowding": 0.27813734394953643
+          },
+          {
+            "date": "2026-01-30",
+            "relative_strength": 0.5701295877775182,
+            "small_crowding": 0.8144910846832971,
+            "large_crowding": 0.2842067435737823
+          },
+          {
+            "date": "2026-02-02",
+            "relative_strength": 0.5775213225852711,
+            "small_crowding": 0.7943415721693918,
+            "large_crowding": 0.34549250884809435
+          },
+          {
+            "date": "2026-02-03",
+            "relative_strength": 0.5676757296566335,
+            "small_crowding": 0.8108846541245585,
+            "large_crowding": 0.28080805234625283
+          },
+          {
+            "date": "2026-02-04",
+            "relative_strength": 0.5725130165327296,
+            "small_crowding": 0.798779462765203,
+            "large_crowding": 0.3261303087657885
+          },
+          {
+            "date": "2026-02-05",
+            "relative_strength": 0.5788763510391517,
+            "small_crowding": 0.7810303258232592,
+            "large_crowding": 0.39642982650521097
+          },
+          {
+            "date": "2026-02-06",
+            "relative_strength": 0.5767314297370569,
+            "small_crowding": 0.7808994587630043,
+            "large_crowding": 0.4381761372657317
+          },
+          {
+            "date": "2026-02-09",
+            "relative_strength": 0.5731337094660419,
+            "small_crowding": 0.7915679779781071,
+            "large_crowding": 0.4355888842755577
+          },
+          {
+            "date": "2026-02-10",
+            "relative_strength": 0.5726210613841792,
+            "small_crowding": 0.7891268505906139,
+            "large_crowding": 0.41218741262304825
+          },
+          {
+            "date": "2026-02-11",
+            "relative_strength": 0.5720991641132188,
+            "small_crowding": 0.7934409012673924,
+            "large_crowding": 0.4194879869804148
+          },
+          {
+            "date": "2026-02-12",
+            "relative_strength": 0.5676095303522782,
+            "small_crowding": 0.8061590409715411,
+            "large_crowding": 0.3377757499190295
+          },
+          {
+            "date": "2026-02-13",
+            "relative_strength": 0.5680076175624078,
+            "small_crowding": 0.8093295751839586,
+            "large_crowding": 0.33729401807997106
+          },
+          {
+            "date": "2026-02-24",
+            "relative_strength": 0.5671896590393674,
+            "small_crowding": 0.8114784081052226,
+            "large_crowding": 0.306383369290784
+          },
+          {
+            "date": "2026-02-25",
+            "relative_strength": 0.5620341255507706,
+            "small_crowding": 0.8195048783668155,
+            "large_crowding": 0.29097780692968717
+          },
+          {
+            "date": "2026-02-26",
+            "relative_strength": 0.5567173425658932,
+            "small_crowding": 0.824661943346629,
+            "large_crowding": 0.2565466353199117
+          },
+          {
+            "date": "2026-02-27",
+            "relative_strength": 0.5502550081719169,
+            "small_crowding": 0.8346555458489852,
+            "large_crowding": 0.23414967457018182
+          },
+          {
+            "date": "2026-03-02",
+            "relative_strength": 0.55782568407443,
+            "small_crowding": 0.8233254147775093,
+            "large_crowding": 0.3135456480702905
+          },
+          {
+            "date": "2026-03-03",
+            "relative_strength": 0.5718050497259193,
+            "small_crowding": 0.7963134272367764,
+            "large_crowding": 0.42381501726955184
+          },
+          {
+            "date": "2026-03-04",
+            "relative_strength": 0.5686100802317046,
+            "small_crowding": 0.7928728195640844,
+            "large_crowding": 0.39577138117861804
+          },
+          {
+            "date": "2026-03-05",
+            "relative_strength": 0.56879502947907,
+            "small_crowding": 0.7910028639359017,
+            "large_crowding": 0.4095342850640755
+          },
+          {
+            "date": "2026-03-06",
+            "relative_strength": 0.5649799792259701,
+            "small_crowding": 0.8041556826576401,
+            "large_crowding": 0.3661952293223867
+          },
+          {
+            "date": "2026-03-09",
+            "relative_strength": 0.5625949498679811,
+            "small_crowding": 0.8040346604597641,
+            "large_crowding": 0.3510798997257275
+          },
+          {
+            "date": "2026-03-10",
+            "relative_strength": 0.5598450344772349,
+            "small_crowding": 0.8119116456814399,
+            "large_crowding": 0.31624436623983954
+          },
+          {
+            "date": "2026-03-11",
+            "relative_strength": 0.5625014841228093,
+            "small_crowding": 0.8080231288737048,
+            "large_crowding": 0.3700945178348586
+          },
+          {
+            "date": "2026-03-12",
+            "relative_strength": 0.562333486941878,
+            "small_crowding": 0.8049075087760893,
+            "large_crowding": 0.38318388209930454
+          },
+          {
+            "date": "2026-03-13",
+            "relative_strength": 0.5684165669968951,
+            "small_crowding": 0.7864630118265179,
+            "large_crowding": 0.4385768013011514
+          },
+          {
+            "date": "2026-03-16",
+            "relative_strength": 0.5689147500526619,
+            "small_crowding": 0.7661063380378428,
+            "large_crowding": 0.45772093770303646
+          },
+          {
+            "date": "2026-03-17",
+            "relative_strength": 0.5782446317714223,
+            "small_crowding": 0.7083352878192399,
+            "large_crowding": 0.4818281202487501
+          },
+          {
+            "date": "2026-03-18",
+            "relative_strength": 0.5753446374764858,
+            "small_crowding": 0.7252686139690516,
+            "large_crowding": 0.47757067964116323
+          },
+          {
+            "date": "2026-03-19",
+            "relative_strength": 0.5794810124666556,
+            "small_crowding": 0.6935933388095195,
+            "large_crowding": 0.5096912487206966
+          },
+          {
+            "date": "2026-03-20",
+            "relative_strength": 0.5867612684349048,
+            "small_crowding": 0.6721181729780408,
+            "large_crowding": 0.5629046932211162
+          },
+          {
+            "date": "2026-03-23",
+            "relative_strength": 0.5962928081965292,
+            "small_crowding": 0.6293023472315007,
+            "large_crowding": 0.6119224609738267
+          },
+          {
+            "date": "2026-03-24",
+            "relative_strength": 0.588712885780023,
+            "small_crowding": 0.6571891924329322,
+            "large_crowding": 0.5832295433230037
+          },
+          {
+            "date": "2026-03-25",
+            "relative_strength": 0.585390233893264,
+            "small_crowding": 0.6683775852924606,
+            "large_crowding": 0.5921538168298935
+          },
+          {
+            "date": "2026-03-26",
+            "relative_strength": 0.5861125545826635,
+            "small_crowding": 0.6545673479854508,
+            "large_crowding": 0.6000815695960169
+          },
+          {
+            "date": "2026-03-27",
+            "relative_strength": 0.5812532674415136,
+            "small_crowding": 0.6706468738079228,
+            "large_crowding": 0.5778211835679988
+          },
+          {
+            "date": "2026-03-30",
+            "relative_strength": 0.5782685917835435,
+            "small_crowding": 0.6568047708733413,
+            "large_crowding": 0.561238826264279
+          },
+          {
+            "date": "2026-03-31",
+            "relative_strength": 0.5840074443457242,
+            "small_crowding": 0.5996734440572833,
+            "large_crowding": 0.5253233220337888
+          },
+          {
+            "date": "2026-04-01",
+            "relative_strength": 0.5829440882311365,
+            "small_crowding": 0.6099739454203348,
+            "large_crowding": 0.5364341615907217
+          },
+          {
+            "date": "2026-04-02",
+            "relative_strength": 0.5875205590228255,
+            "small_crowding": 0.5763241948043165,
+            "large_crowding": 0.5491551618340298
+          },
+          {
+            "date": "2026-04-03",
+            "relative_strength": 0.5892297533268284,
+            "small_crowding": 0.5906759619029895,
+            "large_crowding": 0.5458514952607689
+          },
+          {
+            "date": "2026-04-07",
+            "relative_strength": 0.5838294120998895,
+            "small_crowding": 0.6520419586512987,
+            "large_crowding": 0.517527730856864
+          },
+          {
+            "date": "2026-04-08",
+            "relative_strength": 0.5776382329078358,
+            "small_crowding": 0.6703525159304451,
+            "large_crowding": 0.4953286941377444
+          },
+          {
+            "date": "2026-04-09",
+            "relative_strength": 0.5764381164475453,
+            "small_crowding": 0.6669106726419816,
+            "large_crowding": 0.4940141988352226
+          },
+          {
+            "date": "2026-04-10",
+            "relative_strength": 0.5796988009350066,
+            "small_crowding": 0.6378718871534172,
+            "large_crowding": 0.5239867543859573
+          },
+          {
+            "date": "2026-04-13",
+            "relative_strength": 0.5789187821668645,
+            "small_crowding": 0.6218920951358728,
+            "large_crowding": 0.5349886582270748
+          },
+          {
+            "date": "2026-04-14",
+            "relative_strength": 0.5772155877061702,
+            "small_crowding": 0.6043484639152834,
+            "large_crowding": 0.5333737134258356
+          },
+          {
+            "date": "2026-04-15",
+            "relative_strength": 0.5779855987626997,
+            "small_crowding": 0.6029526014522248,
+            "large_crowding": 0.48423921953363
+          },
+          {
+            "date": "2026-04-16",
+            "relative_strength": 0.5753209340856924,
+            "small_crowding": 0.6217212764296935,
+            "large_crowding": 0.47545396714170324
+          },
+          {
+            "date": "2026-04-17",
+            "relative_strength": 0.5692095061676128,
+            "small_crowding": 0.6766232153586438,
+            "large_crowding": 0.4400177461196704
+          },
+          {
+            "date": "2026-04-20",
+            "relative_strength": 0.5692208461353753,
+            "small_crowding": 0.6971521343120484,
+            "large_crowding": 0.44345797183751773
+          },
+          {
+            "date": "2026-04-21",
+            "relative_strength": 0.5709385622780846,
+            "small_crowding": 0.6865416382215278,
+            "large_crowding": 0.45469583052496887
+          },
+          {
+            "date": "2026-04-22",
+            "relative_strength": 0.5659110188808837,
+            "small_crowding": 0.6961690280822459,
+            "large_crowding": 0.4234456003407264
+          },
+          {
+            "date": "2026-04-23",
+            "relative_strength": 0.5723395903175373,
+            "small_crowding": 0.6433331663877461,
+            "large_crowding": 0.4722747008795808
+          },
+          {
+            "date": "2026-04-24",
+            "relative_strength": 0.5743361878287908,
+            "small_crowding": 0.6341347992697691,
+            "large_crowding": 0.48507383184488295
+          },
+          {
+            "date": "2026-04-27",
+            "relative_strength": 0.5721433619904277,
+            "small_crowding": 0.6455686742350406,
+            "large_crowding": 0.479377811074168
+          },
+          {
+            "date": "2026-04-28",
+            "relative_strength": 0.5783865930362605,
+            "small_crowding": 0.574362397199569,
+            "large_crowding": 0.5183926630583244
+          },
+          {
+            "date": "2026-04-29",
+            "relative_strength": 0.5765682926290483,
+            "small_crowding": 0.6137582175258613,
+            "large_crowding": 0.4691256722894723
+          },
+          {
+            "date": "2026-04-30",
+            "relative_strength": 0.5735310885126742,
+            "small_crowding": 0.6182053339337006,
+            "large_crowding": 0.4655584967349684
+          },
+          {
+            "date": "2026-05-06",
+            "relative_strength": 0.568786695268654,
+            "small_crowding": 0.6539565802928704,
+            "large_crowding": 0.4542798001787275
+          },
+          {
+            "date": "2026-05-07",
+            "relative_strength": 0.5623391102884728,
+            "small_crowding": 0.7030544034777878,
+            "large_crowding": 0.41575131212612915
+          },
+          {
+            "date": "2026-05-08",
+            "relative_strength": 0.557353644526458,
+            "small_crowding": 0.7386443455602149,
+            "large_crowding": 0.38868940486142056
+          },
+          {
+            "date": "2026-05-11",
+            "relative_strength": 0.5584707240708102,
+            "small_crowding": 0.7055809730575573,
+            "large_crowding": 0.3978550579469111
+          },
+          {
+            "date": "2026-05-12",
+            "relative_strength": 0.5608829806646592,
+            "small_crowding": 0.7006389568745646,
+            "large_crowding": 0.4315306845916022
+          },
+          {
+            "date": "2026-05-13",
+            "relative_strength": 0.5581342318881157,
+            "small_crowding": 0.7251234546831302,
+            "large_crowding": 0.4208169363521308
+          },
+          {
+            "date": "2026-05-14",
+            "relative_strength": 0.5598314298795285,
+            "small_crowding": 0.7008752867322376,
+            "large_crowding": 0.42153912635188917
+          },
+          {
+            "date": "2026-05-15",
+            "relative_strength": 0.5596898049693011,
+            "small_crowding": 0.7059533515457763,
+            "large_crowding": 0.41146800527132643
+          },
+          {
+            "date": "2026-05-18",
+            "relative_strength": 0.5542896244784473,
+            "small_crowding": 0.7339522970770704,
+            "large_crowding": 0.35181196269724935
+          },
+          {
+            "date": "2026-05-19",
+            "relative_strength": 0.5509228122442675,
+            "small_crowding": 0.7394077930392934,
+            "large_crowding": 0.3431554492299873
+          },
+          {
+            "date": "2026-05-20",
+            "relative_strength": 0.5506583987495841,
+            "small_crowding": 0.7329659251237257,
+            "large_crowding": 0.33752245497388844
+          },
+          {
+            "date": "2026-05-21",
+            "relative_strength": 0.5620233782384335,
+            "small_crowding": 0.677810896338751,
+            "large_crowding": 0.43648126599242854
+          },
+          {
+            "date": "2026-05-22",
+            "relative_strength": 0.5573774350341676,
+            "small_crowding": 0.7087662554545335,
+            "large_crowding": 0.43493127934696907
+          },
+          {
+            "date": "2026-05-25",
+            "relative_strength": 0.5593161855979732,
+            "small_crowding": 0.669029192340876,
+            "large_crowding": 0.45573319660146727
+          },
+          {
+            "date": "2026-05-26",
+            "relative_strength": 0.5695528165129486,
+            "small_crowding": 0.6181122287500753,
+            "large_crowding": 0.5327012640878656
+          },
+          {
+            "date": "2026-05-27",
+            "relative_strength": 0.5742892698873654,
+            "small_crowding": 0.5975229845492733,
+            "large_crowding": 0.5832459620452584
+          },
+          {
+            "date": "2026-05-28",
+            "relative_strength": 0.5689233055440525,
+            "small_crowding": 0.6117383527738565,
+            "large_crowding": 0.5523335308085103
+          },
+          {
+            "date": "2026-05-29",
+            "relative_strength": 0.5817903516696333,
+            "small_crowding": 0.5324577007107127,
+            "large_crowding": 0.6169345261023473
+          },
+          {
+            "date": "2026-06-01",
+            "relative_strength": 0.5804889944722366,
+            "small_crowding": 0.5532467095267386,
+            "large_crowding": 0.5925879029521088
+          },
+          {
+            "date": "2026-06-02",
+            "relative_strength": 0.5861284847838368,
+            "small_crowding": 0.5062354588712873,
+            "large_crowding": 0.6423032214016042
+          },
+          {
+            "date": "2026-06-03",
+            "relative_strength": 0.5856749794460337,
+            "small_crowding": 0.5130155054588931,
+            "large_crowding": 0.6622881643886069
+          },
+          {
+            "date": "2026-06-04",
+            "relative_strength": 0.5825047856350687,
+            "small_crowding": 0.542730844803023,
+            "large_crowding": 0.6598427970067253
+          },
+          {
+            "date": "2026-06-05",
+            "relative_strength": 0.5775016436651061,
+            "small_crowding": 0.5797608137736312,
+            "large_crowding": 0.6572461709703985
+          },
+          {
+            "date": "2026-06-08",
+            "relative_strength": 0.5832797092790489,
+            "small_crowding": 0.5105986892245709,
+            "large_crowding": 0.6828371010039656
+          },
+          {
+            "date": "2026-06-09",
+            "relative_strength": 0.5772310420989208,
+            "small_crowding": 0.5460377921435681,
+            "large_crowding": 0.6112453212469695
+          },
+          {
+            "date": "2026-06-10",
+            "relative_strength": 0.5791869153479898,
+            "small_crowding": 0.5458175209778934,
+            "large_crowding": 0.6097337599100354
+          },
+          {
+            "date": "2026-06-11",
+            "relative_strength": 0.5787656547836995,
+            "small_crowding": 0.5326889895162534,
+            "large_crowding": 0.6050093624492776
+          },
+          {
+            "date": "2026-06-12",
+            "relative_strength": 0.5824012683670382,
+            "small_crowding": 0.518408218486594,
+            "large_crowding": 0.5900802653790449
+          },
+          {
+            "date": "2026-06-15",
+            "relative_strength": 0.5740615941378436,
+            "small_crowding": 0.5836254180326546,
+            "large_crowding": 0.5465437349782833
+          },
+          {
+            "date": "2026-06-16",
+            "relative_strength": 0.5648859964132602,
+            "small_crowding": 0.6429474797220557,
+            "large_crowding": 0.5080774440798947
+          },
+          {
+            "date": "2026-06-17",
+            "relative_strength": 0.5665350564745045,
+            "small_crowding": 0.6411724121955237,
+            "large_crowding": 0.540093835668189
+          },
+          {
+            "date": "2026-06-18",
+            "relative_strength": 0.5634003936871957,
+            "small_crowding": 0.6570318609348145,
+            "large_crowding": 0.5186308968132549
+          },
+          {
+            "date": "2026-06-22",
+            "relative_strength": 0.5707019069950222,
+            "small_crowding": 0.6069120009251969,
+            "large_crowding": 0.592245481345377
+          },
+          {
+            "date": "2026-06-23",
+            "relative_strength": 0.566747012314588,
+            "small_crowding": 0.6168874080427521,
+            "large_crowding": 0.5813886816290263
+          },
+          {
+            "date": "2026-06-24",
+            "relative_strength": 0.5621228444244175,
+            "small_crowding": 0.6140510143538043,
+            "large_crowding": 0.5208217571810804
+          },
+          {
+            "date": "2026-06-25",
+            "relative_strength": 0.5687909864491069,
+            "small_crowding": 0.5797559399043946,
+            "large_crowding": 0.565312359197873
+          },
+          {
+            "date": "2026-06-26",
+            "relative_strength": 0.5659795213748449,
+            "small_crowding": 0.580099751914186,
+            "large_crowding": 0.570228337216549
+          },
+          {
+            "date": "2026-06-29",
+            "relative_strength": 0.5730381717232775,
+            "small_crowding": 0.5489049123319837,
+            "large_crowding": 0.5933926378231498
+          },
+          {
+            "date": "2026-06-30",
+            "relative_strength": 0.5652160967952694,
+            "small_crowding": 0.5781741268764538,
+            "large_crowding": 0.5651325209104654
+          },
+          {
+            "date": "2026-07-01",
+            "relative_strength": 0.5586553830004612,
+            "small_crowding": 0.5978158579467544,
+            "large_crowding": 0.5618668584110049
+          },
+          {
+            "date": "2026-07-02",
+            "relative_strength": 0.5579257479386073,
+            "small_crowding": 0.5954738204871468,
+            "large_crowding": 0.5746633557501664
+          },
+          {
+            "date": "2026-07-03",
+            "relative_strength": 0.5616857023961822,
+            "small_crowding": 0.5636313773605014,
+            "large_crowding": 0.5973582133347337
+          },
+          {
+            "date": "2026-07-06",
+            "relative_strength": 0.5714888463790607,
+            "small_crowding": 0.48805271722550836,
+            "large_crowding": 0.6628878402693513
+          },
+          {
+            "date": "2026-07-07",
+            "relative_strength": 0.577255580669911,
+            "small_crowding": 0.444820596190245,
+            "large_crowding": 0.7107128344258127
+          },
+          {
+            "date": "2026-07-08",
+            "relative_strength": 0.5858112100888846,
+            "small_crowding": 0.3846215637966094,
+            "large_crowding": 0.7499798878404216
+          },
+          {
+            "date": "2026-07-09",
+            "relative_strength": 0.5875020797999826,
+            "small_crowding": 0.3797906665916275,
+            "large_crowding": 0.752205753910456
+          },
+          {
+            "date": "2026-07-10",
+            "relative_strength": 0.5831431091182011,
+            "small_crowding": 0.39030568396914156,
+            "large_crowding": 0.7479469265202321
+          },
+          {
+            "date": "2026-07-13",
+            "relative_strength": 0.6029111053188999,
+            "small_crowding": 0.3075421698301016,
+            "large_crowding": 0.8136226560485755
+          },
+          {
+            "date": "2026-07-14",
+            "relative_strength": 0.6052274367166937,
+            "small_crowding": 0.28165314872063285,
+            "large_crowding": 0.8531083600755847
+          },
+          {
+            "date": "2026-07-15",
+            "relative_strength": 0.6122903675345361,
+            "small_crowding": 0.25645731822656037,
+            "large_crowding": 0.884106453894467
+          },
+          {
+            "date": "2026-07-16",
+            "relative_strength": 0.6156421383255364,
+            "small_crowding": 0.23270071314800383,
+            "large_crowding": 0.89091881916283
+          },
+          {
+            "date": "2026-07-17",
+            "relative_strength": 0.6318495941103984,
+            "small_crowding": 0.18278708276523659,
+            "large_crowding": 0.90402094044896
+          },
+          {
+            "date": "2026-07-20",
+            "relative_strength": 0.6601683811542284,
+            "small_crowding": 0.14246078264273004,
+            "large_crowding": 0.9172684667311144
+          },
+          {
+            "date": "2026-07-21",
+            "relative_strength": 0.6527986409660897,
+            "small_crowding": 0.13851911563092614,
+            "large_crowding": 0.920524205723291
+          },
+          {
+            "date": "2026-07-22",
+            "relative_strength": 0.6589469056536059,
+            "small_crowding": 0.13201560223972078,
+            "large_crowding": 0.9242733145737279
+          },
+          {
+            "date": "2026-07-23",
+            "relative_strength": 0.6570776175558731,
+            "small_crowding": 0.13002993300594468,
+            "large_crowding": 0.9250787955167723
+          },
+          {
+            "date": "2026-07-24",
+            "relative_strength": 0.6645791394136487,
+            "small_crowding": 0.12103834544656797,
+            "large_crowding": 0.9294130964217269
+          },
+          {
+            "date": "2026-07-27",
+            "relative_strength": 0.6505142323719846,
+            "small_crowding": 0.13440175126825193,
+            "large_crowding": 0.9217311972908764
+          },
+          {
+            "date": "2026-07-28",
+            "relative_strength": 0.6503478421521182,
+            "small_crowding": 0.13274545152174252,
+            "large_crowding": 0.921805058858143
+          },
+          {
+            "date": "2026-07-29",
+            "relative_strength": 0.648363863257544,
+            "small_crowding": 0.1372613747692124,
+            "large_crowding": 0.9264516744376552
+          },
+          {
+            "date": "2026-07-30",
+            "relative_strength": 0.6593168602083578,
+            "small_crowding": 0.1220618518176407,
+            "large_crowding": 0.9333692700592828
+          },
+          {
+            "date": "2026-07-31",
+            "relative_strength": 0.648461958165115,
+            "small_crowding": 0.14793229748374323,
+            "large_crowding": 0.9259995682138769
+          },
+          {
+            "date": "2026-08-03",
+            "relative_strength": 0.6417121157263717,
+            "small_crowding": 0.24777375987403155,
+            "large_crowding": 0.9192708327032189
+          },
+          {
+            "date": "2026-08-04",
+            "relative_strength": 0.632066025673424,
+            "small_crowding": 0.2633338625029898,
+            "large_crowding": 0.9103101267479408
+          },
+          {
+            "date": "2026-08-05",
+            "relative_strength": 0.6216635523799721,
+            "small_crowding": 0.29265525910607065,
+            "large_crowding": 0.8905638627789549
+          },
+          {
+            "date": "2026-08-06",
+            "relative_strength": 0.617668954704828,
+            "small_crowding": 0.30443839609471435,
+            "large_crowding": 0.8734728401146234
+          },
+          {
+            "date": "2026-08-07",
+            "relative_strength": 0.6112922818113117,
+            "small_crowding": 0.31273705566453086,
+            "large_crowding": 0.8640990650303101
+          },
+          {
+            "date": "2026-08-10",
+            "relative_strength": 0.6079759246936167,
+            "small_crowding": 0.3638177202790046,
+            "large_crowding": 0.8304039610733418
+          },
+          {
+            "date": "2026-08-11",
+            "relative_strength": 0.6058404365085855,
+            "small_crowding": 0.37962835815618046,
+            "large_crowding": 0.8453278331051848
+          },
+          {
+            "date": "2026-08-12",
+            "relative_strength": 0.6018844154775196,
+            "small_crowding": 0.42465017748430905,
+            "large_crowding": 0.8522201506233662
+          },
+          {
+            "date": "2026-08-13",
+            "relative_strength": 0.6044602138551763,
+            "small_crowding": 0.4344748944802006,
+            "large_crowding": 0.8545633585766707
+          },
+          {
+            "date": "2026-08-14",
+            "relative_strength": 0.6005133915321904,
+            "small_crowding": 0.4721870938353563,
+            "large_crowding": 0.8310484431449734
+          },
+          {
+            "date": "2026-08-17",
+            "relative_strength": 0.5949887323438143,
+            "small_crowding": 0.5002793641841204,
+            "large_crowding": 0.7867139358351889
+          },
+          {
+            "date": "2026-08-18",
+            "relative_strength": 0.5947438425472936,
+            "small_crowding": 0.5177510893748103,
+            "large_crowding": 0.7783708909232592
+          },
+          {
+            "date": "2026-08-19",
+            "relative_strength": 0.6103800031935008,
+            "small_crowding": 0.4600523757226396,
+            "large_crowding": 0.8194715641171124
+          },
+          {
+            "date": "2026-08-20",
+            "relative_strength": 0.6051230501524596,
+            "small_crowding": 0.4856747254650008,
+            "large_crowding": 0.789072700767101
+          },
+          {
+            "date": "2026-08-21",
+            "relative_strength": 0.6076051101762102,
+            "small_crowding": 0.4582456139140575,
+            "large_crowding": 0.8061931266797827
+          },
+          {
+            "date": "2026-08-25",
+            "relative_strength": 0.6047205005051877,
+            "small_crowding": 0.49607108286885615,
+            "large_crowding": 0.7651722282998372
+          },
+          {
+            "date": "2026-08-26",
+            "relative_strength": 0.6084817153556996,
+            "small_crowding": 0.47206788698021196,
+            "large_crowding": 0.7997169463018814
+          },
+          {
+            "date": "2026-08-27",
+            "relative_strength": 0.5987727677159796,
+            "small_crowding": 0.5321177497622058,
+            "large_crowding": 0.7743144040086587
+          },
+          {
+            "date": "2026-08-28",
+            "relative_strength": 0.5982036174735896,
+            "small_crowding": 0.5632765309147897,
+            "large_crowding": 0.7701537327287133
+          },
+          {
+            "date": "2026-10-23",
+            "relative_strength": 0.6095924169625254,
+            "small_crowding": 0.4933849959096956,
+            "large_crowding": 0.7981999034205252
+          }
+        ]
+      },
+      "sources": {
+        "value": {
+          "schema_version": "research.weekly_analysis.v1",
+          "as_of": "2026-10-23",
+          "sha256": "f20291216073c74ce75381773b01f58a8c226c356928670b0036a69c9712c739"
+        },
+        "size": {
+          "schema_version": "research.weekly_analysis.v1",
+          "as_of": "2026-10-23",
+          "sha256": "1efd86470dc69f39da2344e0b5be5b3bedd392aeee4c565f23a8fda5cd780deb"
+        }
+      },
+      "content_hash": "6b7bf7ce3128472c42f1827cfc8a6054b27d251b1955a1537b3e8f7583d1c6ad"
+    }
+  ]
+}
