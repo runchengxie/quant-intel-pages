@@ -32,7 +32,7 @@ for(const locale of ['en','zh'] as const) test(`native daily reports remain read
   const c=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:950}});const page=await c.newPage();
   await page.goto(`${base}/${locale==='en'?'en/':'?locale=zh-CN'}`);
   await expect(page.locator('[data-native-us]').first()).toBeVisible();await expect(page.locator('[data-native-asia]').first()).toBeVisible();
-  await expect(page.locator('[data-native-asia] .native-asia-body')).toContainText(/\d{4}-\d{2}-\d{2}/);
+  await expect(page.locator('[data-native-asia] [data-report-document]')).toContainText(/\d{4}-\d{2}-\d{2}/);
   await expect(page.locator('#market-daily-chart svg')).toBeHidden();
   await page.locator('#market-daily-chart').locator('xpath=ancestor::details[1]').locator('summary').first().click();
   await expect(page.locator('#market-daily-chart svg')).toBeVisible();await c.close();

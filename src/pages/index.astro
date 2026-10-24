@@ -1,4 +1,5 @@
 ---
+import { buildUsEditorialSvg, buildAsiaEditorialSvg as buildAsiaReportSvg } from '../lib/report-exports';
 import UsNativeReport from '../components/UsNativeReport.astro';
 import AsiaNativeReport from '../components/AsiaNativeReport.astro';
 import { reportEditorialLabels } from '../lib/report-editorial-locale';
@@ -15,7 +16,6 @@ import { renderMarkdown } from '../lib/markdown.ts';
 import { formatEvidenceLine } from '../lib/evidence.ts';
 import { buildEveningNotes } from '../lib/evening-notes.ts';
 import marketDailyUtils from '../lib/market-daily-utils.ts';
-import { buildAsiaReportSvg } from '../lib/asia-report-image.ts';
 import { US_REPORT_LABELS } from '../lib/locale.ts';
 import type { Evidence } from '../lib/insights.ts';
 import { publicReportIdentity } from '../lib/report-image-identity.ts';
@@ -36,14 +36,14 @@ const latestEveningContentHash = latestEvening ? publicReportIdentity(latestEven
 const asiaReportSvg = latestEvening && latestEveningMarkdown ? buildAsiaReportSvg(latestEvening, loadChart(latestEvening.id), latestEveningMarkdown) : null;
 const market = loadMarketDaily();
 const marketChartSummary = market?.publication === 'public' ? marketDailyUtils.summarizeMarketDaily(market) : null;
-const marketChartSvg = marketChartSummary ? marketDailyUtils.buildMarketDailyChartSvg(marketChartSummary) : null;
+const marketChartSvg = marketChartSummary ? buildUsEditorialSvg(marketChartSummary) : null;
 const marketRevisionNotes = marketChartSummary ? marketDailyUtils.formatMarketDailyRevision(marketChartSummary, 'zh-CN') : [];
 const marketDataNotes = marketChartSummary ? marketDailyUtils.formatMarketDailyDataNotes(marketChartSummary, 'zh-CN') : [];
 const marketHistory = loadMarketDailyHistory()
   .filter((row) => row.date >= VISUAL_REPORT_START_DATE && row.date !== market?.date)
   .map((row) => {
     const summary = marketDailyUtils.summarizeMarketDaily(row);
-    return { ...row, nativeSummary: summary, chartSvg: summary ? marketDailyUtils.buildMarketDailyChartSvg(summary) : null };
+    return { ...row, nativeSummary: summary, chartSvg: summary ? buildUsEditorialSvg(summary) : null };
   });
 const sourceRows = marketChartSummary?.rows || [];
 const sourceLinks = [...new Map([
@@ -114,7 +114,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         </section>
         <section id="asia-session" class="session-group" aria-labelledby="asia-session-title">
           <section class="panel"><div class="section-heading"><span class="eyebrow">最新亚洲晚报 · {latestEveningDate || '待更新'}</span><h2 id="asia-session-title">{reportEditorialLabels.zh.asiaTitle}</h2></div>
-            {latestEvening ? <>{latestEveningMarkdown && <AsiaNativeReport report={latestEvening} markdown={latestEveningMarkdown} locale="zh" />}<p class="section-note">报告日期：{latestEvening.date}。晚报计划于北京时间 19:00 发布，实际生成时间和数据日期见报告正文。</p><div class="link-row report-actions"><a href={`${base}/reports/${latestEvening.id}/`}>阅读完整报告</a>{asiaReportSvg && <button type="button" id="download-asia-report" data-report-image data-report-date={latestEvening.date} data-report-kind="asia-daily" data-report-content-hash={latestEveningContentHash} data-chart-target="#asia-daily-chart svg" data-status-target="#asia-chart-download-status">下载图片版 PNG</button>}</div><p id="asia-chart-download-status" class="section-note" role="status" aria-live="polite"></p>{asiaReportSvg ? <details class="report-export secondary-report" data-report-export><summary>{reportEditorialLabels.zh.imageView}</summary><div class="market-chart-graphic market-report-graphic" id="asia-daily-chart" set:html={asiaReportSvg} /></details> : <p>{latestEvening.summary}</p>}<details class="secondary-report"><summary>查看数据和来源</summary><div class="link-row"><a href={`${base}/reports/${latestEvening.id}/`}>完整报告与图表来源</a><a href={`${base}/${latestEvening.source_url}`}>Markdown 原文</a></div></details></> : <p class="empty">暂未取得可公开的亚洲收盘复盘。</p>}
+            {latestEvening ? <>{latestEveningMarkdown && <AsiaNativeReport report={latestEvening} markdown={latestEveningMarkdown} charts={loadChart(latestEvening.id)} locale="zh" />}<p class="section-note">报告日期：{latestEvening.date}。晚报计划于北京时间 19:00 发布，实际生成时间和数据日期见报告正文。</p><div class="link-row report-actions"><a href={`${base}/reports/${latestEvening.id}/`}>阅读完整报告</a>{asiaReportSvg && <button type="button" id="download-asia-report" data-report-image data-report-date={latestEvening.date} data-report-kind="asia-daily" data-report-content-hash={latestEveningContentHash} data-chart-target="#asia-daily-chart svg" data-status-target="#asia-chart-download-status">下载图片版 PNG</button>}</div><p id="asia-chart-download-status" class="section-note" role="status" aria-live="polite"></p>{asiaReportSvg ? <details class="report-export secondary-report" data-report-export><summary>{reportEditorialLabels.zh.imageView}</summary><div class="market-chart-graphic market-report-graphic" id="asia-daily-chart" set:html={asiaReportSvg} /></details> : <p>{latestEvening.summary}</p>}<details class="secondary-report"><summary>查看数据和来源</summary><div class="link-row"><a href={`${base}/reports/${latestEvening.id}/`}>完整报告与图表来源</a><a href={`${base}/${latestEvening.source_url}`}>Markdown 原文</a></div></details></> : <p class="empty">暂未取得可公开的亚洲收盘复盘。</p>}
           </section>
         <AsiaNews reportId={latestEvening?.id} locale="zh-CN" />
         <section class="panel" aria-labelledby="insight-title"><div class="section-heading"><h2 id="insight-title">{insightArchived ? '历史市场解读与验证' : '市场解读与验证'}</h2></div>

@@ -5,8 +5,10 @@ import "../styles/weekly-native.css";
 import '../styles/report-editorial.css';
 import SiteHeader from "./SiteHeader.astro";
 import ThemeInit from "./ThemeInit.astro";
-import WeeklyTrend from "./WeeklyTrend.astro";
-import { weeklyReportPresentation } from "../lib/weekly-report-text.ts";
+import ReportDocumentView from "./ReportDocumentView.astro";
+import {buildWeeklyReportDocument} from "../lib/weekly-report-document";
+import {buildReportSvg} from "../lib/report-document-svg";
+import {reportDocumentLabels} from "../lib/report-document-labels";
 import {
   weeklyLabels,
   weeklyStateLabel,
@@ -24,9 +26,8 @@ const reports = loadWeeklyRecaps();
 const report = landing ? reports[0] : datedReport;
 const history = reports.filter(row => row.date !== report?.date);
 const t = weeklyLabels[locale];
-const presentation = report
-  ? weeklyReportPresentation(report.markdown, locale)
-  : undefined;
+const reportDocument = report ? buildWeeklyReportDocument(report,locale) : undefined;
+const styledSvg = reportDocument ? buildReportSvg(reportDocument) : undefined;
 const number = (value: number, digits = 2) =>
   new Intl.NumberFormat(locale === "en" ? "en-US" : "zh-CN", {
     maximumFractionDigits: digits,
@@ -97,25 +98,17 @@ const route = (language: WeeklyLocale, date = "") =>
                   href={`${base}/${report.image.source_url}?v=${report.image.sha256}`}
                   download={`${report.report_id}.png`}
                 >
-                  {t.download}
+                  {reportDocumentLabels[locale].originalImage}
                 </a>
                 <a href={`${base}/${report.source_url}`}>{t.source}</a>
               </div>
 
-              <section class="weekly-trends" aria-label={t.trendPanels}>
-                <h3>{t.trendPanels}</h3>
-                <div class="weekly-trend-grid" data-weekly-trend-grid>
-                  <WeeklyTrend title={t.returns} rows={report.series.value} fields={[{key:"return_12w_percent",label:t.returns,color:"var(--desk-positive)"}]} locale={locale} unit="%" includeZero />
-                  <WeeklyTrend title={t.wealth} rows={report.series.value} fields={[{key:"wealth_index",label:t.wealth,color:"var(--desk-positive)"}]} locale={locale} unit={t.wealth} />
-                  <WeeklyTrend title={t.strength} rows={report.series.size} fields={[{key:"relative_strength",label:t.strength,color:"var(--desk-negative)"}]} locale={locale} unit={t.ratio} />
-                  <WeeklyTrend title={t.size} rows={report.series.size} fields={[{key:"small_crowding",label:t.small,color:"var(--desk-positive)"},{key:"large_crowding",label:t.large,color:"var(--desk-negative)"}]} locale={locale} unit="0–1" domain={[0,1]} />
-                </div>
-              </section>
               <section class="weekly-report-body" data-weekly-report-body>
-                <h3>{t.reportBody}</h3>
-                {presentation!.untranslated.length > 0 && <p class="weekly-translation-note" data-weekly-translation-fallback>{t.translationFallback}</p>}
-                <div class="markdown-body" set:html={renderMarkdown(presentation!.markdown)} />
+                <ReportDocumentView document={{...reportDocument!,panels:reportDocument!.panels.filter(p=>p.id!=='weekly-state')}} />
               </section>
+              <p class="link-row"><button type="button" data-report-image data-report-date={report.date} data-report-kind="weekly" data-report-content-hash={report.content_hash} data-chart-target="#weekly-report-chart svg" data-status-target="#weekly-image-status">{t.download}</button></p>
+              <p id="weekly-image-status" class="report-caption" role="status"></p>
+              <details class="report-export secondary-report" data-report-export><summary>{reportDocumentLabels[locale].imageView}</summary><div id="weekly-report-chart" class="market-chart-graphic market-report-graphic" set:html={styledSvg} /></details>
               <details class="secondary-report" data-weekly-original>
                 <summary>{t.original}</summary>
                 <p><a href={`${base}/${report.source_url}`}>{t.source}</a></p>
@@ -219,6 +212,8 @@ const route = (language: WeeklyLocale, date = "") =>
     {report && <script>
       import { initializeWeeklyCharts } from "../lib/weekly-charts.ts";
       initializeWeeklyCharts();
+      import {initializeReportDownloads} from '../lib/report-controls';
+      initializeReportDownloads(document.documentElement.lang.startsWith('en')?'en-US':'zh-CN');
     </script>}
 
   </body>

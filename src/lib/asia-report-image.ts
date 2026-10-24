@@ -357,7 +357,7 @@ function weekly(draw: SvgDraw, points: ChartPoint[]): void {
   trend(draw, points, '成交额', '成交额走势（亿）', '亿');
 }
 
-function holidayRows(markdown: string, date: string): string[][] | null {
+export function holidayRows(markdown: string, date: string): string[][] | null {
   const heading = /^## 亚洲市场收盘复盘（(\d{8})）\s*$/m.exec(markdown);
   if (!heading || heading[1] !== date.replaceAll('-', '') || !markdown.includes('A 股今日休市。')) return null;
   const section = markdown.slice(heading.index + heading[0].length).split(/^## /m)[0];

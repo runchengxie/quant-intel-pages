@@ -6,11 +6,13 @@
   },
   "scripts": {
     "build": "astro build",
-    "check": "npm run legacy:check && astro check",
+    "check": "npm run legacy:check && npm run theme:check && astro check",
     "test": "tsx --test tests/*.cjs",
     "test:browser": "playwright test",
     "legacy:build": "tsx tools/generate-legacy.ts",
-    "legacy:check": "tsx tools/generate-legacy.ts --check"
+    "legacy:check": "tsx tools/generate-legacy.ts --check",
+    "theme:build": "node --import tsx tools/generate-report-theme.ts",
+    "theme:check": "node --import tsx tools/generate-report-theme.ts --check"
   },
   "dependencies": {
     "@astrojs/react": "7.0.0",

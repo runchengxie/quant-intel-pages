@@ -14,7 +14,7 @@ export function initializeReportDownloads(locale: Locale = 'en-US'): void {
       element.disabled = true;
       status.textContent = US_REPORT_LABELS.pngGenerating[language];
       try {
-        if (!reportDate || (reportKind !== 'market-daily' && reportKind !== 'asia-daily')) {
+        if (!reportDate || (reportKind !== 'market-daily' && reportKind !== 'asia-daily' && reportKind !== 'weekly')) {
           throw new Error('Invalid report image identity');
         }
         const { downloadMarketChartPng } = await import('./market-chart-download.ts');
