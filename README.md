@@ -66,10 +66,12 @@ Asian evening images also consume the producer’s dated Asian-market overview o
 
 Weekly market/style reports are available from the home navigation at `/en/weekly/`
 (English) and `/weekly/?locale=zh-CN` (Chinese). Dated pages retain the trading cutoff
-in their URL. Each page exposes the approved PNG for direct download, the complete
-sanitized source report, source identities, and optional interactive historical
-observations with accessible tables. ECharts loads only when the historical chart
-section opens; the image and report remain readable without JavaScript.
+in their URL. Each page presents responsive native text, localized summary cards and four static
+SVG trend panels. English report text preserves the source numbers and caveats;
+unrecognized new source passages are flagged, with the full Chinese original in
+a folded section. The approved PNG is a download, not an eager page image.
+ECharts loads only when the interactive section opens; text, SVGs and observation
+tables remain usable without JavaScript.
 
 The weekly input is optional until a public bundle is imported. Present weekly data
 fails the build if its schema, Python canonical content digest, attachment hash,

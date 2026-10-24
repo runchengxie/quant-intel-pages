@@ -1,6 +1,14 @@
 export const weeklyLabels = {
   en: {
     title: "Weekly market and style research",
+    reportBody: "This week's evidence and observations",
+    original: "Original Chinese report",
+    translationFallback: "Some new source paragraphs are available only in the original report below.",
+    valueState: "Value regime", valueStreak: "Time in current regime", sizeSignal: "Size direction",
+    smallCrowding: "Small-cap crowding", largeCrowding: "Large-cap crowding",
+    observations: "observations", through: "Data through", unit: "Index level", ratio: "Ratio",
+    trendPanels: "Historical observations", staticCharts: "Trends at a glance", openImage: "Open report image",
+    states: {MOMENTUM:"Momentum",NEUTRAL:"Neutral",large_cap:"Large-cap leadership",small_cap:"Small-cap leadership",insufficient:"Insufficient observations"},
     home: "Daily reports",
     history: "Recent weekly reports",
     empty: "No public weekly report is available.",
@@ -8,7 +16,7 @@ export const weeklyLabels = {
     download: "Download report image",
     source: "Source Markdown",
     fallback:
-      "The complete approved report below is available in its original Chinese. Dates refer to the trading cutoff; observations describe historical data and do not predict returns.",
+      "Dates refer to the trading cutoff. English text preserves the original observations; the Chinese source remains available below.",
     interactive: "Explore historical observations",
     value: "Value history",
     size: "Size strength and crowding",
@@ -28,6 +36,12 @@ export const weeklyLabels = {
   },
   zh: {
     title: "每周市场与风格研究",
+    reportBody: "本周证据与观察", original: "中文原文",
+    translationFallback: "部分新增段落暂未提供英文译文，请展开下方中文原文查看。",
+    valueState: "价值风格状态", valueStreak: "当前状态持续时间", sizeSignal: "大小盘方向",
+    smallCrowding: "小盘拥挤度", largeCrowding: "大盘拥挤度", observations: "个观测值",
+    through: "数据截至", unit: "指数水平", ratio: "比值", trendPanels: "历史观测", staticCharts: "历史走势", openImage: "查看图片版",
+    states: {MOMENTUM:"动量状态",NEUTRAL:"中性",large_cap:"大盘占优",small_cap:"小盘占优",insufficient:"观测不足"},
     home: "每日市场报告",
     history: "近期周报",
     empty: "暂无公开周报。",
@@ -55,3 +69,8 @@ export const weeklyLabels = {
   },
 } as const;
 export type WeeklyLocale = keyof typeof weeklyLabels;
+
+export function weeklyStateLabel(value: string, locale: WeeklyLocale): string {
+  const states: Record<string,string> = weeklyLabels[locale].states;
+  return states[value] ?? weeklyLabels[locale].states.insufficient;
+}

@@ -40,8 +40,12 @@ Pages independently checks the exact allowlist, Friday report identity, aware
 creation timestamp, source dates, ordered bounded series, canonical Python JSON
 SHA256, and the matching Markdown and PNG. It renders sanitized Markdown and retains
 only supplied observations: 12-week return in percent, wealth index, size relative
-strength, and crowding from zero to one. English pages explicitly identify the
-original Chinese full report. Locale links preserve the dated report route.
+strength, and crowding from zero to one. Native responsive cards, text and SVG
+trends form the reading view; the PNG remains an explicit download with unchanged
+identity. English presentation uses fixed producer templates, preserving all
+numbers, source dates and limitations. Unknown new paragraphs are visibly flagged
+and retained in the folded Chinese original. Locale links preserve the dated
+report route; static content works without JavaScript.
 
 This source change adds reading and chart routes; it does not install schedules or
 send images. Deployment and exact live identity verification precede delivery under
