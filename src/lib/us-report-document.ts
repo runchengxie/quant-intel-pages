@@ -53,7 +53,7 @@ export function buildUsReportDocument(summary: MarketDailySummary, locale: 'en' 
   panels.push({id:'treasury-reference',title:t.reference,kind:'rows',rows,notes:[model.treasuryNote||t.referenceOnly,...(model.treasuryChecked?[model.treasuryChecked]:[])]});
  }
  const remaining=summary.rows.filter(r=>!consumed.has(r.id));
- if(remaining.length) panels.push({id:'additional-observations',title:t.remaining,kind:'rows',rows:remaining.map(r=>({id:r.id,label:present(r.label),valueText:`${number(r.value)} ${unit(r.unit)}`,observationDate:r.observationDate,sources:[source(r)],details:[...(r.text?[present(r.text)]:[]),`${t.quality}: ${present(r.quality)}`]}))});
+ if(remaining.length) panels.push({id:'additional-observations',title:t.remaining,kind:'rows',rows:remaining.map(r=>({id:r.id,label:present(r.label),valueText:`${number(r.value)}${unit(r.unit)==='%'?'':' '}${unit(r.unit)}`,observationDate:r.observationDate,sources:[source(r)],records:[`${present(r.label)}: ${String(r.value)} ${r.unit} · ${r.observationDate} · ${present(r.sourceLabel)} · ${r.quality}`,...(r.text?[present(r.text)]:[])]}))});
  for(const section of model.sections) panels.push({id:`research-${section.key}`,title:section.title,kind:'text',rows:section.claims.map((claim,i)=>({id:`${section.key}-${i}`,label:claim.text,details:claim.publication,sources:claim.sourceUrls.map((url,i)=>({label:`${t.source} ${i+1} · ${new URL(url).hostname}`,url}))}))});
  if(!model.sections.length) panels.push({id:'research',title:label('research'),kind:'text',paragraphs:[t.noResearch]});
  panels.push({id:'data-status',title:t.status,kind:'text',paragraphs:[...model.caveats,...model.missingNews.map(title=>`${title}: ${t.noResearch}`)]});

@@ -58,3 +58,18 @@ test('remaining macro facts and all revision/gap notices remain accessible',()=>
  for(const timestamp of Object.values(s.newsRevision)) assert.ok(status.includes(timestamp));
  assert.match(status,/research/); assert.match(status,/Bitcoin futures/);
 });
+test('macro units are readable in both locales and repeated values/quality stay in collapsed records',()=>{
+ const s=summary(); s.rows=[
+ {...s.rows[0],id:'macro.cpi_yoy',label:'CPI',value:3.74,unit:'percent_yoy',text:'CPI 3.74%',observationDate:'2026-09-01'},
+ {...s.rows[0],id:'macro.nonfarm',label:'Nonfarm payrolls',value:29,unit:'thousand_persons',text:'Nonfarm payrolls 29.00 thousand_persons',observationDate:'2026-09-01'},
+ ];
+ for(const locale of ['en','zh']) {
+  const rows=buildUsReportDocument(s,locale).panels.find(p=>p.id==='additional-observations').rows;
+  assert.equal(rows[0].valueText,'3.74%');
+  assert.equal(rows[1].valueText,locale==='en'?'29.00 thousand people':'29.00 千人');
+  assert.ok(rows.every(r=>!r.details?.length));
+  assert.match(rows[0].records.join(' '),/percent_yoy/);
+  assert.match(rows[1].records.join(' '),/thousand_persons/);
+  assert.ok(rows.every(r=>r.observationDate==='2026-09-01'&&r.sources.length===1));
+ }
+});
