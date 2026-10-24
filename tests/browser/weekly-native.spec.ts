@@ -14,7 +14,7 @@ for (const locale of ["en", "zh"] as const) {
       await expect(page.locator("[data-weekly-native]")).toHaveAttribute("data-report-date", date);
       await expect(page.locator("[data-weekly-summary] > div")).toHaveCount(4);
       await expect(page.locator("[data-weekly-static-chart] svg")).toHaveCount(4);
-      await expect(page.locator("[data-weekly-report-body] .markdown-body")).toContainText("Public weekly facts");
+      await expect(page.locator("[data-weekly-report-body]")).toContainText("Public weekly facts");
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
       expect(png).toEqual([]);
       expect(await page.locator("[data-weekly-trend-grid]").evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length)).toBe(width < 600 ? 1 : 2);
@@ -50,7 +50,7 @@ test("native weekly retains dated language navigation and lazy chart controls", 
 
 test("native weekly PNG stays an explicit download with the source identity", async ({ page }) => {
   await page.goto(path("en"));
-  const link = page.getByRole("link", { name: "Download report image", exact: true });
+  const link = page.getByRole("link", { name: "Original published image", exact: true });
   const sha = "6f5b9de097b5e83d2f5e3923112ac9390f98b6369add29c6a8b3fa190da8dfef";
   await expect(link).toHaveAttribute("href", `${base}/reports/${date}-weekly.png?v=${sha}`);
   const pending = page.waitForEvent("download");

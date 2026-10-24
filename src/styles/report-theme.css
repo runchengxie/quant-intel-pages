@@ -1,0 +1,40 @@
+/* Generated from src/lib/report-theme.ts; edit canonical tokens there. */
+:root, :root[data-theme="light"] {
+  --desk-paper: #f8f9f6;
+  --desk-surface: #ffffff;
+  --desk-ink: #20262c;
+  --desk-muted: #626d75;
+  --desk-line: #d9deda;
+  --desk-accent: #943f36;
+  --desk-positive: #a34139;
+  --desk-negative: #426d8b;
+  --desk-soft: #eef1ed;
+  --report-bg: #f8f9f6;
+  --report-ink: #20262c;
+  --report-muted: #626d75;
+  --report-line: #d9deda;
+  --report-track: #eef1ed;
+  --report-positive: #a34139;
+  --report-negative: #426d8b;
+  --report-accent: #943f36;
+}
+:root[data-theme="dark"] {
+  --desk-paper: #151a1e;
+  --desk-surface: #1c242a;
+  --desk-ink: #eceee9;
+  --desk-muted: #a3aeb6;
+  --desk-line: #39454d;
+  --desk-accent: #dbac98;
+  --desk-positive: #df9d90;
+  --desk-negative: #91b5ce;
+  --desk-soft: #202a30;
+  --report-bg: #151a1e;
+  --report-ink: #eceee9;
+  --report-muted: #a3aeb6;
+  --report-line: #39454d;
+  --report-track: #202a30;
+  --report-positive: #df9d90;
+  --report-negative: #91b5ce;
+  --report-accent: #dbac98;
+}
+:root { --report-heading-font: Georgia, "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", serif; --report-body-font: Inter, "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif; }

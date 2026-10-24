@@ -1,4 +1,5 @@
 ---
+import { buildAsiaEditorialSvg as buildAsiaReportSvg } from '../../lib/report-exports';
 import AsiaNativeReport from '../../components/AsiaNativeReport.astro';
 import { reportEditorialLabels } from '../../lib/report-editorial-locale';
 import SiteHeader from '../../components/SiteHeader.astro';
@@ -11,7 +12,6 @@ import '../../styles/report-editorial.css';
 import ChartCards from '../../components/ChartCards.astro';
 import { loadAllReports, loadMarkdown, loadChart } from '../../lib/reports.ts';
 import { renderMarkdown } from '../../lib/markdown.ts';
-import { buildAsiaReportSvg } from '../../lib/asia-report-image.ts';
 
 export function getStaticPaths() {
   return loadAllReports().map((report) => ({ params: { id: report.id }, props: { report } }));
@@ -37,12 +37,12 @@ const chartSources = [...new Map((charts || []).flatMap((chart) => (chart.points
       <nav class="crumb"><a href={`${base}/?locale=zh-CN`}>← 返回日报首页</a></nav>
       <div class="report-heading"><p class="section-note"><time datetime={report.date}>{report.date}</time></p><span class="eyebrow">{report.kind === 'morning' ? '历史晨报' : '亚洲市场晚报'}</span><h1>{report.title}</h1><p>{report.summary}</p>{report.generation_mode === 'backfill' && <p class="backfill-note">这份报告是后续补发的，生成时间见报告正文。</p>}<a class="source-link" href={`${base}/${report.source_url}`}>查看 Markdown 原文</a></div>
       {visualReport ? <section class="panel" aria-label="亚洲市场图文复盘">
-        <AsiaNativeReport report={report} markdown={markdown} locale="zh" />
+        <AsiaNativeReport report={report} markdown={markdown} charts={charts || []} locale="zh" />
         <div class="link-row report-actions"><button type="button" id="download-asia-report" data-report-image data-report-date={report.date} data-report-kind="asia-daily" data-chart-target="#asia-daily-chart svg" data-status-target="#asia-chart-download-status">下载图片版 PNG</button></div>
         <p id="asia-chart-download-status" class="section-note" role="status" aria-live="polite"></p>
         <details class="report-export secondary-report" data-report-export><summary>{reportEditorialLabels.zh.imageView}</summary><div class="market-chart-graphic market-report-graphic" id="asia-daily-chart" set:html={visualReport} /></details>
         <details class="secondary-report"><summary>阅读完整报告与来源</summary><article class="report-body markdown-body" set:html={body} /><ChartCards reportId={report.id} interactive={false} />{chartSources.length > 0 && <><h3>图表来源</h3><ul>{chartSources.map(([href, label]) => <li><a href={href} target="_blank" rel="noreferrer">{label} · {href}</a></li>)}</ul></>}</details>
-      </section> : report.kind === 'evening' ? <AsiaNativeReport report={report} markdown={markdown} locale="zh" /> : <><ChartCards reportId={report.id} /><article class="panel report-body markdown-body" set:html={body} /></>}
+      </section> : report.kind === 'evening' ? <AsiaNativeReport report={report} markdown={markdown} charts={charts || []} locale="zh" /> : <><ChartCards reportId={report.id} /><article class="panel report-body markdown-body" set:html={body} /></>}
       {report.kind === 'evening' && <AsiaNews reportId={report.id} locale="zh-CN" />}
     </main>
     <footer class="footer"><span>QUANT MARKET INTEL</span><span>市场信息仅供研究参考</span></footer>

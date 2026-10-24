@@ -1,0 +1,49 @@
+---
+import type {ReportDocument} from '../lib/report-document';
+import {reportRowGeometry,reportLineGeometry} from '../lib/report-document-geometry';
+import {reportDocumentLabels} from '../lib/report-document-labels';
+interface Props {document:ReportDocument}
+const {document}=Astro.props;const weekly=document.id.endsWith('-weekly');const t=reportDocumentLabels[document.locale];
+const number=(v:number)=>v.toLocaleString(document.locale==='en'?'en-US':'zh-CN',{maximumFractionDigits:2});
+---
+<div class:list={["report-document",{"document-weekly":weekly}]} data-report-document={document.id} data-weekly-trend-grid={weekly?true:undefined}>
+ {document.panels.map(panel=>{
+  const chart=panel.kind==='line'?reportLineGeometry(panel):null;
+  const total=(panel.rows??[]).reduce((n,r)=>n+(typeof r.value==='number'&&r.value>=0?r.value:0),0);
+  const Panel=panel.disclosure?'details':'section';const Heading=panel.disclosure?'summary':'header';
+  return <Panel class:list={["report-section document-panel",{"document-line-panel":panel.kind==='line'}]} data-report-panel={panel.id} data-weekly-static-chart={weekly&&panel.kind==='line'?true:undefined}>
+   <Heading class="document-heading"><h3>{panel.title}</h3>{panel.unit&&<span>{panel.unit}</span>}</Heading>
+   {panel.kind==='stack'&&panel.rows?.length?<>
+    <div class="document-stack" aria-hidden="true">{panel.rows.map((row,i)=><span style={`width:${total?(row.value??0)/total*100:0}%;background:var(--desk-${row.tone??(['positive','negative','muted'][i%3])})`}></span>)}</div>
+    <dl class="document-stack-labels">{panel.rows.map(row=><div data-report-row={row.id}><dt>{row.label}</dt><dd>{row.valueText??row.value??'—'}</dd></div>)}</dl>
+   </>:panel.kind==='stack-history'&&panel.series?.length?<div class="document-history-stacks">
+    <p class="report-caption">{panel.series.map(s=>s.label).join(' / ')}</p>
+    {panel.series[0].values.map(point=>{const values=panel.series!.map(s=>s.values.find(r=>r.date===point.date)?.value);const sum=values.reduce<number>((n,v)=>n+(v??0),0);return <div class="document-history-row"><time>{point.date}</time><div class="document-stack" aria-hidden="true">{values.map((v,i)=><span style={`width:${sum?(v??0)/sum*100:0}%;background:var(--desk-${['positive','negative','muted'][i%3]})`}></span>)}</div><p class="report-caption">{values.map(v=>v===undefined?'—':number(v)).join(' / ')}</p></div>;})}
+   </div>:panel.kind==='line'?chart?<figure class="document-trend">
+    <div class="document-plot"><div class="document-ticks">{[chart.max,(chart.max+chart.min)/2,chart.min].map((value,i)=><span style={`top:${i*50}%`}>{number(value)}</span>)}</div>
+     <svg viewBox="0 0 640 190" preserveAspectRatio="none" role="img" aria-label={panel.title}>
+      <title>{panel.title}</title>{[8,95,182].map(y=><line x1="4" x2="636" y1={y} y2={y} class="document-gridline"/>)}
+      {chart.series.map((series,i)=><polyline points={series.points} class="document-series" style={`stroke:var(--desk-${i%2?'negative':'positive'})`}/>)}
+     </svg></div>
+    <figcaption>{chart.series.map(series=><p>{series.label} · <time>{series.values[0].date}</time> — <time>{series.values.at(-1)!.date}</time> · {series.values.length} {t.observations}</p>)}</figcaption>
+   </figure>:<p class="report-caveat">{t.missing}</p>:<div class="document-rows">{(panel.rows??[]).map(row=>{
+    const geometry=reportRowGeometry(panel,row);
+    return <div class:list={['document-row',{'document-prose-row':panel.kind==='text'}]} data-report-row={row.id}>
+     <div class="document-row-heading"><h4>{row.label}</h4>{row.valueText&&<strong class={geometry?.tone}>{row.valueText}</strong>}</div>
+     {row.cells?.length&&<dl class="document-cells">{row.cells.map(cell=><div><dt>{cell.label}</dt><dd>{cell.text}</dd></div>)}</dl>}
+     {geometry&&<div class="document-bar" aria-hidden="true"><span class="document-zero" style={`left:${geometry.zero}%`}></span><span class:list={['document-bar-fill',geometry.tone]} style={`left:${geometry.left}%;width:${geometry.width}%`}></span></div>}
+     {row.scale&&geometry&&<p class="document-axis">{t.axis}: {number(geometry.min)} … {number(geometry.max)}{panel.unit?' '+panel.unit:''}</p>}
+     {row.details?.map(detail=><p class="report-caption">{detail}</p>)}
+     {(row.observationDate||row.sources?.length)&&<p class="report-caption document-evidence">{row.observationDate&&<time datetime={row.observationDate}>{row.observationDate}</time>}{row.sources?.map(source=><a href={source.url} rel="noreferrer">{source.label}</a>)}</p>}
+     {row.records?.length&&<details class="document-records"><summary>{t.records}</summary>{row.records.map(record=><p class="report-caption">{record}</p>)}</details>}
+    </div>;
+   })}</div>}
+   {panel.paragraphs?.map(paragraph=><p class="document-paragraph">{paragraph}</p>)}
+   {panel.notes?.map(note=>note.trim()&&<p class="report-caveat">{note}</p>)}
+   {panel.sources?.length&&<p class="report-caption document-evidence">{panel.sources.map(source=><a href={source.url} rel="noreferrer">{source.label}</a>)}</p>}
+  </Panel>;
+ })}
+ {document.notes?.map(note=><p class="report-caveat">{note}</p>)}
+ {document.records?.length&&<details class="document-records"><summary>{t.records}</summary>{document.records.map(record=><p class="report-caption">{record}</p>)}</details>}
+ {document.sources?.length&&<details class="document-records"><summary>{t.source}</summary><ul>{document.sources.map(source=><li><a href={source.url} rel="noreferrer">{source.label}</a></li>)}</ul></details>}
+</div>

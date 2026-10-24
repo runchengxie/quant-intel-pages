@@ -109,7 +109,7 @@ test('Astro emits a readable recent-report site with Asian market chart states',
     assert.match(asia, /A 股今日休市/);
     assert.doesNotMatch(asia, /综合盘面/);
   } else {
-    assert.match(asia, /亚洲市场图表/);
+    assert.match(asia, /data-report-panel="indices"/);
     assert.match(asia, /综合盘面/);
   }
   assert.doesNotMatch(asia, /美股隔夜图/);

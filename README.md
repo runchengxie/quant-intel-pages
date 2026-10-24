@@ -96,8 +96,14 @@ evidence tables; the full report no longer requires dragging a fixed-width SVG
 on a phone. Complete admitted facts, source dates, session states, caveats and
 reviewed evidence remain available without JavaScript.
 
-The existing SVG remains in an optional **Image edition** section. Its container
-IDs, image identity controls and renderer output are preserved for downloads and
-the Deploy image publisher. This website change does not regenerate published
-weekly PNGs or alter Feishu delivery and receipts. Weekly retains four native
-trend panels, lazy interactive views, originals and dated history links.
+Native pages and downloadable SVGs now render the same report document, using
+shared typography, colors, chart geometry and validated facts. Each security row
+combines its closing level or price with its return bar. Asia retains the image
+edition's chart inventory; additional rows, evidence and the full original are
+available in folded sections rather than repeated below the charts.
+
+The optional **Image edition** preserves the publisher's container IDs and image
+identity controls. Weekly offers a newly styled derivative while retaining the
+immutable original published PNG. The delivery integration uses the derivative
+for future sends; existing delivery receipts remain authoritative. Weekly also
+retains four native trend panels, lazy interactive views and dated history links.

@@ -1,63 +1,9 @@
 ---
 import type { MarketDailySummary } from '../lib/market-facts.ts';
-import { buildUsNativeReport } from '../lib/us-native-report.ts';
-import { usNativeLabel } from '../lib/us-native-locale.ts';
+import { buildUsReportDocument } from '../lib/us-report-document.ts';
+import ReportDocumentView from './ReportDocumentView.astro';
 interface Props { summary: MarketDailySummary; locale: 'en' | 'zh' }
 const { summary, locale } = Astro.props;
-const model = buildUsNativeReport(summary, locale);
-const t = (key: Parameters<typeof usNativeLabel>[0]) => usNativeLabel(key, locale);
-const number = (value: number, digits = 10) => value.toLocaleString(locale === 'en' ? 'en-US' : 'zh-CN', { maximumFractionDigits: digits });
-const chartIds = new Set(model.charts.flatMap(chart => chart.rows.map(row => row.id)));
-const metricIds = new Set(model.keyMetrics.flatMap(row => [row.id, ...(row.close ? [row.close.id] : [])]));
-const otherFacts = model.facts.filter(row => !chartIds.has(row.id) && !metricIds.has(row.id));
+const document = buildUsReportDocument(summary, locale);
 ---
-<article class="report-native" data-native-us>
-  <header><p class="report-caption">{t('title')} · <time datetime={summary.date}>{summary.date}</time></p></header>
-  {model.keyMetrics.length > 0 && <dl class="report-stats">{model.keyMetrics.map(row => <div class="report-metric" data-key-metric={row.id}>
-    <dt>{row.label}</dt><dd><strong style={`color:var(${row.value < 0 ? '--desk-negative' : '--desk-positive'})`}>{row.valueText}</strong></dd>
-    <dd class="report-caption">{row.close ? `${t('indexClose')}: ${number(row.close.value, 2)}` : `${t('indexClose')}: ${t('missing')}`}</dd>
-    <dd class="report-caption"><time datetime={row.observationDate}>{row.observationDate}</time> · <a href={row.sourceUrl} rel="noopener noreferrer">{row.sourceLabel}</a></dd>
-  </div>)}</dl>}
-  {model.caveats.map(note => <p class="report-caveat">{note}</p>)}
-  {model.treasuryNote && <aside class="report-caveat"><p>{model.treasuryNote}</p>{model.treasuryChecked && <p>{model.treasuryChecked}</p>}</aside>}
-  <section class="report-section" aria-label={t('figures')}>
-    <div class="report-layout">
-      {model.charts.map(chart => <figure class="native-chart">
-        <figcaption><h3>{chart.title}</h3><p class="report-caption">{chart.unit}</p></figcaption>
-        <ul class="native-chart-rows">
-          {chart.rows.map(row => <li class="native-chart-row">
-            <div class="native-chart-label"><span>{row.label}</span> <strong>{row.valueText}</strong></div>
-            <div class:list={['native-return', { 'native-level': chart.kind === 'level' }]} aria-hidden="true" style="position:relative;height:0.7rem;background:var(--desk-soft,var(--desk-line,#e8e8e8))">
-              <span style={`position:absolute;height:100%;width:${row.width * (chart.kind === 'level' ? 1 : 0.5)}%;left:${chart.kind === 'level' ? 0 : row.value < 0 ? 50 - row.width / 2 : 50}%;background:${row.value < 0 ? 'var(--desk-negative,#a43d42)' : 'var(--desk-positive,#356091)'}`}></span>
-              {chart.kind !== 'level' && <span style="position:absolute;left:50%;height:100%;border-left:1px solid var(--report-ink,#292929)"></span>}
-            </div>
-            <p class="report-caption"><time datetime={row.observationDate}>{row.observationDate}</time> · <a href={row.sourceUrl} rel="noopener noreferrer">{row.sourceLabel}</a></p>
-          </li>)}
-        </ul>
-      </figure>)}
-    </div>
-    {otherFacts.length > 0 && <dl class="report-stats">{otherFacts.map(row => <div class="report-metric" data-fact-id={row.id}>
-      <dt>{row.label}</dt><dd><strong>{number(row.value)}</strong> {row.unit}</dd>
-      <dd class="report-caption">{row.instrument} · <time datetime={row.observationDate}>{row.observationDate}</time> · <a href={row.sourceUrl} rel="noopener noreferrer">{row.sourceLabel}</a></dd>
-    </div>)}</dl>}
-    <details><summary>{t('exact')}</summary>
-      <div class="native-table-wrap"><table>
-        <caption>{t('exact')}</caption>
-        <thead><tr><th scope="col">{t('fact')}</th><th scope="col">{t('value')}</th><th scope="col">{t('unit')}</th><th scope="col">{t('observed')}</th><th scope="col">{t('source')}</th><th scope="col">{t('quality')}</th></tr></thead>
-        <tbody>{model.facts.map(row => <tr data-fact-id={row.id}><th scope="row">{row.label}<small>{row.id}{row.instrument && ` · ${row.instrument}`}</small></th><td>{String(row.value)}</td><td>{row.unit}</td><td><time datetime={row.observationDate}>{row.observationDate}</time></td><td><a href={row.sourceUrl} rel="noopener noreferrer">{row.sourceLabel}</a></td><td>{row.quality}</td></tr>)}</tbody>
-      </table></div>
-    </details>
-  </section>
-  <section class="report-section" aria-label={t('research')}>
-    <h3>{t('research')}</h3>
-    {model.sections.length === 0 && <p class="report-caveat">{t('noResearch')}</p>}
-    {model.sections.map(section => <section class="report-section" data-research-section={section.key}>
-      <h4>{section.title}</h4>
-      {section.claims.map(claim => <div class="native-claim"><p>{claim.text}</p>
-        {claim.publication.map(line => <p class="report-caption">{line}</p>)}
-        <ul class="report-caption">{claim.sourceUrls.map((url, index) => <li><a href={url} rel="noopener noreferrer">{t('evidence')} {index + 1} · {new URL(url).hostname}</a></li>)}</ul>
-      </div>)}
-    </section>)}
-    {model.missingNews.map(title => <p class="report-caveat">{title}: {t('noResearch')}</p>)}
-  </section>
-</article>
+<article class="report-native" data-native-us><ReportDocumentView document={document}/></article>

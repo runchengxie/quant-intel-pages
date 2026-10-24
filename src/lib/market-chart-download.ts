@@ -1,11 +1,11 @@
-type ChartKind = 'market-daily' | 'asia-daily';
+type ChartKind = 'market-daily' | 'asia-daily' | 'weekly';
 
 function serializeSvgWithResolvedTheme(svg: SVGElement): string {
   const clone = svg.cloneNode(true) as SVGElement;
   if (typeof getComputedStyle === 'function') {
     try {
       const computed = getComputedStyle(svg);
-      for (const name of ['--report-bg', '--report-ink', '--report-muted', '--report-track', '--report-line']) {
+      for (const name of ['--report-bg', '--report-ink', '--report-muted', '--report-track', '--report-line', '--report-positive', '--report-negative', '--report-accent']) {
         const value = computed.getPropertyValue(name).trim();
         if (value) clone.style.setProperty(name, value);
       }
@@ -18,7 +18,7 @@ function serializeSvgWithResolvedTheme(svg: SVGElement): string {
 
 export async function downloadMarketChartPng(svg: SVGElement, date: string, kind: ChartKind = 'market-daily'): Promise<void> {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('无效报告日期');
-  if (!['market-daily', 'asia-daily'].includes(kind)) throw new Error('无效报告类型');
+  if (!['market-daily', 'asia-daily', 'weekly'].includes(kind)) throw new Error('无效报告类型');
   const width = Number(svg?.getAttribute('width'));
   const height = Number(svg?.getAttribute('height'));
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
