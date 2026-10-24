@@ -1,6 +1,7 @@
 ---
 import '../styles/site.css';
 import '../styles/editorial.css';
+import '../styles/report-editorial.css';
 import SiteHeader from './SiteHeader.astro';
 import ThemeInit from './ThemeInit.astro';
 import { siteLabels, type SiteLocale } from '../lib/site-locale';
@@ -19,7 +20,7 @@ const switchHref = `${base}/${locale === 'en' ? '' : 'en/'}about/${locale === 'e
     <ThemeInit />
     {locale === 'zh' && <script is:inline define:vars={{ englishRoute: `${base}/en/about/` }}>if (new URLSearchParams(location.search).get('locale') !== 'zh-CN') location.replace(englishRoute + location.hash);</script>}
   </head>
-  <body>
+  <body class="editorial-site">
     <SiteHeader locale={locale} active="about" switchHref={switchHref} />
     <main class="report-shell about-page">
       <section class="panel"><h1>{t.aboutTitle}</h1><p class="intro">{t.intro}</p>

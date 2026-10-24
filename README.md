@@ -86,3 +86,18 @@ and About, followed by language and theme controls. The language switch retains 
 current edition or home section; the theme follows the system until explicitly chosen
 and persists across pages. `/en/about/` and `/about/?locale=zh-CN` explain the reports,
 dates, sources and limitations, and link to detailed methods.
+
+## Editorial report reading
+
+U.S. morning, Asia evening and weekly reports share a serif heading system,
+neutral paper palette, accessible light/dark tokens and ruled metric strips.
+Daily reading uses native HTML with independently sized figures and scrollable
+evidence tables; the full report no longer requires dragging a fixed-width SVG
+on a phone. Complete admitted facts, source dates, session states, caveats and
+reviewed evidence remain available without JavaScript.
+
+The existing SVG remains in an optional **Image edition** section. Its container
+IDs, image identity controls and renderer output are preserved for downloads and
+the Deploy image publisher. This website change does not regenerate published
+weekly PNGs or alter Feishu delivery and receipts. Weekly retains four native
+trend panels, lazy interactive views, originals and dated history links.

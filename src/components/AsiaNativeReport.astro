@@ -1,0 +1,34 @@
+---
+import { buildAsiaNativeReport, type AsiaNativeReportSource } from '../lib/asia-native-report.ts';
+import { ASIA_NATIVE_LOCALE } from '../lib/asia-native-locale.ts';
+interface Props { report: AsiaNativeReportSource; markdown: string; locale?: 'en' | 'zh'; }
+const { report, markdown, locale = 'en' } = Astro.props;
+const labels = ASIA_NATIVE_LOCALE[locale];
+const native = buildAsiaNativeReport(report, markdown, locale);
+---
+<article class="report-native" data-native-asia data-report-id={report.id}>
+  <p class="report-caveat">{labels.sessionNote}</p>
+  {native.returns.length > 0 && <section class="report-section">
+    <h3>{labels.returns}</h3>
+    <p class="report-caption">{labels.returnNote}</p>
+    <div class="report-stats">
+      {native.returns.map(row => <div class="report-metric">
+        <h4>{row.label}</h4>
+        <p class:list={['native-return', row.value < 0 ? 'negative' : row.value > 0 ? 'positive' : 'neutral']}>{row.display}</p>
+        <svg class="native-chart" viewBox="0 0 240 24" width="240" height="24" aria-hidden="true" style="max-width:100%;height:auto">
+          <line x1="120" x2="120" y1="0" y2="24" stroke="currentColor" opacity="0.4" />
+          <rect x={row.value < 0 ? 120 - Math.abs(row.value) / native.extent * 116 : 120} y="6" width={Math.abs(row.value) / native.extent * 116} height="12" fill="currentColor" class:list={[row.value < 0 ? 'negative' : 'positive']} />
+        </svg>
+        <p class="report-caption">{labels.close}: {row.close}</p>
+        <p class="report-caption">{row.date ? `${labels.session}: ${row.date}` : labels.dateUnspecified}</p>
+        {row.turnover !== null && <p class="report-caption">{labels.turnover}: {row.turnover}</p>}
+      </div>)}
+    </div>
+  </section>}
+  <section class="report-section">
+    <h3>{labels.evidence}</h3>
+    <p class="report-caveat">{labels.scoreNote}</p>
+    {locale === 'en' && <p class="report-caption">{labels.translationNote}</p>}
+    <div class="markdown-body native-asia-body" set:html={native.bodyHtml} />
+  </section>
+</article>
