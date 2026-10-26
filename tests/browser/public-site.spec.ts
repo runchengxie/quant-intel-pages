@@ -1,4 +1,5 @@
 import { historicalEvening, asiaNews } from './daily-source';
+import { ASIA_NEWS_LABELS } from '../../src/lib/locale';
 import { readFile } from 'node:fs/promises';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
@@ -68,6 +69,8 @@ test('both locales separate China and Hong Kong news and preserve the published 
       const section = news.locator(`[data-news-market="${market}"]`);
       const items = asiaNews?.markets[market] ?? [];
       await expect(section.locator('article')).toHaveCount(items.length);
+      await expect(section.locator('.empty')).toHaveCount(items.length ? 0 : 1);
+      if (!items.length) await expect(section.locator('.empty')).toHaveText(ASIA_NEWS_LABELS.missing[route.language === 'en-US' ? 1 : 0]);
       for (const item of items) {
         const article = section.locator(`[data-evidence-id="${item.evidence_id}"]`);
         await expect(article).toContainText(route.language === 'en-US' ? item.claim_en ?? item.claim : item.claim);
@@ -77,7 +80,6 @@ test('both locales separate China and Hong Kong news and preserve the published 
     }
     await expect(page.locator('[data-native-asia]')).toBeVisible();
     await expect(page.locator('#asia-daily-chart svg')).toBeHidden();
-    if (route.language === 'en-US') await expect(news).not.toContainText('暂无');
   }
 });
 
