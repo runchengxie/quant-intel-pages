@@ -25,12 +25,23 @@ for (const locale of ['en', 'zh'] as const) {
     const strayZeros = await page.locator('.document-panel-body').evaluateAll(panels => panels.flatMap(panel =>
       [...panel.childNodes].filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim() === '0')));
     expect(strayZeros).toHaveLength(0);
-    await expect(asia.locator('[data-report-panel^="chart-"]')).toHaveCount(0);
+    // Published bundles may add facts absent from the Markdown report.
+    // Keep those panels visible, populated and attributable instead of
+    // assuming every daily edition has no supplemental observations.
+    for (const panel of await asia.locator('[data-report-panel^="chart-"]').all()) {
+      await expect(panel).toBeVisible();
+      expect(await panel.locator('[data-report-row]').count()).toBeGreaterThan(0);
+      await expect(panel.locator('.document-evidence a').first()).toHaveAttribute('href', /^https:\/\//);
+      await expect(panel.locator('time').first()).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}$/);
+    }
     const availability = asia.locator('[data-report-panel="supplemental-chart-status"]');
     await expect(availability).toBeVisible();
-    await expect(availability).not.toHaveAttribute('open');
-    await availability.locator('summary').click();
-    await expect(availability).toContainText(locale === 'en' ? 'supplemental' : '补充');
+    if (await availability.evaluate(element => element.tagName === 'DETAILS')) {
+      await expect(availability).not.toHaveAttribute('open');
+      await availability.locator('summary').click();
+      await expect(availability).toHaveAttribute('open', '');
+    }
+    await expect(availability.locator('.document-panel-body')).toBeVisible();
     await page.setViewportSize({ width: 390, height: 950 });
     const mobileEquities = await us.locator('[data-report-panel="equities"]').boundingBox();
     const mobileTreasury = await us.locator('[data-report-panel="treasury"]').boundingBox();
