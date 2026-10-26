@@ -73,3 +73,16 @@ test('macro units are readable in both locales and repeated values/quality stay 
   assert.ok(rows.every(r=>r.observationDate==='2026-09-01'&&r.sources.length===1));
  }
 });
+
+test('rolling daily closes and partial editions use each source value rather than an earlier close',()=>{
+ for(const [date,close,formatted] of [['2026-10-23',7623.68,'7,623.68'],['2026-10-26',7676.77,'7,676.77']]) {
+  const s=summary();s.date=date;s.rows=s.rows.map(row=>({...row,observationDate:date,value:row.id==='index.spx.close'?close:row.value}));
+  for(const locale of ['en','zh']) {
+   const doc=buildUsReportDocument(s,locale);
+   const row=doc.panels.find(panel=>panel.id==='indices').rows[0];
+   assert.equal(doc.date,date);assert.equal(row.observationDate,date);
+   assert.equal(row.cells[0].text,formatted);
+   assert.ok(!doc.panels.some(panel=>['equities','treasury'].includes(panel.id)));
+  }
+ }
+});
