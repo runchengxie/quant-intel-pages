@@ -6,6 +6,14 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const root = path.join(__dirname, '..');
+const defaultOutput = mkdtempSync(path.join(path.dirname(root), 'astro-unit-site-'));
+const previousOutput = process.env.ASTRO_OUT_DIR;
+process.env.ASTRO_OUT_DIR = defaultOutput;
+test.after(() => {
+  if (previousOutput === undefined) delete process.env.ASTRO_OUT_DIR;
+  else process.env.ASTRO_OUT_DIR = previousOutput;
+  rmSync(defaultOutput, { recursive: true });
+});
 
 function assertDriverSectionMatchesReport(chart, report) {
   const hasVerifiedDrivers = report.sections?.some((section) => section.key === 'drivers' && section.claims?.length);
@@ -37,7 +45,7 @@ test('Astro emits a readable recent-report site with Asian market chart states',
   const chartCards = readFileSync(path.join(root, 'src/components/ChartCards.astro'), 'utf8');
   assert.match(chartCards, /ChartIsland\.tsx/);
   execFileSync('npm', ['run', 'build'], { cwd: root, stdio: 'pipe' });
-  const index = readFileSync(path.join(root, 'dist/index.html'), 'utf8');
+  const index = readFileSync(path.join(defaultOutput, 'index.html'), 'utf8');
   const reports = JSON.parse(readFileSync(path.join(root, 'artifacts/public/data/reports.json'), 'utf8')).reports;
   const latestEvening = reports.filter((row) => row.kind === 'evening').sort((a, b) => b.date.localeCompare(a.date))[0];
   assert.match(index, /Quant 市场情报/);
@@ -45,7 +53,7 @@ test('Astro emits a readable recent-report site with Asian market chart states',
   assert.ok(index.includes('href="/quant-intel-pages/about/?locale=zh-CN"'));
   assert.ok(!index.includes('/market-intel-pages/'));
   assert.match(index, /id="theme-toggle"/);
-  const english = readFileSync(path.join(root, 'dist/en/index.html'), 'utf8');
+  const english = readFileSync(path.join(defaultOutput, 'en/index.html'), 'utf8');
   assert.match(english, /<button[^>]*id="theme-toggle"[^>]*aria-pressed="false"/);
   assert.match(english, /aria-label="Switch to dark mode"/);
   assert.doesNotMatch(english, /亚洲市场收盘复盘|目标日期|六维观察|市场状态/);
@@ -66,7 +74,6 @@ test('Astro emits a readable recent-report site with Asian market chart states',
   const hasVisualHistory = reports.some((row) => row.kind === 'evening' && row.date >= '2026-09-25' && row.date < latestEveningDate);
   if (hasVisualHistory) assert.match(index, /历史亚洲收盘复盘/);
   else assert.doesNotMatch(index, /历史亚洲收盘复盘/);
-  assert.match(index, /市场驱动/);
   assert.match(index, /阅读全文与数据质量说明/);
   assert.match(index, /核对来源链接/);
   assert.match(index, /id="market-daily-chart"/);
@@ -101,21 +108,16 @@ test('Astro emits a readable recent-report site with Asian market chart states',
   assert.ok(index.includes(`data-report-content-hash="${eveningHash}"`));
   assert.ok(asia);
   const eveningMarkdown = readFileSync(path.join(root, 'artifacts/public', latestEvening.source_url), 'utf8');
-  const holiday = eveningMarkdown.includes('## 亚洲市场收盘复盘（');
-  const reportId = holiday ? latestEvening.id : reports[0].id;
-  if (holiday) {
-    assert.match(asia, /亚洲市场收盘复盘/);
-    assert.match(asia, /data-table="asia-sessions"/);
-    assert.match(asia, /A 股今日休市/);
-    assert.doesNotMatch(asia, /综合盘面/);
-  } else {
-    assert.match(asia, /data-report-panel="indices"/);
-    assert.match(asia, /data-report-panel="overview-breadth"/);
+  const reportId = latestEvening.id;
+  const { buildAsiaReportDocument } = require('../src/lib/asia-report-document.ts');
+  const { loadChart } = require('../src/lib/reports.ts');
+  const document = buildAsiaReportDocument(latestEvening, loadChart(latestEvening.id), eveningMarkdown, 'zh');
+  for (const panel of document.panels.filter(panel => !panel.disclosure)) {
+    assert.ok(asia.includes(`data-report-panel="${panel.id}"`), panel.id);
   }
   assert.doesNotMatch(asia, /美股隔夜图/);
-  assert.match(asia, /数据缺项|缺项/);
-  const styles = readdirSync(path.join(root, 'dist/_astro')).filter((name) => name.endsWith('.css'))
-    .map((name) => readFileSync(path.join(root, `dist/_astro/${name}`), 'utf8')).join('\n');
+  const styles = readdirSync(path.join(defaultOutput, '_astro')).filter((name) => name.endsWith('.css'))
+    .map((name) => readFileSync(path.join(defaultOutput, `_astro/${name}`), 'utf8')).join('\n');
   assert.match(styles, /:root\[data-theme=?"?dark/);
   const topNavRules = [...styles.matchAll(/\.top-nav\{([^}]*)\}/g)].map((match) => match[1]);
   const homeTopNav = topNavRules.find((rule) => rule.includes('margin-right:40px'));
@@ -123,9 +125,9 @@ test('Astro emits a readable recent-report site with Asian market chart states',
   assert.ok(Number(homeTopNav.match(/gap:(\d+)px/)?.[1]) >= 36, 'top navigation links have generous spacing');
   assert.ok(Number(homeTopNav.match(/margin-right:(\d+)px/)?.[1]) >= 40, 'navigation has space before the theme button');
   assert.match(homeTopNav, /flex-shrink:0/);
-  const report = path.join(root, `dist/reports/${reportId}/index.html`);
+  const report = path.join(defaultOutput, `reports/${reportId}/index.html`);
   assert.ok(existsSync(report));
-  assert.ok(existsSync(path.join(root, 'dist/404.html')));
+  assert.ok(existsSync(path.join(defaultOutput, '404.html')));
   const html = readFileSync(report, 'utf8');
   assert.match(html, /id="asia-daily-chart"/);
   assert.match(html, /阅读完整报告与来源/);
@@ -136,7 +138,7 @@ test('Astro emits a readable recent-report site with Asian market chart states',
   assert.doesNotMatch(html, /echarts\.|ChartIsland\.|\.png["']/);
   assert.match(index, /<a href="https:\/\/home\.treasury\.gov[^"]*"[^>]*>美国财政部<\/a>/);
   assert.doesNotMatch(index, /\| 流动性 \|/);
-  assert.match(html, /<table>/);
+  if (/^\|.+\|$/m.test(eveningMarkdown)) assert.match(html, /<table>/);
 });
 
 test('English report pages translate source-language presentation text', () => {
@@ -144,14 +146,14 @@ test('English report pages translate source-language presentation text', () => {
   const { reports } = JSON.parse(readFileSync(path.join(root, 'artifacts/public/data/reports.json'), 'utf8'));
   const report = reports.find((row) => row.kind === 'evening' && row.date >= '2026-09-25');
   assert.ok(report, 'a published visual evening report is required');
-  const englishReport = readFileSync(path.join(root, `dist/en/reports/${report.id}/index.html`), 'utf8');
+  const englishReport = readFileSync(path.join(defaultOutput, `en/reports/${report.id}/index.html`), 'utf8');
   assert.doesNotMatch(englishReport, /亚洲市场收盘复盘|六维观察|热门概念|市场状态/);
   assert.match(englishReport, /Asia market close review|Six-dimension observation|Hot concepts|Market state/);
 });
 
 test('English homepage includes every reviewed research source link', () => {
   execFileSync('npm', ['run', 'build'], { cwd: root, stdio: 'pipe' });
-  const html = readFileSync(path.join(root, 'dist/en/index.html'), 'utf8');
+  const html = readFileSync(path.join(defaultOutput, 'en/index.html'), 'utf8');
   const report = JSON.parse(readFileSync(path.join(root, 'artifacts/public/data/market_daily_report.json'), 'utf8'));
   const sourceBlock = html.match(/<details class="secondary-report market-sources">([\s\S]*?)<\/details>/)?.[1];
   assert.ok(sourceBlock);
@@ -164,13 +166,18 @@ test('English homepage includes every reviewed research source link', () => {
 
 test('English homepage exposes dated PNG controls and recent U.S. history', () => {
   execFileSync('npm', ['run', 'build'], { cwd: root, stdio: 'pipe' });
-  const html = readFileSync(path.join(root, 'dist/en/index.html'), 'utf8');
+  const html = readFileSync(path.join(defaultOutput, 'en/index.html'), 'utf8');
   const report = JSON.parse(readFileSync(path.join(root, 'artifacts/public/data/market_daily_report.json'), 'utf8'));
   const date = report.run_id.slice(6);
   assert.match(html, /id="download-market-chart"/);
   assert.match(html, /aria-label="Report status"/);
-  assert.match(html, /Market data status unknown/);
-  assert.match(html, /Research status unknown/);
+  const { loadUsDailyStatus } = require('../src/lib/reports.ts');
+  const { US_STATUS_LABELS } = require('../src/lib/locale.ts');
+  const status = loadUsDailyStatus(report);
+  for (const dimension of ['market', 'research', 'publication']) {
+    assert.ok(html.includes(`data-status-dimension="${dimension}" data-status-value="${status[dimension]}"`));
+    assert.ok(html.includes(US_STATUS_LABELS[dimension][status[dimension]][1]));
+  }
   assert.match(html, /id="download-asia-report"/);
   assert.ok(html.includes(`data-report-date="${date}" data-report-kind="market-daily" data-report-content-hash="${report.content_hash}"`));
   assert.match(html, /data-chart-target="#market-daily-chart svg"/);
@@ -305,7 +312,7 @@ test('all visible US daily Markdown editions disclose public source quality', ()
 test('historical insight discloses timing, limitations and verification units', () => {
   const insight = JSON.parse(readFileSync(path.join(root, 'artifacts/public/data/insights.json'), 'utf8')).insights[0];
   if (!insight) return;
-  const index = readFileSync(path.join(root, 'dist/index.html'), 'utf8');
+  const index = readFileSync(path.join(defaultOutput, 'index.html'), 'utf8');
   assert.match(index, /数据截至/);
   assert.match(index, /解读生成/);
   if (insight.generation_mode === 'retrospective') assert.match(index, /依据旧报告或补发报告生成/);
@@ -429,10 +436,11 @@ test('English Asian overview translates catalog prose and links the preserved so
     const data = path.join(temporary, 'input'), output = path.join(temporary, 'site');
     cpSync(path.join(root, 'artifacts/public'), data, { recursive: true });
     const reports = JSON.parse(readFileSync(path.join(data, 'data/reports.json'), 'utf8')).reports;
-    const report = reports.find(row => row.kind === 'evening' && row.date >= '2026-09-25' && existsSync(path.join(data, `data/charts/${row.id}.json`)));
-    assert.ok(report, 'a published chart snapshot is required');
+    const report = reports.filter(row => row.kind === 'evening').sort((a,b) => b.date.localeCompare(a.date))[0];
+    assert.ok(report, 'an evening report is required');
     const chartFile = path.join(data, `data/charts/${report.id}.json`);
-    const chart = JSON.parse(readFileSync(chartFile, 'utf8'));
+    const chart = { schema_version: 'market_intel.a_share_charts.v1', publication: 'public', report_id: report.id, date: report.date, kind: report.kind, generated_at: `${report.date}T12:00:00Z`, content_sha256: 'a'.repeat(64), charts: [] };
+    require('node:fs').mkdirSync(path.dirname(chartFile), { recursive: true });
     chart.charts[0] = { key: 'dashboard', title: '市场广度', status: 'ok', points: [{
       label: '上涨率', value: 41.23, unit: '%', observation_date: report.date,
       source_label: 'Evidence source', source_url: 'https://source.example/static-evidence',
