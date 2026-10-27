@@ -25,11 +25,11 @@ Python 与 Node 单元测试位于 `tests/`，Playwright 浏览器回归用例�
 安装要求后，按修改范围运行下列检查。公开数据契约、发布工作流或页面路由变更需要完整检查。站点构建输出必须放在仓库外的临时目录。
 
 ```bash
-ruff check scripts tests tools
-ruff format --check scripts tests tools
-ty check
-vulture scripts tests tools --min-confidence 80
-python -m pytest --cov-report=xml
+uv run ruff check scripts tests tools
+uv run ruff format --check scripts tests tools
+uv run ty check
+uv run vulture scripts tests tools --min-confidence 80
+uv run python -m pytest --cov-report=xml
 npm test
 node --check src/legacy/app.js
 node --check src/legacy/summary-utils.js
@@ -37,7 +37,7 @@ python scripts/build_site.py --output /tmp/quant-market-intel-check
 npm run check
 npm run test:browser
 npm audit
-pip-audit --strict
+uv run pip-audit --strict
 python tools/audit_structure.py --output /tmp/market-intel-structure.json
 git diff --check
 ```
