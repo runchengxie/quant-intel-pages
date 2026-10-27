@@ -19,7 +19,7 @@ export const siteLabels = {
     linksTitle: 'Methods and project source', docs: 'Methods and detailed documentation', source: 'Website source on GitHub',
   },
   zh: {
-    marketDay: '美股交易日（美东时间）', reportDay: '报告日期', usSchedule: '计划发布 07:00 · 北京时间', asiaSchedule: '计划发布 19:00 · 北京时间', generationMissing: '实际生成时间未提供。',
+    marketDay: '美股交易日（美东时间）', reportDay: '报告日期', usSchedule: '计划发布 07:00 · 北京时间', asiaSchedule: '计划发布 19:00 · 北京时间', generationMissing: '实际生成时间未提供',
     navigation: '主导航', us: '美股早报', asia: '亚洲晚报', weekly: '每周风格分析', about: '关于此项目',
     language: 'English', switchDark: '切换深色模式', switchLight: '切换浅色模式',
     aboutTitle: '关于此项目',
