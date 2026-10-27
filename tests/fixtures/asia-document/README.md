@@ -1,0 +1,3 @@
+These retained public snapshots come from Pages revision 369d25d. They cover a complete 2026-10-23 evening document without a supplemental bundle and a 2026-10-22 document with a published bundle and partial financing coverage. Exact parser, count, deduplication, warning, and legacy table expectations must survive removal of these dates from the rolling public window.
+
+Browser daily tests instead read the current public input (or ASTRO_DATA_ROOT), compare the complete admitted document inventory and values, and derive dated routes from the visible five-date window. Weekly browser dates/hashes remain exact because tests/weekly-browser-input.ts installs fixed synthetic weekly fixtures.

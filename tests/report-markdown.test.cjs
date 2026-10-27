@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const reports = require("../artifacts/public/data/reports.json").reports;
+const reports = [require("./fixtures/asia-document/report.json")];
 const { renderReportBlocks } = require("../src/legacy/report-markdown.js");
 
 function element(tagName) {
@@ -67,7 +67,7 @@ test("real A-share six-dimension and TOP10 sections become tables", () => {
   const titles = ["六维观察", "七、行业板块 TOP10"];
   const report = reports.findLast((item) => item.kind === "evening"
     && titles.every((title) => item.sections?.some((section) => section.title === title)));
-  assert.ok(report, "a visible evening report should cover both table sections");
+  assert.ok(report, "the retained public fixture covers both table sections");
   for (const title of titles) {
     const section = report.sections.find((item) => item.title === title);
     const nodes = renderReportBlocks(document, section.paragraphs);

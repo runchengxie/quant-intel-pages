@@ -2,9 +2,18 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const report = {id:'2026-10-23-evening',date:'2026-10-23',kind:'evening'};
-test('complete current image inventory becomes numerical document panels', async () => {
+function loadFixtureChart(id) {
+ const previous=process.env.ASTRO_DATA_ROOT;
+ process.env.ASTRO_DATA_ROOT='tests/fixtures/asia-document';
+ try { return require('../src/lib/reports.ts').loadChart(id); }
+ finally {
+  if(previous===undefined) delete process.env.ASTRO_DATA_ROOT;
+  else process.env.ASTRO_DATA_ROOT=previous;
+ }
+}
+test('retained complete image inventory becomes numerical document panels', async () => {
  const {buildAsiaReportDocument} = await import('../src/lib/asia-report-document.ts');
- const doc = buildAsiaReportDocument(report, [], fs.readFileSync('artifacts/public/reports/2026-10-23-evening.md','utf8'), 'zh');
+ const doc = buildAsiaReportDocument(report, [], fs.readFileSync('tests/fixtures/asia-document/reports/2026-10-23-evening.md','utf8'), 'zh');
  for (const id of ['asia-overview','state','dimensions','indices','overview','distribution','intraday','limits','flow','financing','industry','turnover','concepts','movers','calibration']) assert.ok(doc.panels.some(p=>p.id===id),id);
  assert.equal(doc.panels.find(p=>p.id==='distribution').rows.length,12);
  assert.equal(doc.panels.find(p=>p.id==='distribution').rows[0].tone,'negative');
@@ -19,7 +28,7 @@ test('complete current image inventory becomes numerical document panels', async
 });
 test('validated panels reject malformed distribution and retain warnings', async()=>{
  const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
- const source=fs.readFileSync('artifacts/public/reports/2026-10-23-evening.md','utf8');
+ const source=fs.readFileSync('tests/fixtures/asia-document/reports/2026-10-23-evening.md','utf8');
  const doc=buildAsiaReportDocument(report,[],source.replace('-inf~-9.9%:16','-inf~-9.9%:17').replace('| 流动性 | 86.5 |','| 流动性 | 999 |'),'zh');
  assert.ok(!doc.panels.some(p=>p.id==='distribution'));
  assert.equal(doc.panels.find(p=>p.id==='dimensions').rows[0].value,undefined);
@@ -29,7 +38,7 @@ test('validated panels reject malformed distribution and retain warnings', async
 test('lower chart facts deduplicate only exact unit, value and explicit session date',async()=>{
  const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
  const point={label:'物理AI',value:8.27,unit:'%',observation_date:report.date,source_label:'Evidence',source_url:'https://example.com/evidence'};
- const source=fs.readFileSync('artifacts/public/reports/2026-10-23-evening.md','utf8');
+ const source=fs.readFileSync('tests/fixtures/asia-document/reports/2026-10-23-evening.md','utf8');
  const cards=[{key:'topic',title:'topic',status:'ok',points:[point,{...point,observation_date:'2026-10-22'},{...point,unit:'亿'},{...point,value:8.28}]}];
  const doc=buildAsiaReportDocument(report,cards,source,'en');
  assert.equal(doc.panels.find(p=>p.id==='chart-topic').rows.length,3);
@@ -39,7 +48,7 @@ test('lower chart facts deduplicate only exact unit, value and explicit session 
 });
 test('stale Asia sessions and missing chart status stay visible without unsafe numbers',async()=>{
  const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
- const source=fs.readFileSync('artifacts/public/reports/2026-10-23-evening.md','utf8').replace('| 2026-10-23 | 23093.37','| 2026-10-22 | 23093.37');
+ const source=fs.readFileSync('tests/fixtures/asia-document/reports/2026-10-23-evening.md','utf8').replace('| 2026-10-23 | 23093.37','| 2026-10-22 | 23093.37');
  const doc=buildAsiaReportDocument(report,[{key:'dashboard',status:'missing',title:'dashboard',reason:'T+1 delayed',points:[{label:'bad',value:Infinity,unit:'亿',observation_date:report.date,source_label:'bad',source_url:'javascript:alert(1)'}]}],source,'en');
  assert.equal(doc.panels.find(p=>p.id==='asia-overview').rows.length,2);
  assert.ok(doc.panels.find(p=>p.id==='asia-overview-fallback'));
@@ -55,7 +64,7 @@ test('native view shares document and folds sanitized original source',()=>{
 });
 test('overview, limits and flow keep independent comparison denominators',async()=>{
  const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
- const doc=buildAsiaReportDocument(report,[],fs.readFileSync('artifacts/public/reports/2026-10-23-evening.md','utf8'),'zh');
+ const doc=buildAsiaReportDocument(report,[],fs.readFileSync('tests/fixtures/asia-document/reports/2026-10-23-evening.md','utf8'),'zh');
  const panel=id=>doc.panels.find(p=>p.id===id);
  assert.deepEqual(panel('overview').rows.map(r=>r.value),[1.56,2.84]);
  assert.ok(panel('overview').rows.every(r=>r.kind==='signed'));
@@ -82,7 +91,7 @@ test('lower histories share stacked breadth and exact facts once; previews discl
  const point=(label,value,unit,observation_date)=>({label,value,unit,observation_date,source_label:'Verified',source_url:'https://example.com/source'});
  const turnover=[point('成交额 2026-10-21',12000,'亿','2026-10-21'),point('成交额 2026-10-22',15000,'亿','2026-10-22')];
  const breadth=['2026-10-21','2026-10-22'].flatMap(date=>['上涨家数','下跌家数','平盘家数'].map((label,i)=>point(`${label} ${date}`,100+i,'家',date)));
- const doc=buildAsiaReportDocument(report,[{key:'dashboard',status:'ok',title:'dashboard',points:turnover},{key:'weekly_chart',status:'degraded',title:'weekly',reason:'Partial source',points:[...turnover,...breadth,point('上涨家数 2026-10-20',90,'家','2026-10-20')]},{key:'moneyflow',status:'ok',title:'flow',points:[point('Netflow',-12,'亿',report.date)]},{key:'sentiment',status:'ok',title:'score',points:[point('Test score',23,'观察分',report.date)]}],fs.readFileSync('artifacts/public/reports/2026-10-23-evening.md','utf8'),'zh');
+ const doc=buildAsiaReportDocument(report,[{key:'dashboard',status:'ok',title:'dashboard',points:turnover},{key:'weekly_chart',status:'degraded',title:'weekly',reason:'Partial source',points:[...turnover,...breadth,point('上涨家数 2026-10-20',90,'家','2026-10-20')]},{key:'moneyflow',status:'ok',title:'flow',points:[point('Netflow',-12,'亿',report.date)]},{key:'sentiment',status:'ok',title:'score',points:[point('Test score',23,'观察分',report.date)]}],fs.readFileSync('tests/fixtures/asia-document/reports/2026-10-23-evening.md','utf8'),'zh');
  const history=doc.panels.find(p=>p.id==='breadth-history');assert.equal(history.kind,'stack-history');assert.equal(history.series.length,3);assert.deepEqual(history.series[0].values.map(v=>v.date),['2026-10-21','2026-10-22']);
  assert.equal(doc.panels.filter(p=>p.kind==='line'&&p.title==='成交额').length,1);
  assert.ok(doc.panels.find(p=>p.id==='chart-weekly_chart').notes.includes('Partial source'));
@@ -102,17 +111,16 @@ test('legacy holiday retains four independent market rows without A-share missin
 });
 test('modern mainland holiday renders only validated independent overview and source warnings',async()=>{
  const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
- const original=fs.readFileSync('artifacts/public/reports/2026-10-23-evening.md','utf8');
+ const original=fs.readFileSync('tests/fixtures/asia-document/reports/2026-10-23-evening.md','utf8');
  const source=`## 亚洲市场收盘复盘（20261023）\nA 股今日休市。\n数据警告: A股休市\n${original.slice(original.indexOf('### 亚洲市场概览'))}`;
  const doc=buildAsiaReportDocument(report,[],source,'en');assert.equal(doc.panels.find(p=>p.id==='asia-overview').rows.length,3);assert.ok(!doc.panels.some(p=>p.id.startsWith('chart-')));assert.equal(doc.sources.length,3);assert.ok(doc.notes.length>0);
 });
 test('absent optional bundle produces one accurate disclosure while daily facts remain',async()=>{
  const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
- const {loadChart}=await import('../src/lib/reports.ts');
- const charts=loadChart(report.id);
+ const charts=loadFixtureChart(report.id);
  assert.equal(charts.availability,'absent');
  for(const locale of ['zh','en']){
-  const doc=buildAsiaReportDocument(report,charts,fs.readFileSync('artifacts/public/reports/2026-10-23-evening.md','utf8'),locale);
+  const doc=buildAsiaReportDocument(report,charts,fs.readFileSync('tests/fixtures/asia-document/reports/2026-10-23-evening.md','utf8'),locale);
   assert.ok(!doc.panels.some(p=>p.id.startsWith('chart-')));
   const status=doc.panels.find(p=>p.id==='supplemental-chart-status');
   assert.equal(status.disclosure,true);assert.equal(status.paragraphs.length,1);
@@ -133,10 +141,9 @@ test('fully consumed chart rows leave histories and one reason disclosure, never
 });
 test('published historical bundle retains unique observations and its financing limitation',async()=>{
  const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
- const {loadChart}=await import('../src/lib/reports.ts');
  const historical={id:'2026-10-22-evening',date:'2026-10-22',kind:'evening'};
- const charts=loadChart(historical.id);assert.equal(charts.availability,'published');
- const doc=buildAsiaReportDocument(historical,charts,fs.readFileSync(`artifacts/public/reports/${historical.id}.md`,'utf8'),'zh');
+ const charts=loadFixtureChart(historical.id);assert.equal(charts.availability,'published');
+ const doc=buildAsiaReportDocument(historical,charts,fs.readFileSync(`tests/fixtures/asia-document/reports/${historical.id}.md`,'utf8'),'zh');
  assert.ok(doc.panels.some(p=>p.kind==='line'||p.kind==='stack-history'));
  assert.ok(doc.panels.filter(p=>p.id.startsWith('chart-')).every(p=>p.rows.length));
  assert.ok(doc.panels.find(p=>p.id==='supplemental-chart-status').paragraphs.some(p=>p.includes('融资余额仅覆盖部分交易所')));

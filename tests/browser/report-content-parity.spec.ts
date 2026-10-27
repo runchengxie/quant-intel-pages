@@ -1,29 +1,67 @@
-import {expect,test} from '@playwright/test';
-const base='/quant-intel-pages';
-for(const locale of ['en','zh'] as const)for(const width of [390,1280])test(`shared report content ${locale} ${width}`,async({page})=>{
- await page.setViewportSize({width,height:950});await page.goto(`${base}/${locale==='en'?'en/':'?locale=zh-CN'}`);
- const us=page.locator('[data-native-us]').first();
- await expect(us.locator('[data-report-row="index.spx"]')).toHaveCount(1);
- await expect(us.locator('[data-report-panel="indices"] [data-report-row]')).toHaveCount(4);
- await expect(us.locator('[data-key-metric]')).toHaveCount(0);
- await expect(us.locator('[data-report-row="index.spx"] .document-cells')).toContainText('7,623.68');
- const asia=page.locator('[data-native-asia] [data-report-document]').first();
- for(const id of ['dimensions','indices','overview','overview-breadth','overview-advance-rate','intraday','distribution','limits','flow','industry','turnover','concepts','movers','calibration'])await expect(asia.locator(`[data-report-panel="${id}"]`)).toBeVisible();
- await expect(asia.locator('[data-report-panel="distribution"] [data-report-row]')).toHaveCount(12);
- await expect(asia.locator('[data-report-panel="overview-breadth"] .document-stack')).toBeVisible();
- await expect(asia.locator('[data-report-panel="indices"] [data-report-row]')).toHaveCount(7);
- const visible=await asia.innerText();expect(visible).not.toMatch(/3690\.48 \[OK\]|涨跌分布: -inf/);
- expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
- // The image uses the same panel and row IDs, never a second content interpretation.
- for(const selector of ['#market-daily-chart','#asia-daily-chart']){
-  const svg=page.locator(selector+' svg');await expect(svg).toBeHidden();
-  for(const id of selector.includes('market')?['indices','equities','treasury']:['dimensions','indices','overview-breadth','intraday','distribution','limits','flow','industry','turnover','concepts','movers'])await expect(svg.locator(`[data-report-panel="${id}"]`)).toHaveCount(1);
- }
-});
-test('weekly styled image is separate from immutable source PNG',async({page})=>{
- await page.goto(`${base}/en/weekly/2026-10-23/`);
- const original=page.getByRole('link',{name:'Original published image',exact:true});await expect(original).toHaveAttribute('download','2026-10-23-weekly.png');
- const button=page.locator('button[data-report-kind="weekly"]');await expect(button).toHaveAttribute('data-report-content-hash','605277c1995edf5fbca346957eb6b52cf9fdcdd006b056abde0eed104158ac54');
- await expect(page.locator('#weekly-report-chart svg')).toBeHidden();
- const pending=page.waitForEvent('download');await button.click();expect((await pending).suggestedFilename()).toBe('2026-10-23-weekly-report.png');
+import { expect, test, type Locator } from '@playwright/test';
+import { dailyDocuments } from './daily-source';
+import type { ReportDocument } from '../../src/lib/report-document';
+
+const base = '/quant-intel-pages';
+async function assertDocument(native: Locator, svg: Locator, document: ReportDocument) {
+  // Compare the complete inventory, including missing-data text and disclosures.
+  // A renderer dropping an optional panel or row must fail just like a wrong number.
+  expect(await native.locator('[data-report-panel]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-report-panel'))))
+    .toEqual(document.panels.map(panel => panel.id));
+  expect(await svg.locator('[data-report-panel]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-report-panel'))))
+    .toEqual(document.panels.filter(panel => !panel.disclosure).map(panel => panel.id));
+  for (const panel of document.panels) {
+    const view = native.locator(`[data-report-panel="${panel.id}"]`);
+    await expect(view).toBeVisible();
+    if (panel.disclosure) {
+      await expect(view).not.toHaveAttribute('open');
+      await view.locator(':scope > summary').click();
+    }
+    await expect(view.locator('[data-report-row]')).toHaveCount(panel.rows?.length ?? 0);
+    for (const row of panel.rows ?? []) {
+      const item = view.locator(`[data-report-row="${row.id}"]`);
+      await expect(item).toContainText(row.label);
+      if (row.valueText) await expect(item).toContainText(row.valueText);
+      for (const cell of row.cells ?? []) await expect(item.locator('.document-cells')).toContainText(cell.text);
+    }
+    const rows = panel.rows ?? [];
+    const sameDate = rows.length > 0 && rows.every(row => row.observationDate === rows[0].observationDate);
+    const dates = (sameDate ? [rows[0]?.observationDate] : rows.map(row => row.observationDate)).filter(Boolean);
+    expect(await view.locator('.document-evidence time').evaluateAll(nodes => nodes.map(node => node.getAttribute('datetime')))).toEqual(dates);
+    await expect(view.locator('.document-records')).toHaveCount(rows.some(row => row.records?.length) ? 1 : 0);
+    for (const record of rows.flatMap(row => row.records ?? [])) await expect(view.locator('.document-records')).toContainText(record);
+    for (const paragraph of [...panel.paragraphs ?? [], ...panel.notes ?? []]) {
+      if (paragraph.trim()) await expect(view).toContainText(paragraph);
+    }
+    const sources = [...panel.sources ?? [], ...(panel.rows ?? []).flatMap(row => row.sources ?? [])];
+    expect([...new Set(await view.locator('.document-evidence a').evaluateAll(nodes => nodes.map(node => node.getAttribute('href'))))].sort())
+      .toEqual([...new Set(sources.map(source => source.url))].sort());
+    if (panel.disclosure) await view.locator(':scope > summary').click();
+  }
+}
+for (const locale of ['en', 'zh'] as const) for (const width of [390, 1280]) {
+  test(`shared report content ${locale} ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 950 });
+    await page.goto(`${base}/${locale === 'en' ? 'en/' : '?locale=zh-CN'}`);
+    const documents = dailyDocuments(locale);
+    for (const [kind, chart] of [['us', 'market'], ['asia', 'asia']] as const) {
+      const native = page.locator(`[data-native-${kind}] [data-report-document]`).first();
+      const svg = page.locator(`#${chart}-daily-chart svg`);
+      await expect(svg).toBeHidden();
+      await assertDocument(native, svg, documents[kind]);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+  });
+}
+// Weekly input is deliberately synthetic and fixed by weeklyBrowserInput().
+test('weekly styled image is separate from immutable source PNG', async ({ page }) => {
+  await page.goto(`${base}/en/weekly/2026-10-23/`);
+  const original = page.getByRole('link', { name: 'Original published image', exact: true });
+  await expect(original).toHaveAttribute('download', '2026-10-23-weekly.png');
+  const button = page.locator('button[data-report-kind="weekly"]');
+  await expect(button).toHaveAttribute('data-report-content-hash', '605277c1995edf5fbca346957eb6b52cf9fdcdd006b056abde0eed104158ac54');
+  await expect(page.locator('#weekly-report-chart svg')).toBeHidden();
+  const pending = page.waitForEvent('download');
+  await button.click();
+  expect((await pending).suggestedFilename()).toBe('2026-10-23-weekly-report.png');
 });
