@@ -1,4 +1,5 @@
 import { expect, test, type Locator } from '@playwright/test';
+import { formatDisplayValue } from '../../src/lib/display-value';
 import { dailyDocuments } from './daily-source';
 import type { ReportDocument } from '../../src/lib/report-document';
 
@@ -21,8 +22,8 @@ async function assertDocument(native: Locator, svg: Locator, document: ReportDoc
     for (const row of panel.rows ?? []) {
       const item = view.locator(`[data-report-row="${row.id}"]`);
       await expect(item).toContainText(row.label);
-      if (row.valueText) await expect(item).toContainText(row.valueText);
-      for (const cell of row.cells ?? []) await expect(item.locator('.document-cells')).toContainText(cell.text);
+      if (row.valueText) await expect(item).toContainText(formatDisplayValue(row.valueText, document.locale));
+      for (const cell of row.cells ?? []) await expect(item.locator('.document-cells')).toContainText(formatDisplayValue(cell.text, document.locale));
     }
     const rows = panel.rows ?? [];
     const sameDate = rows.length > 0 && rows.every(row => row.observationDate === rows[0].observationDate);

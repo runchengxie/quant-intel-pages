@@ -1,4 +1,5 @@
 ---
+import { siteLabels } from '../../lib/site-locale';
 import { buildUsEditorialSvg, buildAsiaEditorialSvg as buildAsiaReportSvg } from '../../lib/report-exports';
 import UsNativeReport from '../../components/UsNativeReport.astro';
 import AsiaNativeReport from '../../components/AsiaNativeReport.astro';
@@ -44,7 +45,7 @@ const marketHistory = loadMarketDailyHistory()
     const summary = marketDailyUtils.summarizeMarketDaily(row);
     return { ...row, nativeSummary: summary, chartSvg: summary ? buildUsEditorialSvg(summary, toEnglishPresentation, 'en-US') : null };
   });
-const marketGeneratedTime = market?.generated_at || market?.as_of;
+const marketGeneratedTime = market?.generated_at;
 const marketGeneratedLabel = marketGeneratedTime && !Number.isNaN(Date.parse(String(marketGeneratedTime)))
   ? new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(String(marketGeneratedTime))) : null;
 const sourceRows = marketChartSummary?.rows || [];
@@ -70,12 +71,12 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <body class="editorial-site">
     <SiteHeader locale="en" home switchHref={`${base}/?locale=zh-CN`} />
     <main class="shell"><div class="content">
-      <section class="hero" id="reports"><div class="hero-copy"><span class="eyebrow">Public daily market intelligence</span><h1>Quant Market Intel</h1><p>Structured U.S. and Asian market reports with source dates, evidence links, and explicit data-quality boundaries.</p></div><nav class="session-nav" aria-label="Latest publications"><a href="#us-session"><span>Latest U.S. daily report</span><strong>{market?.date || 'Pending'}</strong><small>07:00 · Beijing time</small></a><a href="#asia-session"><span>Latest Asia evening report</span><strong>{latestEveningDate || 'Pending'}</strong><small>19:00 · Beijing time</small></a></nav></section>
+      <section class="hero" id="reports"><div class="hero-copy"><span class="eyebrow">Public daily market intelligence</span><h1>Quant Market Intel</h1><p>Structured U.S. and Asian market reports with source dates, evidence links, and explicit data-quality boundaries.</p></div><nav class="session-nav" aria-label="Latest publications"><a href="#us-session"><span>Latest U.S. daily report</span><small>{siteLabels.en.marketDay}</small><strong>{market?.date || 'Pending'}</strong><small>{siteLabels.en.usSchedule}</small></a><a href="#asia-session"><span>Latest Asia evening report</span><small>{siteLabels.en.reportDay}</small><strong>{latestEveningDate || 'Pending'}</strong><small>{siteLabels.en.asiaSchedule}</small></a></nav></section>
       <section class="panel" id="us-session" aria-labelledby="market-title"><div class="section-heading"><span class="eyebrow">Latest U.S. daily report · {market?.date || 'Pending'}</span><h2 id="market-title">{reportEditorialLabels.en.usTitle}</h2></div>
         {market?.markdown ? <>
           <UsDailyStatus report={market} locale="en-US" />
+          <p class="section-note">{siteLabels.en.marketDay} {market.date}. {marketGeneratedLabel ? <>{labels.generated}: {marketGeneratedLabel} (America/New_York). </> : siteLabels.en.generationMissing}{' '}The image and facts below use only verified market data and preserve source dates.</p>
           {marketChartSummary && <UsNativeReport summary={marketChartSummary} locale="en" />}
-          <p class="section-note">The report date is {market.date}. {marketGeneratedLabel && <>{labels.generated}: {marketGeneratedLabel} (America/New_York). </>}The image and facts below use only verified market data and preserve source dates.</p>
           {marketRevisionNotes.map(note => <p class="section-note">{note}</p>)}
           {marketDataNotes.length > 0 && <details class="secondary-report market-data-notes"><summary>{labels.dataNotes}</summary>{marketDataNotes.map(note => <p>{note}</p>)}</details>}
           <div class="link-row report-actions"><a href={`${base}/reports/${market.date}-market-daily.md`}>Source Markdown</a>{market.hasCitationFreeMarkdown && <a href={`${base}/reports/${market.date}-market-daily-no-citations.md`}>Reading copy</a>}<a href={`${base}/reports/${market.date}-market-daily.txt`}>Plain text</a>{marketChartSvg && <button type="button" id="download-market-chart" data-report-image data-report-date={market.date} data-report-kind="market-daily" data-report-content-hash={market.content_hash} data-chart-target="#market-daily-chart svg" data-status-target="#market-chart-download-status">{labels.downloadPng}</button>}</div>

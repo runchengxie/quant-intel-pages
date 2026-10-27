@@ -1,4 +1,5 @@
 ---
+import { siteLabels } from '../lib/site-locale';
 import { buildUsEditorialSvg, buildAsiaEditorialSvg as buildAsiaReportSvg } from '../lib/report-exports';
 import UsNativeReport from '../components/UsNativeReport.astro';
 import AsiaNativeReport from '../components/AsiaNativeReport.astro';
@@ -50,7 +51,7 @@ const sourceLinks = [...new Map([
   ...sourceRows.map((row) => [row.sourceUrl, { href: row.sourceUrl, label: row.sourceLabel, context: row.label }] as const),
   ...(marketChartSummary?.claims || []).flatMap((claim) => claim.sourceUrls.map((href) => [href, { href, label: new URL(href).hostname, context: '已核实解读' }] as const)),
 ].filter(([href]) => /^https:\/\//.test(href))).values()];
-const marketGeneratedTime = market?.generated_at || market?.as_of;
+const marketGeneratedTime = market?.generated_at;
 const marketGeneratedLabel = marketGeneratedTime && !Number.isNaN(Date.parse(String(marketGeneratedTime))) ? new Intl.DateTimeFormat('zh-CN', {
   timeZone: 'America/New_York', year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit',
 }).format(new Date(String(marketGeneratedTime))) : null;
@@ -95,13 +96,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <SiteHeader locale="zh" home switchHref={`${base}/en/`} />
     <main class="shell">
       <div class="content">
-        <section class="hero"><div class="hero-copy"><span class="eyebrow">每日两份公开日报</span><h1>Quant 市场情报</h1><p>每天梳理美股和亚洲市场的收盘行情，附上变化说明、数据日期和来源。</p></div><nav class="session-nav" aria-label="最新日报"><a href="#us-session"><span>最新美股日报</span><strong>{market?.date || '待更新'}</strong><small>07:00 · 北京时间</small></a><a href="#asia-session"><span>最新亚洲晚报</span><strong>{latestEveningDate || '待更新'}</strong><small>19:00 · 北京时间</small></a></nav></section>
+        <section class="hero"><div class="hero-copy"><span class="eyebrow">每日两份公开日报</span><h1>Quant 市场情报</h1><p>每天梳理美股和亚洲市场的收盘行情，附上变化说明、数据日期和来源。</p></div><nav class="session-nav" aria-label="最新日报"><a href="#us-session"><span>最新美股日报</span><small>{siteLabels.zh.marketDay}</small><strong>{market?.date || '待更新'}</strong><small>{siteLabels.zh.usSchedule}</small></a><a href="#asia-session"><span>最新亚洲晚报</span><small>{siteLabels.zh.reportDay}</small><strong>{latestEveningDate || '待更新'}</strong><small>{siteLabels.zh.asiaSchedule}</small></a></nav></section>
         <section class="panel" id="us-session" aria-labelledby="market-title"><div class="section-heading"><span class="eyebrow">最新美股日报 · {market?.date || '待更新'}</span><h2 id="market-title">{reportEditorialLabels.zh.usTitle}</h2></div>
           {market?.markdown ? <>
           <UsDailyStatus report={market} locale="zh-CN" />
+            <p class="section-note">{siteLabels.zh.marketDay} {market.date}{marketGeneratedLabel ? ` · 生成时间：${marketGeneratedLabel}（美东时间）` : ` · ${siteLabels.zh.generationMissing}`}。图片版包含已核实的行情、解读和来源。缺少的数据会标为缺项。</p>
           {marketChartSummary && <UsNativeReport summary={marketChartSummary} locale="zh" />}
             <div class="report-downloads report-downloads-top" aria-label="下载这份美股报告"><span class="download-label">获取这份复盘</span><div class="link-row"><a href={`${base}/reports/${market.date}-market-daily.md`}>Markdown 原文</a>{market.hasCitationFreeMarkdown && <a href={`${base}/reports/${market.date}-market-daily-no-citations.md`}>Markdown 阅读版（无引用）</a>}<a href={`${base}/reports/${market.date}-market-daily.txt`}>纯文本报告</a>{marketChartSvg && <button type="button" id="download-market-chart" data-report-image data-report-date={market.date} data-report-kind="market-daily" data-report-content-hash={market.content_hash} data-chart-target="#market-daily-chart svg" data-status-target="#market-chart-download-status">下载图片版 PNG</button>}</div><p id="market-chart-download-status" class="section-note" role="status" aria-live="polite"></p></div>
-            <p class="section-note">美股报告日期：{market.date}{marketGeneratedLabel ? ` · 生成时间：${marketGeneratedLabel}（美东时间）` : ''}。图片版包含已核实的行情、解读和来源。缺少的数据会标为缺项。</p>
             {marketRevisionNotes.map(note => <p class="section-note">{note}</p>)}
             {marketDataNotes.length > 0 && <details class="secondary-report market-data-notes"><summary>{US_REPORT_LABELS.dataNotes[0]}</summary>{marketDataNotes.map(note => <p>{note}</p>)}</details>}
             {marketChartSvg ? <div class="market-brief">
