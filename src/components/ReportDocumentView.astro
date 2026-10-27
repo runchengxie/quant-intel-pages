@@ -1,4 +1,5 @@
 ---
+import { formatDisplayValue } from '../lib/display-value';
 import type {ReportDocument, ReportSource} from '../lib/report-document';
 import {reportRowGeometry,reportLineGeometry} from '../lib/report-document-geometry';
 import {reportDocumentLabels} from '../lib/report-document-labels';
@@ -23,7 +24,7 @@ const uniqueSources = (sources: ReportSource[]) => [...new Map(sources.map(s => 
   const panelSources = uniqueSources([...(panel.sources ?? []), ...sharedSources]);
   const records = rows.filter(row => row.records?.length);
   return <Panel class:list={["report-section document-panel", `document-${layout}`, {"document-line-panel":panel.kind==='line', "document-wide": panel.kind==='stack-history'}]} style={layout==='metrics'?`--document-columns:${Math.min(Math.max(rows.length,1),4)}`:undefined} data-report-panel={panel.id} data-weekly-static-chart={weekly&&panel.kind==='line'?true:undefined}>
-   <Heading class="document-heading"><h3>{panel.title}</h3>{panel.unit&&<span>{panel.unit}</span>}</Heading>
+   <Heading class="document-heading"><h3>{panel.disclosure && panel.id.endsWith('-additional') ? `${panel.title} · ${t.remaining.replace('{count}', String(rows.length))}` : panel.title}</h3>{panel.unit&&<span>{panel.unit}</span>}</Heading>
    <div class="document-panel-body">
    {panel.kind==='stack'&&panel.rows?.length?<>
     <div class="document-stack" aria-hidden="true">{panel.rows.map((row,i)=><span style={`width:${total?(row.value??0)/total*100:0}%;background:var(--desk-${row.tone??(['positive','negative','muted'][i%3])})`}></span>)}</div>
@@ -41,8 +42,8 @@ const uniqueSources = (sources: ReportSource[]) => [...new Map(sources.map(s => 
    </figure>:<p class="report-caveat">{t.missing}</p>:<div class="document-rows">{(panel.rows??[]).map(row=>{
     const geometry=reportRowGeometry(panel,row);
     return <div class:list={['document-row',{'document-prose-row':panel.kind==='text'}]} data-report-row={row.id}>
-     <div class="document-row-heading"><h4>{row.label}</h4>{row.valueText&&<strong class={geometry?.tone}>{row.valueText}</strong>}</div>
-     {row.cells && row.cells.length > 0 &&<dl class="document-cells">{row.cells.map(cell=><div><dt>{cell.label}</dt><dd>{cell.text}</dd></div>)}</dl>}
+     <div class="document-row-heading"><h4>{row.label}</h4>{row.valueText&&<strong class={geometry?.tone} title={formatDisplayValue(row.valueText, document.locale) !== row.valueText ? row.valueText : undefined}>{formatDisplayValue(row.valueText, document.locale)}</strong>}</div>
+     {row.cells && row.cells.length > 0 &&<dl class="document-cells">{row.cells.map(cell=><div><dt>{cell.label}</dt><dd title={formatDisplayValue(cell.text, document.locale) !== cell.text ? cell.text : undefined}>{formatDisplayValue(cell.text, document.locale)}</dd></div>)}</dl>}
      {geometry&&<div class="document-bar" aria-hidden="true"><span class="document-zero" style={`left:${geometry.zero}%`}></span><span class:list={['document-bar-fill',geometry.tone]} style={`left:${geometry.left}%;width:${geometry.width}%`}></span></div>}
      {row.scale&&!sharedScale&&geometry&&<p class="document-axis">{t.axis}: {number(geometry.min)} … {number(geometry.max)}{panel.unit?' '+panel.unit:''}</p>}
      {row.details?.map(detail=><p class="report-caption">{detail}</p>)}

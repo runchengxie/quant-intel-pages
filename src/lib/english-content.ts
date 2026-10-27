@@ -183,6 +183,13 @@ const PHRASES: Array<[string, string]> = [
 
 
 const COMPLETE_TERMS: Array<[string, string]> = [
+  ['亚洲市场概览', 'Asia market overview'], ['日内指标', 'Intraday indicators'],
+  ['已收盘', 'Closed'], ['跳过', 'Skipped'], ['建筑材料', 'Building materials'],
+  ['建筑装饰', 'Construction and decoration'], ['社会服务', 'Consumer services'],
+  ['轻工制造', 'Light manufacturing'], ['国防军工', 'Defense'], ['汽车', 'Automobiles'],
+  ['商贸零售', 'Retail and trade'], ['非银金融', 'Non-bank financials'],
+  ['基础化工', 'Basic chemicals'], ['家用电器', 'Household appliances'],
+
   ['市场状态从温和活跃转为中性偏冷，指数层面分化，个股广度明显走弱', 'The market shifted from moderately active to neutral-to-cool; indexes diverged and stock breadth weakened markedly'],
   ['市场状态中性偏冷', 'Market state: neutral to cool'],
   ['市场广度', 'Market breadth'], ['综合仪表盘', 'Market breadth dashboard'],

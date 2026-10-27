@@ -422,7 +422,10 @@ test('both rendered locales expose independent producer assessments', () => {
     writeFileSync(path.join(data, 'data/market_daily_report.json'), JSON.stringify(report));
     execFileSync('npm', ['run', 'build'], { cwd: root, env: { ...process.env, ASTRO_DATA_ROOT: data, ASTRO_OUT_DIR: output }, stdio: 'pipe' });
     english = readFileSync(path.join(output, 'en/index.html'), 'utf8');
-    assert.ok(english.includes(generationLabel(report.as_of)), 'legacy reports fall back to their observation timestamp');
+    assert.ok(english.includes('Actual generation time unavailable.'), 'missing generation must be explicit');
+    assert.ok(!english.includes(generationLabel(report.as_of)), 'an observation timestamp must not masquerade as generation');
+    const chinese = readFileSync(path.join(output, 'index.html'), 'utf8');
+    assert.ok(chinese.includes('实际生成时间未提供。'));
   } finally {
     rmSync(temporary, { recursive: true });
   }
