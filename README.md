@@ -39,6 +39,11 @@ Asian interpretation text uses source-bound English catalog translations. When a
 
 The homepage defaults to English at `/en/`. Select Chinese with `/?locale=zh-CN`; other homepage locale query values use English. Report pages have separate `/en/reports/<id>/` and `/reports/<id>/` routes. Language links preserve the report identity. Downloads retain source data, evidence IDs, hashes, and timestamps across languages. Missing English interpretation translations show an explicit notice and retain access to source-language evidence.
 
+Run `npm test`, `npm run check`, the site build and browser tests sequentially
+within one checkout. The Node suite also invokes Astro builds, which share the
+checkout's `.astro` cache even when final output directories differ. Concurrent
+builds can remove each other's prerender files.
+
 ## TypeScript scope
 
 The active frontend libraries and React chart island use TypeScript. Report image controls share a typed module and locale catalog across the four report routes. `npm run check` also checks `ChartCards.astro`.
