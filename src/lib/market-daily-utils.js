@@ -43,7 +43,7 @@ var marketDailyUtils = (() => {
   // src/lib/locale.ts
   var US_REPORT_LABELS = {
     treasuryEvidenceCutoff: ["\u7F8E\u503A\u53C2\u8003\u503C\u6838\u9A8C\u622A\u81F3\uFF08\u7F8E\u4E1C\uFF09", "Treasury reference checked through (ET)"],
-    treasuryClosedReference: ["\u7F8E\u503A\u4F11\u5E02\uFF1B\u53C2\u8003\u6536\u76CA\u7387\u622A\u81F3", "Treasury market closed; reference yields as of"],
+    treasuryClosedReference: ["\u7F8E\u503A\u4F11\u5E02\uFF0C\u53C2\u8003\u6536\u76CA\u7387\u622A\u81F3", "Treasury market closed; reference yields as of"],
     lastSessionChange: ["\u6700\u8FD1\u4EA4\u6613\u65E5\u53D8\u52A8", "Last-session change"],
     treasuryHolidayReason: ["\u7F8E\u503A\u4F11\u5E02\uFF0C\u5C55\u793A\u6700\u8FD1\u4EA4\u6613\u65E5\u53C2\u8003\u503C\u53CA\u8BE5\u4EA4\u6613\u65E5\u53D8\u52A8", "Treasury market closed; values and changes refer to the last trading session"],
     treasuryExpectedFresh: ["\u5E94\u6709\u89C2\u6D4B\u65E5\u6570\u636E\u9F50\u5168", "Expected observation data is complete"],
@@ -52,7 +52,7 @@ var marketDailyUtils = (() => {
     treasuryLastSessionYieldChange: ["\u6536\u76CA\u7387\u6700\u8FD1\u4EA4\u6613\u65E5\u53D8\u52A8", "yield last-session change"],
     btcSpotGap: ["\u6BD4\u7279\u5E01\u73B0\u8D27\u884C\u60C5", "Bitcoin spot prices"],
     btcFuturesGap: ["\u6BD4\u7279\u5E01\u671F\u8D27\u884C\u60C5", "Bitcoin futures prices"],
-    optionalUnavailable: ["\u53EF\u9009\u6570\u636E\u672A\u63D0\u4F9B\uFF1A", "Optional data unavailable: "],
+    optionalUnavailable: ["\u672A\u63D0\u4F9B\u53EF\u9009\u6570\u636E\u3002", "Optional data unavailable: "],
     dataNotes: ["\u6570\u636E\u8BF4\u660E", "Data notes"],
     optionalSpotUnaffected: ["\u4E0D\u5F71\u54CD\u5DF2\u6838\u5B9E\u7684\u73B0\u8D27\u884C\u60C5\u3002", "Verified spot prices are unaffected."],
     researchContext: ["\u5DF2\u6838\u5B9E\u89E3\u8BFB", "Reviewed interpretation"],

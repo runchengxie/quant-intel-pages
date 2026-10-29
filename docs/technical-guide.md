@@ -1,28 +1,92 @@
-# 网站与公开数据维护
+# 网站维护指南
 
-## 构建链路
+[English](technical-guide.en.md) · [项目介绍](../README.zh-CN.md)
 
-1. Platform 根据报告的公开状态、来源路径、内容哈希和 schema 校验公开快照。
-2. Pages 的构建适配器调用固定版本的 `market-export-site-snapshot`，将公开数据写入临时目录。
-3. Astro 从临时快照生成中文、英文首页和报告页，并写入静态站点输出目录。
-4. `public-site.yml` 上传静态站点和发布账本；生产报告写入及定时发布由 Deploy 完成。
+这里说明本地构建和页面维护。报告由谁生成、怎样发布，见[日报交接说明](daily-generation-options.zh-CN.md)。
 
-构建器先完成临时导出与页面渲染，成功后再替换目标目录。CLI 缺失或 Astro 构建失败时，不会用不完整内容覆盖已有输出。
+## 本地构建
 
-## 公开快照
-
-输入位于 `artifacts/public/data/` 和 `artifacts/public/reports/`。公开窗口最多保留五个报告日期。静态构建输出在站点根目录生成 `data/` 与 `reports/`，所以网页 URL 不含 `artifacts/public/` 这一层。
-
-输入 schema、图表审核和报告内容校验由 Platform 所有。Pages 的验证集中在 CLI 交接、页面渲染、下载路径、语言切换以及站点监控。
-
-## 本地操作
+需要 Python 3.11、Node.js 24、npm 和 uv。报告导出命令要与工作流中固定的 Platform 提交一致。
 
 ```bash
+uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@c761aaa22cebd72283063ca11c4f1632f1c439fc"
 npm ci
 uv sync --locked --group dev --no-install-project
-python scripts/build_site.py --output /tmp/quant-market-intel-check
-npm run check
-npm run test:browser
+preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)
+python3 scripts/build_site.py --output "$preview_root/quant-intel-pages"
+python3 -m http.server 8000 --directory "$preview_root"
 ```
 
-本地构建需先安装与工作流相同提交的 Platform CLI。不要把构建结果、运行日志、原始数据或凭据写入 Git 仓库。
+打开 <http://localhost:8000/quant-intel-pages/>。构建器先调用 Platform CLI，校验并导出最近五个报告日期的公开文件，再生成中英文 Astro 页面。构建成功后才替换目标目录。CLI 缺失或页面构建失败时，已有输出保持原样。
+
+构建输出、日志和原始数据放在仓库外。凭据也保存在仓库外的私有配置中。
+
+## 文件放在哪里
+
+页面和图表代码位于 `src/`。`artifacts/public/` 保存经过审核的公开报告输入，私有全量归档由上游保存在仓库外。
+
+`scripts/build_site.py` 调用已安装的 Platform CLI，通过文件交接数据。它不会导入 Platform 源码。`.github/workflows/public-site.yml` 负责网站检查和 GitHub Pages 发布，并保留本次发布的文件账本。
+
+`scripts/public_site_alerts.py` 跟踪网站构建是否成功，并更新对应的 Issue。公开报告是否按时更新由 `quant-intel-deploy` 监控。网站工作流只消费报告文件，不生成报告，也不读取模型密钥。
+
+报告下载地址使用 `/data/` 和 `/reports/`。网站 URL 的固定前缀为 `/quant-intel-pages/`。详情见 [AGENTS.md](../AGENTS.md) 和[日报交接说明](daily-generation-options.zh-CN.md)。
+
+## 语言与阅读
+
+首页默认进入 `/en/`，中文入口为 `/?locale=zh-CN`。首页其他 locale 参数值使用英文。报告页分别位于 `/en/reports/<id>/` 和 `/reports/<id>/`，切换语言时保留同一期报告。下载文件中的来源数据和证据 ID 保持不变，哈希与时间戳也不随语言改变。
+
+英文解读使用与原文绑定的目录译文。新增段落缺少译文时，页面会注明缺项，并保留中文原文及依据。原文中的市场事实保持原样。
+
+导航提供美股早报和亚洲晚报，也可以进入每周风格分析和项目介绍页。主题默认跟随系统，读者手动选择后会跨页面保留。`/en/about/` 和 `/about/?locale=zh-CN` 解释日期、来源及报告局限，并链接到方法文档。
+
+定时晨报和晚报使用事实型报告，不生成 AI 解读。历史解读仍可阅读。没有解读历史时也能正常发布。
+
+## 报告状态和数据缺项
+
+网页分别展示行情是否齐全、研究是否接入，以及报告是否发布。状态记录必须与报告运行标识、日期和内容哈希一致。旧报告缺少状态记录时显示未知，历史正文及质量说明继续保留。
+
+各市场使用自己的交易日期。香港、日本和韩国的收盘数据保留来源，休市、缺失或未收盘状态分别显示。网页只展示发布方提供的数据，不会补抓行情。历史休市版表格继续支持。
+
+美股表格将收盘价或收益率与当日变化放在同一行。变化条形以零为中心，每组使用独立刻度。美债收益率与基点变化也放在同一行。历史报告缺少指数点位时显示缺项。
+
+## 页面和图片
+
+日报可以直接阅读网页正文，宽表格在局部滚动。页面使用统一的衬线标题与纸面底色，并支持深浅主题。关闭 JavaScript 后仍可阅读已公开的事实和依据。
+
+网页和可下载 SVG 使用同一份报告文档，共用字体、颜色及图表计算方式。宽屏会并排放置部分图表，手机按顺序展示。图片单独组织纵向布局。每个面板中相同的来源与日期只列一次，有差异的行仍各自注明。
+
+亚洲报告将亚洲市场图表放在顶部，A 股指数独立展示。行业和成交额表格保留已发布数字，并按列添加条形。概念和涨跌幅榜使用相同规则。上涨和下跌 Top 5 分组展示，共用涨跌幅刻度。
+
+正文中已经由图表完整表达的市场概览、涨跌停和资金流段落会省略。补充行与依据保存在可展开区域，完整原文也可查看。底部统计只有在数值、单位、日期和已知来源规则都与已绘制事实一致时才会省略。格式异常或缺失的事实继续显示为文字。
+
+涨跌分布图要求各分桶数量完整，并与报告覆盖数一致。包含零值的分桶可能含平盘股票，需要与上涨家数分开阅读。
+
+亚洲市场补充图表使用独立文件。缺少文件时，页面只显示一条可展开的说明，并继续保留日报已有数据和局限。历史数据使用实际观测日期。网站不会回填延迟图表，也不会改变发布方的来源身份校验。
+
+图片版保留发布器使用的容器 ID 和图片身份控件。周报提供新版衍生图片，同时保留不可变的原始 PNG。后续投递使用衍生图片，已有回执仍作为权威记录。
+
+## 周报
+
+英文入口为 `/en/weekly/`，中文为 `/weekly/?locale=zh-CN`。入口直接打开最新一期，并列出较早版本。每一期的独立 URL 保留交易截止日期。
+
+周报使用网页正文和指标卡，配有四组 SVG 走势图。手机单列，桌面分栏。英文正文保留原文数值、样本范围及局限。尚未覆盖的新段落会标明缺少译文，并在下方保留可展开的中文原文。
+
+审核通过的 PNG 供读者下载，首屏不加载长图。交互图表在展开时才加载 ECharts。关闭 JavaScript 后仍可阅读正文、SVG 和观测数据表。
+
+周报采用 Platform 的公开文件格式，最多保留五个报告日期。没有周报输入时，网站仍可构建。输入存在时，页面会校验字段白名单及周五截止日期，并检查来源日期、观测顺序、内容哈希和图片哈希。不一致时停止构建。Python 3 在构建时计算规范 JSON 哈希，保持与发布方相同的数值写法。
+
+浏览器测试在仓库外使用合成周报输入，生成文件也保存在仓库外。测试不会把合成样本写入生产报告。生产发布、线上文件身份核验及图片发送由 Deploy 负责。
+
+## TypeScript 和兼容脚本
+
+当前前端库和 React 图表使用 TypeScript。四个报告路由共用图片控件及 locale 文案。所有自有 Astro 页面都接受严格检查，`ChartCards.astro` 也包含在内。展示字段在 JSON 输入处校验，来源身份和证据使用与语言无关的标识。生成文件及已安装的 Platform CLI 按各自范围排除。
+
+`src/legacy/` 和 `src/lib/market-daily-utils.js` 作为兼容浏览器脚本发布，必须保留已有 URL、浏览器全局接口及 CommonJS 导出。旧版控制器和三个工具模块的源文件位于 `src/legacy-source/`。
+
+修改这些 TypeScript 源文件或 `market-daily-utils.ts` 后，运行 `npm run legacy:build`。`npm run check` 会拒绝过期的兼容文件。旧版入口的浏览器测试覆盖筛选报告与日期，也检查主题保存、可选数据失败和安全文本渲染。
+
+## 开发检查
+
+同一检出中的 `npm test`、`npm run check`、网站构建和浏览器测试要依次运行。Node 测试也会启动 Astro 构建，它们共用检出目录的 `.astro` 缓存。即使最终输出目录不同，同时构建仍可能删除另一进程需要的预渲染文件。
+
+并行开发使用独立工作树。并行运行浏览器测试时，设置 `PLAYWRIGHT_PORT` 分配不同端口。完整验证命令见 [AGENTS.md](../AGENTS.md)，报告随日期更新时的测试要求见[动态发布测试说明](testing-dynamic-publications.md)。
