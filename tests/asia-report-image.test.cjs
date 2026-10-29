@@ -169,14 +169,13 @@ test('English prose wraps at word boundaries instead of splitting translated wor
   assert.ok(text.some((line) => line.includes('fragmentation')));
 });
 
-test('table previews retain fallback and point readers to full details', async () => {
+test('TOP10 image tables retain all ten ranked rows', async () => {
   const { buildAsiaReportSvg } = await import('../src/lib/asia-report-image.ts');
   const rows = Array.from({ length: 10 }, (_, i) => `| ${300000 + i} | ${100 - i}.0 | +1.00% |`).join('\n');
   const svg = buildAsiaReportSvg(evening, [], `### 八、高成交核心票 TOP10\n| 代码 | 成交额(亿) | 涨跌 |\n|---|---|---|\n${rows}`);
   assert.match(svg, /300004/);
-  assert.doesNotMatch(svg, /300005/);
-  assert.match(svg, /5.*10/);
-  assert.match(svg, /完整报告/);
+  for (let i=0;i<10;i++) assert.match(svg, new RegExp(String(300000+i)));
+  assert.doesNotMatch(svg, /完整报告/);
 });
 
 test('English previews translate complete templates and retain original date/source attribution', async () => {
@@ -184,7 +183,8 @@ test('English previews translate complete templates and retain original date/sou
   const { toEnglishPresentation } = await import('../src/lib/english-content.ts');
   const rows = Array.from({ length: 10 }, (_, i) => `| ${300000 + i} | 99.0 | +1.00% |`).join('\n');
   const svg = buildAsiaReportSvg(evening, [], `### 八、高成交核心票 TOP10\n| 代码 | 成交额(亿) | 涨跌 |\n|---|---|---|\n${rows}\n*数据: A < B & \"C\" | 生成: 2026-09-30 18:45*`, toEnglishPresentation);
-  assert.match(svg, /Preview 5 \/ 10 rows; see the full report for the rest\./);
+  for (let i=0;i<10;i++) assert.match(svg, new RegExp(String(300000+i)));
+  assert.doesNotMatch(svg, /Preview 5/);
   assert.match(svg, /Data: A &lt; B &amp; &quot;C&quot;/);
   assert.match(svg, /Generated: 2026-09-30 18:45/);
   assert.doesNotMatch(svg, /预览|完整报告|暂无|缺少|跳过/);

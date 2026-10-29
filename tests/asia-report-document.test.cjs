@@ -14,7 +14,7 @@ function loadFixtureChart(id) {
 test('retained complete image inventory becomes numerical document panels', async () => {
  const {buildAsiaReportDocument} = await import('../src/lib/asia-report-document.ts');
  const doc = buildAsiaReportDocument(report, [], fs.readFileSync('tests/fixtures/asia-document/reports/2026-10-23-evening.md','utf8'), 'zh');
- for (const id of ['asia-overview','state','dimensions','indices','overview','distribution','intraday','limits','flow','financing','industry','turnover','concepts','movers','calibration']) assert.ok(doc.panels.some(p=>p.id===id),id);
+ for (const id of ['asia-overview','state','dimensions','indices','overview','distribution','intraday','limits','flow','industry','turnover','concepts','movers','calibration']) assert.ok(doc.panels.some(p=>p.id===id),id);
  assert.equal(doc.panels.find(p=>p.id==='distribution').rows.length,12);
  assert.equal(doc.panels.find(p=>p.id==='distribution').rows[0].tone,'negative');
  assert.equal(doc.panels.find(p=>p.id==='distribution').rows[6].tone,'neutral');
@@ -86,7 +86,7 @@ test('overview, limits and flow keep independent comparison denominators',async(
  assert.equal(panel('flow-counts').kind,'stack');
  assert.deepEqual(panel('flow-counts').rows.map(r=>r.value),[3142,2060]);
 });
-test('lower histories share stacked breadth and exact facts once; previews disclose remaining rows',async()=>{
+test('lower histories share stacked breadth and exact facts once; TOP10 rankings show every row',async()=>{
  const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
  const point=(label,value,unit,observation_date)=>({label,value,unit,observation_date,source_label:'Verified',source_url:'https://example.com/source'});
  const turnover=[point('成交额 2026-10-21',12000,'亿','2026-10-21'),point('成交额 2026-10-22',15000,'亿','2026-10-22')];
@@ -99,7 +99,7 @@ test('lower histories share stacked breadth and exact facts once; previews discl
  assert.equal(doc.panels.find(p=>p.id==='chart-moneyflow').rows[0].kind,'signed');
  assert.equal(doc.panels.find(p=>p.id==='chart-sentiment').rows[0].kind,'score');
  assert.deepEqual(doc.panels.find(p=>p.id==='chart-sentiment').rows[0].scale,[0,100]);
- for(const id of ['industry','turnover']){assert.equal(doc.panels.find(p=>p.id===id).rows.length,5);assert.equal(doc.panels.find(p=>p.id===`${id}-additional`).rows.length,5);assert.equal(doc.panels.find(p=>p.id===`${id}-additional`).disclosure,true);}
+ for(const id of ['industry','turnover']){assert.equal(doc.panels.find(p=>p.id===id).rows.length,10);assert.ok(!doc.panels.some(p=>p.id===`${id}-additional`));}
 });
 test('legacy holiday retains four independent market rows without A-share missing cards',async()=>{
  const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
@@ -148,4 +148,36 @@ test('published historical bundle retains unique observations and its financing 
  assert.ok(doc.panels.filter(p=>p.id.startsWith('chart-')).every(p=>p.rows.length));
  assert.ok(doc.panels.find(p=>p.id==='supplemental-chart-status').paragraphs.some(p=>p.includes('融资余额仅覆盖部分交易所')));
  assert.ok(!doc.panels.find(p=>p.id==='supplemental-chart-status').paragraphs.some(p=>p.includes('补充图表文件未发布')));
+});
+
+test('empty financing placeholder is hidden until real data returns in web and image document', async()=>{
+ const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
+ const {buildReportSvg}=await import('../src/lib/report-document-svg.ts');
+ const source=fs.readFileSync('tests/fixtures/asia-document/reports/2026-10-23-evening.md','utf8');
+ for(const locale of ['zh','en']) {
+  const missing=buildAsiaReportDocument(report,[],source,locale);
+  assert.ok(!missing.panels.some(p=>p.id==='financing'));
+  assert.doesNotMatch(buildReportSvg(missing),/两融数据暂缺|T\+1延迟/);
+  const restored=buildAsiaReportDocument(report,[],source.replace('两融数据暂缺（T+1延迟）','融资余额: 12345.67 亿（数据日期: 2026-10-22）'),locale);
+  assert.ok(restored.panels.some(p=>p.id==='financing'));
+  assert.match(buildReportSvg(restored),/12345.67/);
+ }
+});
+
+test('long retrospective research keeps every comparison in web details within the image budget', async()=>{
+ const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');
+ const {buildReportSvg}=await import('../src/lib/report-document-svg.ts');
+ const source=fs.readFileSync('tests/fixtures/asia-document/reports/2026-10-23-evening.md','utf8');
+ const comparisons=Array.from({length:6},(_,i)=>`evidence-${i} MSE=-0.001 n=100 `+'source_id '.repeat(14).trim());
+ const research=['回溯探索性研究。',...comparisons,...Array.from({length:14},(_,i)=>`source-${i} SHA-256 ${'a'.repeat(64)}`),'历史时点数据未认证。'];
+ for(const locale of ['zh','en']){
+  const doc=buildAsiaReportDocument(report,[],source+'\n### 海外主题研究证据\n'+research.join('\n'),locale);
+  const detail=doc.panels.find(p=>p.id==='research-details');
+  assert.equal(detail.disclosure,true);
+  for(const line of research)assert.ok(detail.paragraphs.includes(line));
+  assert.ok(doc.panels.some(p=>p.id==='research-summary'&&!p.disclosure));
+  const svg=buildReportSvg(doc);
+  assert.doesNotMatch(svg,/evidence-0|source-13|a{64}/);
+  assert.match(svg,locale==='zh'?/网页详情/:/web report/);
+ }
 });

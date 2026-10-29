@@ -1,6 +1,7 @@
+import {formatDisplayValue} from './display-value';
 import type {ReportDocument,ReportPanel,ReportRow} from './report-document';
 import {reportTheme,reportFonts} from './report-theme';
-import {reportRowGeometry,reportLineGeometry} from './report-document-geometry';
+import {reportRowGeometry,reportLineGeometry,reportLineLabels,reportLineHasValueLabels} from './report-document-geometry';
 import {reportDocumentLabels} from './report-document-labels';
 const esc=(v:unknown)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 export function wrapReportText(value:string,width=100):string[] {
@@ -21,14 +22,14 @@ export function buildReportSvg(document:ReportDocument):string {
  const drawRow=(panel:ReportPanel,row:ReportRow)=>{
   const labelLines=wrapReportText(row.label,20);for(const label of labelLines){parts.push(node(54,y,label,14));y+=22;}
   const base=y-22;const geometry=reportRowGeometry(panel,row);
-  if(row.valueText)parts.push(node(906,base,row.valueText,17,geometry?color(geometry.tone==='neutral'?'ink':geometry.tone):color('ink'),'end',true));
-  if(row.cells?.length)parts.push(node(410,base,row.cells[0].text,13,color('ink'),'end'));
+  if(row.valueText)parts.push(node(906,base,formatDisplayValue(row.valueText,document.locale),17,geometry?color(geometry.tone==='neutral'?'ink':geometry.tone):color('ink'),'end',true));
+  if(row.cells?.length)parts.push(node(410,base,formatDisplayValue(row.cells[0].text,document.locale),13,color('ink'),'end'));
   if(geometry){parts.push(`<rect x="440" y="${base-11}" width="270" height="10" fill="${color('soft')}"/>`);parts.push(`<line x1="${440+geometry.zero*2.7}" x2="${440+geometry.zero*2.7}" y1="${base-15}" y2="${base+3}" stroke="${color('muted')}"/>`);parts.push(`<rect data-metric="${esc(row.id)}" data-value="${row.value}" x="${440+geometry.left*2.7}" y="${base-11}" width="${geometry.width*2.7}" height="10" fill="${color(geometry.tone==='neutral'?'negative':geometry.tone)}"/>`);}
-  if(row.cells&&row.cells.length>1)text(row.cells.slice(1).map(cell=>`${cell.label}: ${cell.text}`).join(' · '),12,color('muted'));
+  if(row.cells&&row.cells.length>1)text(row.cells.slice(1).map(cell=>`${cell.label}: ${formatDisplayValue(cell.text,document.locale)}`).join(' · '),12,color('muted'));
   for(const detail of row.details??[])text(detail,11,color('muted'));
   if(row.observationDate&&row.observationDate!==document.date&&new Set((panel.rows??[]).map(r=>r.observationDate)).size!==1)text(`${t.observed} ${row.observationDate}${panel.unit?` · ${panel.unit}`:''}`,11,color('muted'));
   if(row.scale&&geometry&&new Set((panel.rows??[]).map(r=>JSON.stringify(r.scale))).size!==1)text(`${t.axis}: ${geometry.min} … ${geometry.max}${panel.unit?` ${panel.unit}`:''}`,10,color('muted'));
-  y+=2;line();y+=10;
+  y+=2;line();y+=8;
  };
  for(const panel of document.panels){
   if(panel.disclosure)continue;
@@ -40,7 +41,7 @@ export function buildReportSvg(document:ReportDocument):string {
    y+=12;
   }
   else if(panel.kind==='line'){
-   const chart=reportLineGeometry(panel);if(chart){const top=y+12;const plotHeight=Math.max(...chart.series.map(s=>s.values.length))<=7?72:174;[0,.5,1].forEach(v=>{const at=top+v*plotHeight;parts.push(`<line x1="100" x2="906" y1="${at}" y2="${at}" stroke="${color('line')}"/>`);parts.push(node(88,at+4,(chart.max-(chart.max-chart.min)*v).toLocaleString(document.locale==='en'?'en-US':'zh-CN',{maximumFractionDigits:2}),10,color('muted'),'end'));});for(const [i,series]of chart.series.entries()){const points=series.points.split(' ').map(p=>{const [x,at]=p.split(',').map(Number);return `${100+(x-4)/632*806},${top+(at-8)/174*plotHeight}`;}).join(' ');parts.push(`<polyline points="${points}" fill="none" stroke="${color(i%2?'negative':'positive')}" stroke-width="2"/>`);}y=top+plotHeight+21;for(const series of chart.series)text(`${series.label} · ${series.values[0].date} — ${series.values.at(-1)!.date} · ${series.values.length} ${t.observations}`,11,color('muted'));y+=15;}else text(t.missing,12,color('muted'));
+   const chart=reportLineGeometry(panel);if(chart){const top=y+8;const plotHeight=Math.max(...chart.series.map(s=>s.values.length))>7?174:72;[0,.5,1].forEach(v=>{const at=top+v*plotHeight;parts.push(`<line x1="100" x2="906" y1="${at}" y2="${at}" stroke="${color('line')}"/>`);parts.push(node(88,at+4,(chart.max-(chart.max-chart.min)*v).toLocaleString(document.locale==='en'?'en-US':'zh-CN',{maximumFractionDigits:2}),10,color('muted'),'end'));});for(const [i,series]of chart.series.entries()){const points=series.points.split(' ').map(p=>{const [x,at]=p.split(',').map(Number);return `${100+(x-4)/632*806},${top+(at-8)/174*plotHeight}`;}).join(' ');parts.push(`<polyline points="${points}" fill="none" stroke="${color(i%2?'negative':'positive')}" stroke-width="2"/>`);for(const point of reportLineHasValueLabels(panel)?reportLineLabels(series,document.locale,i,plotHeight):[]){const labelX=100+(point.x-4)/632*806,labelY=top+point.y-8;parts.push(`<g data-line-label="${esc(series.label)}" data-date="${point.date}" data-value="${point.value}">${node(labelX,labelY,point.text,11,color('ink'),point.anchor)}</g>`);}}y=top+plotHeight+17;for(const series of chart.series)text(`${series.label} · ${series.values[0].date} — ${series.values.at(-1)!.date} · ${series.values.length} ${t.observations}`,11,color('muted'));y+=3;}else text(t.missing,12,color('muted'));
   }else for(const row of panel.rows??[]) {if(panel.kind==='text'){text(row.label);for(const detail of row.details??[])text(detail,12,color('muted'));sources(row.sources);y+=10;}else drawRow(panel,row);}
   for(const paragraph of panel.paragraphs??[]) {text(paragraph);y+=8;}
   for(const note of panel.notes??[])if(note.trim())text(note,12,color('muted'));
