@@ -8,6 +8,7 @@ import { renderReportPanel, normalizePanelLine, type Draw } from './asia-report-
 import { toEnglishPresentation } from './english-content.ts';
 import { asiaImageLabel } from './locale.ts';
 import { ASIA_DOCUMENT_LOCALE } from './asia-document-locale.ts';
+import { ASIA_RESEARCH_LOCALE } from './asia-research-locale.ts';
 
 /** Published source adapters share the image validators; no market facts are inferred. */
 export function buildAsiaReportDocument(report: {id:string;date:string;kind:string;summary?:unknown}, charts:LoadedCharts, markdown:string, locale:'en'|'zh'): ReportDocument {
@@ -23,7 +24,7 @@ export function buildAsiaReportDocument(report: {id:string;date:string;kind:stri
  const fact=(label:string,value:number,unit:string,observationDate?:string)=>JSON.stringify([label,value,unit,observationDate]);
  const remember=(label:string,value:number,unit:string,observationDate?:string)=>{facts.add(fact(label,value,unit,observationDate));const aliases:Record<string,string>={'上涨':'上涨家数','下跌':'下跌家数','平盘':'平盘家数','涨停':'涨停家数','最高连板':'最高连板','全市场中位数涨跌':'中位数涨跌','总成交':'成交额'};if(aliases[label])facts.add(fact(aliases[label],value,unit,observationDate));};
  const fallback=(id:string,lines:string[])=>{if(lines.length) panels.push({id:`${id}-fallback`,title:labels.fallback,kind:'text',paragraphs:lines.map(present)});};
- const text=(id:string,heading:string)=>{const lines=sectionLines(markdown,heading).filter(line=>!/^N\/A$/i.test(normalizePanelLine(line)));if(lines.length)panels.push({id,title:sectionTitle(heading),kind:'text',paragraphs:lines.map(line=>present(normalizePanelLine(line)))});};
+ const text=(id:string,heading:string)=>{const lines=sectionLines(markdown,heading).filter(line=>!/^N\/A$/i.test(normalizePanelLine(line)));if(id==='financing'&&lines.every(line=>/^两融数据暂缺(?:[（(]T\+1\s*延迟[）)])?[。. ]*$/.test(normalizePanelLine(line))))return;if(lines.length)panels.push({id,title:sectionTitle(heading),kind:'text',paragraphs:lines.map(line=>present(normalizePanelLine(line)))});};
  const warnings=markdown.split('\n').filter(l=>/休市|当日数据缺失|未收盘|数据警告|^\*数据:/.test(l)&&!l.startsWith('|'));
  const sources=[...markdown.matchAll(/\[([^\]]+)\]\((https:\/\/[^)]+)\)/g)].flatMap(m=>{try{const url=new URL(m[2]);return url.protocol==='https:'&&!url.username&&!url.password?[{label:present(m[1]),url:m[2]}]:[];}catch{return [];}});
  const overview=asiaMarketOverview(markdown,report.date,locale==='en'?'en-US':'zh-CN');
@@ -126,7 +127,9 @@ export function buildAsiaReportDocument(report: {id:string;date:string;kind:stri
   if(panel.rows?.length)panels.push(panel);
  }
  if(chartStatus.length)panels.push({id:'supplemental-chart-status',title:labels.supplementalTitle,kind:'text',disclosure:bundleAbsent||!charts.length,paragraphs:chartStatus});
- const known=new Set(['## 一、市场状态','### 六维观察','### 核心矛盾','### 明日验证','### 昨日验证复盘','### 数据完整度与校准','### 二、指数总览','### 三、市场总览','### 四、涨跌停','### 五、资金动向','### 六、融资融券','### 七、行业板块 TOP10','### 八、高成交核心票 TOP10','### 九、热门概念 TOP5','### 十、极端异动','### 亚洲市场概览']);
+ const research=sectionLines(markdown,'### 海外主题研究证据');
+ if(research.length){const copy=ASIA_RESEARCH_LOCALE[locale];panels.push({id:'research-summary',title:copy.title,kind:'text',paragraphs:[copy.note]});panels.push({id:'research-details',title:copy.details,kind:'text',disclosure:true,paragraphs:[copy.sourceLanguage,...research]});}
+ const known=new Set(['### 海外主题研究证据','## 一、市场状态','### 六维观察','### 核心矛盾','### 明日验证','### 昨日验证复盘','### 数据完整度与校准','### 二、指数总览','### 三、市场总览','### 四、涨跌停','### 五、资金动向','### 六、融资融券','### 七、行业板块 TOP10','### 八、高成交核心票 TOP10','### 九、热门概念 TOP5','### 十、极端异动','### 亚洲市场概览']);
  for(const heading of markdown.split('\n').filter(l=>/^### /.test(l)&&!known.has(l.trim())))fallback(`source-${panels.length}`,[heading,...sectionLines(markdown,heading)]);
  const order=['summary','asia-overview','state','dimensions','contradiction','next-session','previous-session','indices','overview','overview-turnover','overview-breadth','overview-advance-rate','intraday','distribution','limits','limits-over-five','limits-board','flow','flow-counts','financing','industry','industry-decliners','turnover','concepts','movers','calibration'];
  const rank=(id:string)=>{const direct=order.indexOf(id);if(direct>=0)return direct;const original=id.replace(/-(?:fallback|additional)$/,'');const fallback=order.indexOf(original);return fallback>=0?fallback+.1:100;};

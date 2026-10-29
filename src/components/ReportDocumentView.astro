@@ -1,7 +1,7 @@
 ---
 import { formatDisplayValue } from '../lib/display-value';
 import type {ReportDocument, ReportSource} from '../lib/report-document';
-import {reportRowGeometry,reportLineGeometry} from '../lib/report-document-geometry';
+import {reportRowGeometry,reportLineGeometry,reportLineLabels,reportLineHasValueLabels} from '../lib/report-document-geometry';
 import {reportDocumentLabels} from '../lib/report-document-labels';
 interface Props {document:ReportDocument}
 const {document}=Astro.props;const weekly=document.id.endsWith('-weekly');const t=reportDocumentLabels[document.locale];
@@ -32,11 +32,11 @@ const uniqueSources = (sources: ReportSource[]) => [...new Map(sources.map(s => 
    </>:panel.kind==='stack-history'&&panel.series?.length?<div class="document-history-stacks">
     <p class="report-caption">{panel.series.map(s=>s.label).join(' / ')}</p>
     {panel.series[0].values.map(point=>{const values=panel.series!.map(s=>s.values.find(r=>r.date===point.date)?.value);const sum=values.reduce<number>((n,v)=>n+(v??0),0);return <div class="document-history-row"><time>{point.date}</time><div class="document-stack" aria-hidden="true">{values.map((v,i)=><span style={`width:${sum?(v??0)/sum*100:0}%;background:var(--desk-${['positive','negative','muted'][i%3]})`}></span>)}</div><p class="report-caption">{values.map(v=>v===undefined?'—':number(v)).join(' / ')}</p></div>;})}
-   </div>:panel.kind==='line'?chart?<figure class="document-trend">
-    <div class="document-plot"><div class="document-ticks">{[chart.max,(chart.max+chart.min)/2,chart.min].map((value,i)=><span style={`top:${i*50}%`}>{number(value)}</span>)}</div>
+   </div>:panel.kind==='line'?chart?<figure class="document-trend" style={reportLineHasValueLabels(panel)?"max-width:100%;overflow-x:auto;padding-block:14px":undefined}>
+    <div class="document-plot" style={reportLineHasValueLabels(panel)?`min-width:${Math.max(640,...chart.series.map(series=>series.values.length*90))}px;grid-template-columns:88px minmax(0,1fr)`:undefined}><div class="document-ticks" style={reportLineHasValueLabels(panel)?"white-space:nowrap":undefined}>{[chart.max,(chart.max+chart.min)/2,chart.min].map((value,i)=><span style={`top:${i*50}%`}>{number(value)}</span>)}</div>
      <svg viewBox="0 0 640 190" preserveAspectRatio="none" role="img" aria-label={panel.title}>
       <title>{panel.title}</title>{[8,95,182].map(y=><line x1="4" x2="636" y1={y} y2={y} class="document-gridline"/>)}
-      {chart.series.map((series,i)=><polyline points={series.points} class="document-series" style={`stroke:var(--desk-${i%2?'negative':'positive'})`}/>)}
+      {chart.series.map((series,i)=><g><polyline points={series.points} class="document-series" style={`stroke:var(--desk-${i%2?'negative':'positive'})`}/>{reportLineHasValueLabels(panel)&&reportLineLabels(series,document.locale,i).map(point=><text data-line-label={series.label} data-date={point.date} data-value={point.value} x={point.x} y={point.y} text-anchor={point.anchor} font-size="12" fill="currentColor" stroke="var(--desk-paper)" stroke-width="3" paint-order="stroke">{point.text}</text>)}</g>)}
      </svg></div>
     <figcaption>{chart.series.map(series=><p>{series.label} · <time>{series.values[0].date}</time> — <time>{series.values.at(-1)!.date}</time> · {series.values.length} {t.observations}</p>)}</figcaption>
    </figure>:<p class="report-caveat">{t.missing}</p>:<div class="document-rows">{(panel.rows??[]).map(row=>{

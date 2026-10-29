@@ -14,3 +14,13 @@ test('display precision rounds standalone metrics without touching evidence or i
     for (const source of ['000001', '2026-10-26', 'https://example.com/0.1234', 'Evidence 0.1234%', '1.20%', 'N/A']) assert.equal(format(source, locale), source);
   }
 });
+
+test('money flow units suppress floating point tails in both locales', async () => {
+  const { formatDisplayValue: format } = await import('../src/lib/display-value.ts');
+  for (const locale of ['zh', 'en']) {
+    assert.equal(format('11.461827 亿元', locale), '11.46 亿元');
+    assert.equal(format('2.9823310000000003 亿元', locale), '2.98 亿元');
+    assert.equal(format('-15.812498999999999 亿元', locale), '-15.81 亿元');
+    assert.equal(format('11.461827 CNY 100m', locale), '11.46 CNY 100m');
+  }
+});

@@ -86,6 +86,7 @@ export function reportTable(markdown: string, heading: string): ReportTable | nu
     const spec = specs[heading];
     if (!spec) return null;
     table.key = spec[0];
+    if (table.key === 'industry' || table.key === 'turnover') table.preview = 10;
     let headerFound = false;
     for (const line of lines) {
       if (/^\|[\s|:-]+\|$/.test(line)) continue;

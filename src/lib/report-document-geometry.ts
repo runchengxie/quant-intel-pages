@@ -19,3 +19,21 @@ export function reportLineGeometry(panel:ReportPanel) {
  if(!Number.isFinite(low)||!Number.isFinite(high)||low>=high)return null;
  return {min:low*scale,max:high*scale,series:series.map(s=>({...s,points:s.values.map((r,i)=>`${(4+(s.values.length===1?.5:i/(s.values.length-1))*632).toFixed(2)},${(8+(high-r.value/scale)/(high-low)*174).toFixed(2)}`).join(' ')}))};
 }
+
+/** Shared text and in-plot anchors for browser and vector exports. Raw values stay intact. */
+export function reportLineLabels(series:NonNullable<ReturnType<typeof reportLineGeometry>>['series'][number],locale:'zh'|'en',seriesIndex=0,plotHeight=174) {
+ const points=series.points.split(' ').map(point=>point.split(',').map(Number));
+ return series.values.map((point,index)=>({
+  ...point,
+  x:points[index][0],
+  y:Math.max(14,Math.min(plotHeight+4,8+(points[index][1]-8)/174*plotHeight+(seriesIndex%2?17:-10))),
+  anchor:series.values.length===1?'middle':index===0?'start':index===series.values.length-1?'end':'middle',
+  text:point.value.toLocaleString(locale==='en'?'en-US':'zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2}),
+ }));
+}
+
+/** Only the requested monetary histories receive point labels; long weekly charts stay unchanged. */
+export function reportLineHasValueLabels(panel:ReportPanel):boolean {
+ return [panel.title,...(panel.series??[]).map(series=>series.label)].some(label=>
+  /^(?:成交额(?:走势)?(?:（亿(?:元)?）)?|总成交|融资余额(?:走势)?|(?:total )?turnover(?: trend)?(?: \(CNY 100m\))?|financing(?:-| )balance(?: trend)?)$/i.test(label.trim()));
+}
