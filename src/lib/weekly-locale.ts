@@ -51,7 +51,7 @@ export const weeklyLabels = {
     download: "下载报告图片",
     source: "Markdown 原文",
     fallback:
-      "下方为完整审核后的中文报告。报告日期为交易截止日；历史观测不代表未来收益。",
+      "下方为审核后的完整中文报告。报告日期表示交易截止日。历史观测覆盖已发生的行情，未来收益仍有不确定性。",
     interactive: "查看历史观测图表",
     value: "价值风格历史",
     size: "大小盘强弱与拥挤度",
@@ -65,7 +65,7 @@ export const weeklyLabels = {
     error: "交互图表暂不可用，请查看下方数据表。",
     generated: "生成时间",
     limitations:
-      "仅供研究参考。下方保留数据日期和来源标识；本页不计算新的投资信号。",
+      "本页展示已发布的研究结果，供读者查阅。下方保留数据日期和来源标识，网页不计算新的投资信号。",
     sources: "来源标识",
     switch: "English",
   },

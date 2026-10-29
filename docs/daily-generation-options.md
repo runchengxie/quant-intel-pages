@@ -25,7 +25,7 @@ Production credentials, stable release directories, and timers belong outside Gi
 
 Platform publishes `### 亚洲市场概览` with six columns (`市场 | 指数 | 数据日期 | 收盘 | 涨跌幅 | 状态`) and exactly Hong Kong/Hang Seng, Japan/Nikkei 225 and Korea/KOSPI rows. Mainland indices remain in their own report module. Verified closes require the report’s session date plus source URL, exchange-close timestamp and evidence ID. Closed, unavailable and not-yet-closed markets carry em dashes instead of old prices. Pages renders these same Markdown facts and source notes without requesting quotes or inferring calendars. Malformed/stale or unproven rows stay explicit as fallback text while other verified markets remain visible. Historical four-column mainland-holiday tables remain supported.
 
-This presentation is backward compatible and does not require the new Platform producer to be deployed before existing reports can build. New module generation requires the matching Platform repair; no runtime or scheduler is changed by this Pages PR.
+Existing report formats remain supported. The Asian overview module requires a matching Platform producer. A Pages source change alone does not update that producer or its production scheduler.
 
 ### Weekly public handoff
 
@@ -47,10 +47,9 @@ numbers, source dates and limitations. Unknown new paragraphs are visibly flagge
 and retained in the folded Chinese original. Locale links preserve the dated
 report route; static content works without JavaScript.
 
-This source change adds reading and chart routes; it does not install schedules or
-send images. Deployment and exact live identity verification precede delivery under
-the separate Deploy publication transaction. A successful local build alone does
-not establish that a weekly report has been deployed.
+Deploy manages schedules and image delivery. It verifies the deployed report identity
+before delivery as part of its publication transaction. Use publisher receipts and
+actual report URLs to confirm publication after a local build.
 
 ### Native reading and preserved image export
 
