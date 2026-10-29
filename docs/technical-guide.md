@@ -29,7 +29,7 @@ python3 -m http.server 8000 --directory "$preview_root"
 
 `scripts/public_site_alerts.py` 跟踪网站构建是否成功，并更新对应的 Issue。公开报告是否按时更新由 `quant-intel-deploy` 监控。网站工作流只消费报告文件，不生成报告，也不读取模型密钥。
 
-报告下载地址使用 `/data/` 和 `/reports/`。网站 URL 的固定前缀为 `/quant-intel-pages/`。详情见 [AGENTS.md](../AGENTS.md) 和[日报交接说明](daily-generation-options.zh-CN.md)。
+报告下载地址使用 `/data/` 和 `/reports/`。网站 URL 的固定前缀为 `/quant-intel-pages/`。详情见 [开发约定](../AGENTS.zh-CN.md) 和[日报交接说明](daily-generation-options.zh-CN.md)。
 
 ## 语言与阅读
 
@@ -89,4 +89,4 @@ python3 -m http.server 8000 --directory "$preview_root"
 
 同一检出中的 `npm test`、`npm run check`、网站构建和浏览器测试要依次运行。Node 测试也会启动 Astro 构建，它们共用检出目录的 `.astro` 缓存。即使最终输出目录不同，同时构建仍可能删除另一进程需要的预渲染文件。
 
-并行开发使用独立工作树。并行运行浏览器测试时，设置 `PLAYWRIGHT_PORT` 分配不同端口。完整验证命令见 [AGENTS.md](../AGENTS.md)，报告随日期更新时的测试要求见[动态发布测试说明](testing-dynamic-publications.md)。
+并行开发使用独立工作树。并行运行浏览器测试时，设置 `PLAYWRIGHT_PORT` 分配不同端口。完整验证命令见 [开发约定](../AGENTS.zh-CN.md)，报告随日期更新时的测试要求见[动态发布测试说明](testing-dynamic-publications.md)。
