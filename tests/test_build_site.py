@@ -202,11 +202,15 @@ def test_workflow_uses_public_owner_cli_without_generation_secrets() -> None:
         .split("ref: ", 1)[1]
         .splitlines()[0]
     )
-    readme_install = readme.split('uv tool install "', 1)[1].split('"', 1)[0]
+    guide = Path("docs/technical-guide.en.md").read_text(encoding="utf-8")
+    guide_install = guide.split('uv tool install "', 1)[1].split('"', 1)[0]
     readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
-    readme_zh_install = readme_zh.split('uv tool install "', 1)[1].split('"', 1)[0]
-    assert readme_install.endswith(f"@{workflow_pin}")
-    assert readme_zh_install == readme_install
+    guide_zh = Path("docs/technical-guide.md").read_text(encoding="utf-8")
+    guide_zh_install = guide_zh.split('uv tool install "', 1)[1].split('"', 1)[0]
+    assert guide_install.endswith(f"@{workflow_pin}")
+    assert guide_zh_install == guide_install
+    assert "](docs/technical-guide.en.md#local-build)" in readme
+    assert "](docs/technical-guide.md#本地构建)" in readme_zh
     assert "market-export-site-snapshot --help" in workflow
     assert "name: Public website" in workflow
     assert "  build:" in workflow

@@ -8,18 +8,7 @@ This repository builds the report website. Reports include dated observations, s
 
 ## Preview the site locally
 
-Use Python 3.11, Node.js 24, npm and uv. Run these commands from the repository root. The [maintenance guide](docs/technical-guide.en.md#local-build) explains the pinned report exporter and build inputs.
-
-```bash
-uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@c761aaa22cebd72283063ca11c4f1632f1c439fc"
-npm ci
-uv sync --locked --group dev --no-install-project
-preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)
-python3 scripts/build_site.py --output "$preview_root/quant-intel-pages"
-python3 -m http.server 8000 --directory "$preview_root"
-```
-
-Open <http://localhost:8000/quant-intel-pages/>. Build output stays outside the repository.
+Follow the [local preview instructions](docs/technical-guide.en.md#local-build) to install the requirements and build a copy of the website.
 
 ## Make a change
 

@@ -8,18 +8,7 @@
 
 ## 在本地打开网站
 
-需要 Python 3.11、Node.js 24、npm 和 uv。在本仓库目录运行下面的命令。报告导出命令的版本和构建输入见[维护指南](docs/technical-guide.md#本地构建)。
-
-```bash
-uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@c761aaa22cebd72283063ca11c4f1632f1c439fc"
-npm ci
-uv sync --locked --group dev --no-install-project
-preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)
-python3 scripts/build_site.py --output "$preview_root/quant-intel-pages"
-python3 -m http.server 8000 --directory "$preview_root"
-```
-
-打开 <http://localhost:8000/quant-intel-pages/> 即可预览。生成的网页保存在仓库外。
+按[本地预览说明](docs/technical-guide.md#本地构建)安装所需工具，即可在自己的电脑上构建和查看网站。
 
 ## 怎样修改项目
 
