@@ -90,7 +90,7 @@ export const ASIA_IMAGE_LABELS = {
   aShareIndexOverview: ['A股指数总览', 'A-share index overview'],
   asiaOverview: ['亚洲市场概览', 'Asian market overview'],
   dataWarnings: ['数据警告 ', 'Data warnings: '],
-  sourceTimeSemantics: ['来源时间按交易所日历记录实际收盘时刻。日线时间戳用于标识当地交易日。', 'Source times are exchange-calendar closes. Daily bar timestamps identify local sessions.'],
+  sourceTimeSemantics: ['来源时间为交易所日历规定的实际收盘时间；日线时间戳仅标识当地交易日。', 'Source times are exchange-calendar closes. Daily bar timestamps identify local sessions.'],
   hongKongCloseData: ['香港收盘数据', 'Hong Kong close data'],
   japanCloseData: ['日本收盘数据', 'Japan close data'],
   koreaCloseData: ['韩国收盘数据', 'Korea close data'],
