@@ -134,7 +134,10 @@ export function buildAsiaReportDocument(report: {id:string;date:string;kind:stri
  for(const heading of markdown.split('\n').filter(l=>/^### /.test(l)&&!known.has(l.trim())))fallback(`source-${panels.length}`,[heading,...sectionLines(markdown,heading)]);
  const order=['summary','asia-overview','state','dimensions','contradiction','next-session','previous-session','indices','overview','overview-turnover','overview-breadth','overview-advance-rate','intraday','distribution','limits','limits-over-five','limits-board','flow','flow-counts','financing','industry','industry-decliners','turnover','concepts','movers','calibration'];
  const rank=(id:string)=>{const direct=order.indexOf(id);if(direct>=0)return direct;const original=id.replace(/-(?:fallback|additional)$/,'');const fallback=order.indexOf(original);return fallback>=0?fallback+.1:100;};
- for(const panel of panels)for(const row of panel.rows??[])row.label=formatStockIdentity(row.label);
+ for(const panel of panels)for(const row of panel.rows??[]){
+  row.label=formatStockIdentity(row.label);
+  if(/^concepts(?:-additional)?$/.test(panel.id)&&row.cells?.[0])row.cells[0].text=formatStockIdentity(row.cells[0].text);
+ }
  panels.sort((a,b)=>rank(a.id)-rank(b.id));
  return{id:report.id,title:labels.title,date:report.date,locale,panels,sources,notes:[...new Set(warnings.map(present))]};
 }

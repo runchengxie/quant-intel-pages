@@ -149,7 +149,7 @@
       "reason": null,
       "points": [
         {
-          "label": "宁德时代 300750",
+          "label": "宁德时代 300750.SZ",
           "value": 11.461827,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -157,7 +157,7 @@
           "source_url": "https://tushare.pro/document/2?doc_id=348"
         },
         {
-          "label": "长江电力 600900",
+          "label": "长江电力 600900.SH",
           "value": 11.067736,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -165,7 +165,7 @@
           "source_url": "https://tushare.pro/document/2?doc_id=348"
         },
         {
-          "label": "工商银行 601398",
+          "label": "工商银行 601398.SH",
           "value": 7.93474,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -173,7 +173,7 @@
           "source_url": "https://tushare.pro/document/2?doc_id=348"
         },
         {
-          "label": "交通银行 601328",
+          "label": "交通银行 601328.SH",
           "value": 5.386814,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -181,7 +181,7 @@
           "source_url": "https://tushare.pro/document/2?doc_id=348"
         },
         {
-          "label": "中国银行 601988",
+          "label": "中国银行 601988.SH",
           "value": 4.130623,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -189,7 +189,7 @@
           "source_url": "https://tushare.pro/document/2?doc_id=348"
         },
         {
-          "label": "中国神华 601088",
+          "label": "中国神华 601088.SH",
           "value": 2.9823310000000003,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -197,7 +197,7 @@
           "source_url": "https://tushare.pro/document/2?doc_id=348"
         },
         {
-          "label": "伊利股份 600887",
+          "label": "伊利股份 600887.SH",
           "value": 2.795356,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -205,7 +205,7 @@
           "source_url": "https://tushare.pro/document/2?doc_id=348"
         },
         {
-          "label": "成都银行 601838",
+          "label": "成都银行 601838.SH",
           "value": 2.727131,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -213,7 +213,7 @@
           "source_url": "https://tushare.pro/document/2?doc_id=348"
         },
         {
-          "label": "中际旭创 300308",
+          "label": "中际旭创 300308.SZ",
           "value": -15.812498999999999,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -221,7 +221,7 @@
           "source_url": "https://tushare.pro/document/2?doc_id=348"
         },
         {
-          "label": "新易盛 300502",
+          "label": "新易盛 300502.SZ",
           "value": -10.528542,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -229,7 +229,7 @@
           "source_url": "https://tushare.pro/document/2?doc_id=348"
         },
         {
-          "label": "亨通光电 600487",
+          "label": "亨通光电 600487.SH",
           "value": -9.393423,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -237,7 +237,7 @@
           "source_url": "https://tushare.pro/document/2?doc_id=348"
         },
         {
-          "label": "工业富联 601138",
+          "label": "工业富联 601138.SH",
           "value": -9.102378,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -245,7 +245,7 @@
           "source_url": "https://tushare.pro/document/2?doc_id=348"
         },
         {
-          "label": "兆易创新 603986",
+          "label": "兆易创新 603986.SH",
           "value": -8.708668,
           "unit": "亿元",
           "observation_date": "2026-10-29",
@@ -534,5 +534,5 @@
       ]
     }
   ],
-  "content_sha256": "f4bec966f5007c6834e940516913540ff59267a2928ea147bebfd0fb7880d2db"
+  "content_sha256": "5945b843c068c341e30958796dc90bde64f2f2f2dc1122216a17013127513ce6"
 }

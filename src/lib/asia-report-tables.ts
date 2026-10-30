@@ -73,7 +73,9 @@ export function reportTable(markdown: string, heading: string): ReportTable | nu
       if (!match) { table.fallback.push(line); continue; }
       for (const entry of match[2].split('、')) {
         const row = /^([\d]{6}\.(?:SZ|SH|BJ))(?: (.+))?\(([+-]?\d+(?:\.\d+)?%)\)$/.exec(entry.trim());
+        const named = /^(.+) ([\d]{6}\.(?:SZ|SH|BJ))\(([+-]?\d+(?:\.\d+)?%)\)$/.exec(entry.trim());
         if (row) table.rows.push([match[1], row[2] ? row[1] + " " + decodeName(row[2]) : row[1], row[3]]);
+        else if(named)table.rows.push([match[1],named[2]+" "+decodeName(named[1]),named[3]]);
         else table.fallback.push(entry);
       }
     }

@@ -19,3 +19,12 @@ test('legacy turnover remains readable and unnamed new rows retain their explici
 test('locale parity includes the explicitly supplied exchange suffix',async()=>{
  const {compareReportFacts}=await import('../src/lib/report-quality.ts');const en={id:'2026-10-29-evening',date:'2026-10-29',locale:'en',title:'Report',panels:[{id:'turnover',title:'Turnover',kind:'rows',rows:[{id:'turnover-0',label:'中际旭创 300308.SZ',value:194.8}]}]};const zh=structuredClone(en);zh.locale='zh';zh.panels[0].rows[0].label='中际旭创 300308.SH';assert.ok(compareReportFacts(en,zh).length);
 });
+test('concept leader secondary cells retain returns after normalizing stock identity',async()=>{
+ const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');const {buildReportSvg}=await import('../src/lib/report-document-svg.ts');const markdown='数据日期: 2026-10-29\n### 九、热门概念 TOP5\n| 概念 | 涨幅 | 龙头 | 涨停数 |\n|---|---|---|---|\n| CPO | +1.00% | 300308.SZ 中际旭创(+2.00%) | 2 |';
+ for(const locale of ['en','zh']){const doc=buildAsiaReportDocument({id:'2026-10-29-evening',date:'2026-10-29',kind:'evening'},[],markdown,locale);const row=doc.panels.find(p=>p.id==='concepts').rows[0];assert.equal(row.cells[0].text,'中际旭创 300308.SZ(+2.00%)');assert.ok(buildReportSvg(doc).includes('中际旭创 300308.SZ(+2.00%)'));assert.equal(row.value,1);}
+});
+test('name-first and legacy code-first mover source rows have the same presentation',async()=>{
+ const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');const report={id:'2026-10-29-evening',date:'2026-10-29',kind:'evening'};
+ const documents=['300308.SZ 中际旭创','中际旭创 300308.SZ'].map(identity=>buildAsiaReportDocument(report,[],'数据日期: 2026-10-29\n### 十、极端异动\n跌幅前五: '+identity+'(-8.53%)','zh'));
+ for(const doc of documents)assert.equal(doc.panels.find(p=>p.id==='movers')?.rows[0]?.label,'中际旭创 300308.SZ');
+});
