@@ -1,5 +1,11 @@
 import { sectionLines, dailyReturn, type ReportTable } from './asia-report-tables.ts';
 import { ASIA_IMAGE_LABELS as labels, asiaImageLabel, type Locale } from './locale.ts';
+import { overviewTimeMetadata, type OverviewTimeMetadata } from './asia-overview-time-metadata.ts';
+
+interface OverviewTable extends ReportTable {
+  sourceTimeKind?: OverviewTimeMetadata['kind'];
+  sourceTimeMetadataStatus: OverviewTimeMetadata['status'];
+}
 
 const HEADER = ['市场', '指数', '数据日期', '收盘', '涨跌幅', '状态'];
 const MARKETS = {
@@ -35,10 +41,11 @@ function validRow(row: string[], date: string, source: Source | undefined): bool
 }
 
 /** Consume the producer's published facts; never fetch prices or infer exchange sessions here. */
-export function asiaMarketOverview(markdown: string, date: string, locale: Locale): ReportTable | null {
+export function asiaMarketOverview(markdown: string, date: string, locale: Locale): OverviewTable | null {
   const lines = sectionLines(markdown, '### 亚洲市场概览');
   if (!markdown.split('\n').some(line => line.trim() === '### 亚洲市场概览')) return null;
-  const table: ReportTable = { key: 'asia-overview', headers: ['market', 'index', 'sessionDate', 'close', 'return', 'sessionStatus']
+  const time = overviewTimeMetadata(lines, date);
+  const table: OverviewTable = { sourceTimeKind: time.kind, sourceTimeMetadataStatus: time.status, key: 'asia-overview', headers: ['market', 'index', 'sessionDate', 'close', 'return', 'sessionStatus']
     .map(key => asiaImageLabel(key as keyof typeof labels, locale)), rows: [], fallback: [], notes: [], preview: Infinity };
   const sources = new Map<Market, Source>();
   const ambiguous = new Set<Market>();
@@ -72,9 +79,10 @@ export function asiaMarketOverview(markdown: string, date: string, locale: Local
     table.fallback.push(`${asiaImageLabel(spec.name, locale)} · ${asiaImageLabel('marketRowMissing', locale)}`);
   }
   for (const line of lines) {
-    if (line === labels.sourceTimeSemantics[0]) table.notes.push(asiaImageLabel('sourceTimeSemantics', locale));
-    else if (/^数据警告[:：]/.test(line)) table.notes.push(asiaImageLabel('dataWarnings', locale) + line.replace(/^数据警告[:：]\s*/, ''));
+    if (/^数据警告[:：]/.test(line)) table.notes.push(asiaImageLabel('dataWarnings', locale) + line.replace(/^数据警告[:：]\s*/, ''));
   }
+  if (time.kind) table.notes.push(asiaImageLabel('sourceTimeSemantics', locale));
+  else if (time.status === 'invalid') table.notes.push(asiaImageLabel('sourceTimeUnverified', locale));
   table.notes.push(asiaImageLabel('overviewSources', locale));
   return table;
 }
