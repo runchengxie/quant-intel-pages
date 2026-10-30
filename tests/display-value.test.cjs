@@ -24,3 +24,6 @@ test('money flow units suppress floating point tails in both locales', async () 
     assert.equal(format('11.461827 CNY 100m', locale), '11.46 CNY 100m');
   }
 });
+test('monetary display has two decimal places in web and image callers',async()=>{
+ const {formatDisplayValue:format}=await import('../src/lib/display-value.ts');for(const locale of ['en','zh'])for(const unit of ['亿','亿元','CNY 100m']){assert.equal(format(`194.8 ${unit}`,locale),`194.80 ${unit}`);assert.equal(format(`100 ${unit}`,locale),`100.00 ${unit}`);}assert.equal(format('300308','zh'),'300308');
+});

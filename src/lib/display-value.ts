@@ -1,7 +1,9 @@
 /** Format standalone decimal metrics only; never rewrite prose, IDs or source data. */
 export function formatDisplayValue(text: string, locale: 'en' | 'zh'): string {
-  const match = /^([+-]?)(\d+\.\d{3,})(\s*(?:%|亿元|万亿元|万元|亿|万亿|万|CNY 100m|USD|USD 100m|USD trillion|bps)?)$/.exec(text);
+  const match = /^([+-]?)(\d+(?:\.\d+)?)(\s*(?:%|亿元|万亿元|万元|亿|万亿|万|CNY 100m|USD|USD 100m|USD trillion|bps)?)$/.exec(text);
   if (!match || !Number.isFinite(Number(match[1] + match[2]))) return text;
+  const money=/^\s*(?:亿元|万亿元|万元|亿|万亿|万|CNY 100m|USD|USD 100m|USD trillion)$/.test(match[3]);
+  if(!money&&!/\.\d{3,}$/.test(match[2]))return text;
   const value = Number(match[1] + match[2]);
   if (Math.abs(value) >= Number.MAX_SAFE_INTEGER || (value !== 0 && Math.abs(value) < 0.005)) return text;
   const formatted = new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'zh-CN', {

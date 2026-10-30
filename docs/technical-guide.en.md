@@ -129,3 +129,9 @@ retains four native trend panels, lazy interactive views and dated history links
 ## Report presentation checks
 
 Website builds run the [report presentation checks](report-validation.en.md) before rendering. The guide covers frozen snapshots, candidate Markdown and validation receipts.
+
+### Stock identities and monetary precision
+
+A-share stock rows use the supplied company name followed by the supplied security code and exchange suffix, such as `中际旭创 300308.SZ`. The frontend reorders legacy code-first labels. It reads both the historical three-column turnover table and the named four-column table. Missing names or exchange suffixes remain missing; the frontend does not infer them from numeric code ranges or look up current names for historical reports.
+
+Native pages, whole-report images and section images share these rows. Standalone monetary values use two decimal places. Nonzero values below 0.005 keep their supplied precision so they do not appear as zero. Raw values, evidence and source artifacts retain their original precision.
