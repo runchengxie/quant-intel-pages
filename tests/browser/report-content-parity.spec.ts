@@ -67,7 +67,7 @@ test('weekly styled image is separate from immutable source PNG', async ({ page 
   await page.goto(`${base}/en/weekly/2026-10-23/`);
   const original = page.getByRole('link', { name: 'Original published image', exact: true });
   await expect(original).toHaveAttribute('download', '2026-10-23-weekly.png');
-  const button = page.locator('button[data-report-kind="weekly"]');
+  const button = page.locator('button[data-report-kind="weekly"]:not([data-report-section])');
   await expect(button).toHaveAttribute('data-report-content-hash', '605277c1995edf5fbca346957eb6b52cf9fdcdd006b056abde0eed104158ac54');
   await expect(page.locator('#weekly-report-chart svg')).toBeHidden();
   const pending = page.waitForEvent('download');

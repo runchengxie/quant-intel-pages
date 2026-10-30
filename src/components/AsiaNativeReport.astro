@@ -5,6 +5,7 @@ import { toEnglishPresentation } from '../lib/english-content.ts';
 import { renderMarkdown } from '../lib/markdown.ts';
 import type { ChartCard } from '../lib/chart-data.ts';
 import ReportDocumentView from './ReportDocumentView.astro';
+import ReportSectionExports from './ReportSectionExports.astro';
 interface Props { report: {id:string;date:string;kind:string;summary?:unknown}; markdown:string; locale?:'en'|'zh'; charts?:ChartCard[]; }
 const {report,markdown,locale='en',charts=[]}=Astro.props;
 const document=buildAsiaReportDocument(report,charts,markdown,locale);
@@ -14,3 +15,5 @@ const bodyHtml=renderMarkdown(locale==='en'?toEnglishPresentation(markdown):mark
  <ReportDocumentView document={document} />
  <details class="report-original"><summary>{ASIA_DOCUMENT_LOCALE[locale].original}</summary><div class="markdown-body" set:html={bodyHtml} /></details>
 </article>
+
+<ReportSectionExports document={document} kind="asia-daily" />

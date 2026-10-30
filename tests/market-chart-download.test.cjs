@@ -50,7 +50,10 @@ test('PNG export rasterizes the displayed SVG at 2x and releases object URLs', a
     assert.ok(clicked.some((row) => row[0] === 'click' && row[1] === '2026-09-25-asia-daily-report.png'));
     assert.ok(canvas.height <= 8192);
     assert.ok(canvas.width * canvas.height <= 12_000_000);
+    await downloadMarketChartPng(fakeSvg(), '2026-09-25', 'asia-daily', 'money-flow');
+    assert.ok(clicked.some((row) => row[0] === 'click' && row[1] === '2026-09-25-asia-daily-money-flow-report.png'));
     assert.deepEqual(revoked, ['blob:test-image/png', 'blob:test-image/svg+xml;charset=utf-8',
+      'blob:test-image/png', 'blob:test-image/svg+xml;charset=utf-8',
       'blob:test-image/png', 'blob:test-image/svg+xml;charset=utf-8']);
   } finally {
     globalThis.Image = previous.Image;

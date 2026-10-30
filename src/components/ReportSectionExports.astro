@@ -1,0 +1,18 @@
+---
+import type {ReportDocument} from '../lib/report-document';
+import type {ChartKind} from '../lib/market-chart-download';
+import {buildReportSectionImages,buildWholeReportImage} from '../lib/report-sections';
+import {reportSectionLabels} from '../lib/report-section-locale';
+interface Props {document:ReportDocument;kind:ChartKind;}
+const {document,kind}=Astro.props;
+const sections=buildReportSectionImages(document);
+const labels=reportSectionLabels[document.locale];
+const wholeUnavailable=buildWholeReportImage(document)===null;
+---
+{wholeUnavailable&&<p class="report-caveat" data-whole-image-unavailable>{labels.wholeUnavailable}</p>}
+{sections.length>0&&<details class="report-section-downloads secondary-report" data-report-section-exports>
+ <summary>{labels.title}</summary>
+ <p class="section-note">{labels.note}</p>
+ <div class="link-row report-actions">{sections.map(section=><button type="button" data-report-image data-report-date={document.date} data-report-kind={kind} data-report-section={section.key} data-chart-target={`[data-section-image="${section.key}"] svg`} data-status-target={`[data-section-status="${section.key}"]`}>{section.label} · {labels.download}</button>)}</div>
+ {sections.map(section=><><p class="section-note" role="status" aria-live="polite" data-section-status={section.key}></p><div hidden data-section-image={section.key} set:html={section.svg}/></>)}
+</details>}

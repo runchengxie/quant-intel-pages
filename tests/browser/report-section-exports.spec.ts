@@ -1,0 +1,33 @@
+import {expect,test} from '@playwright/test';
+import {latestEvening} from './daily-source';
+for(const locale of ['en','zh'] as const)for(const width of [390,1280])test(`section PNG download preserves dated identity at ${width}px ${locale}`,async({page})=>{
+ await page.setViewportSize({width,height:950});
+ await page.goto(`/quant-intel-pages/${locale==='en'?'en/':'?locale=zh-CN'}`);
+ const button=page.locator('button[data-report-kind="asia-daily"][data-report-section="money-flow"]');
+ await expect(button).toHaveCount(1);
+ const group=button.locator('xpath=ancestor::details[1]');
+ await group.locator(':scope > summary').click();
+ const svg=group.locator('[data-section-image="money-flow"] svg');
+ await expect(svg).toBeHidden();
+ const logical=await svg.evaluate(node=>({width:Number(node.getAttribute('width')),height:Number(node.getAttribute('height'))}));
+ expect(logical.width).toBe(960);expect(logical.height).toBeLessThanOrEqual(8000);
+ await expect(svg.locator('[data-report-panel="chart-moneyflow"]')).toHaveCount(1);
+ await expect(svg.locator('[data-report-panel="industry"]')).toHaveCount(0);
+ expect(await svg.textContent()).toContain(latestEvening.date);
+ const pending=page.waitForEvent('download');await button.click();const download=await pending;
+ expect(download.suggestedFilename()).toBe(`${latestEvening.date}-asia-daily-money-flow-report.png`);
+ await expect(group.locator('[data-section-status="money-flow"]')).toContainText(locale==='en'?'PNG':'PNG');
+ await expect(page.locator('#download-asia-report')).toHaveCount(1);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+});
+test('duplicate section keys scope to their own report and reject invalid filename identity',async({page})=>{
+ await page.goto('/quant-intel-pages/en/');
+ const group=page.locator('[data-report-section-exports]').filter({has:page.locator('button[data-report-kind="asia-daily"]')});
+ const button=group.locator('button[data-report-section="overview"]');await group.locator(':scope > summary').click();
+ const pending=page.waitForEvent('download');await button.click();expect((await pending).suggestedFilename()).toContain('-asia-daily-overview-report.png');
+ const unrelated=page.locator('button[data-report-kind="market-daily"][data-report-section="overview"]').first().locator('xpath=ancestor::details[1]');
+ expect(await unrelated.locator('[data-section-status="overview"]').textContent()).toBe('');
+ const handle=await button.elementHandle();
+ await handle!.evaluate(node=>(node as HTMLButtonElement).dataset.reportSection='../unsafe');
+ await handle!.click();await expect(group.locator('[data-section-status="overview"]')).toContainText('failed');
+});

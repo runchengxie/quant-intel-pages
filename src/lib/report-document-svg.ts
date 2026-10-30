@@ -3,6 +3,10 @@ import type {ReportDocument,ReportPanel,ReportRow} from './report-document';
 import {reportTheme,reportFonts} from './report-theme';
 import {reportRowGeometry,reportLineGeometry,reportLineLabels,reportLineHasValueLabels} from './report-document-geometry';
 import {reportDocumentLabels} from './report-document-labels';
+export class ReportImageBudgetError extends Error {
+ readonly code='report_image_height_exceeded';
+ constructor(readonly height:number){super(`Report image exceeds bounded delivery height (${height})`);this.name='ReportImageBudgetError';}
+}
 const esc=(v:unknown)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 export function wrapReportText(value:string,width=100):string[] {
  const lines:string[]=[];let line='',used=0;
@@ -49,6 +53,7 @@ export function buildReportSvg(document:ReportDocument):string {
  }
  for(const note of document.notes??[])text(note,12,color('muted'));
  y+=8;line();y+=25;text(t.scope,11,color('muted'));if(document.sources?.length)text(t.source,12,color('muted'));sources(document.sources);y+=20;
- if(!Number.isFinite(y)||y>8000)throw new Error(`Report image exceeds bounded delivery height (${Math.ceil(y)})`);
+ if(!Number.isFinite(y))throw new Error('Invalid report image height');
+ if(y>8000)throw new ReportImageBudgetError(Math.ceil(y));
  const height=Math.ceil(y);return `<svg xmlns="http://www.w3.org/2000/svg" width="960" height="${height}" viewBox="0 0 960 ${height}" role="img"><title>${esc(document.title)} · ${document.date}</title><rect width="960" height="${height}" fill="${color('paper')}"/>${parts.join('')}</svg>`;
 }

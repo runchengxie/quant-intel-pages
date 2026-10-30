@@ -1,4 +1,4 @@
-type ChartKind = 'market-daily' | 'asia-daily' | 'weekly';
+export type ChartKind = 'market-daily' | 'asia-daily' | 'weekly';
 
 function serializeSvgWithResolvedTheme(svg: SVGElement): string {
   const clone = svg.cloneNode(true) as SVGElement;
@@ -16,9 +16,10 @@ function serializeSvgWithResolvedTheme(svg: SVGElement): string {
   return new XMLSerializer().serializeToString(clone);
 }
 
-export async function downloadMarketChartPng(svg: SVGElement, date: string, kind: ChartKind = 'market-daily'): Promise<void> {
+export async function downloadMarketChartPng(svg: SVGElement, date: string, kind: ChartKind = 'market-daily', section?: string): Promise<void> {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('无效报告日期');
   if (!['market-daily', 'asia-daily', 'weekly'].includes(kind)) throw new Error('无效报告类型');
+  if (section !== undefined && (typeof section !== 'string' || !/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(section) || section.length > 64)) throw new Error('Invalid report section identity');
   const width = Number(svg?.getAttribute('width'));
   const height = Number(svg?.getAttribute('height'));
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
@@ -48,7 +49,7 @@ export async function downloadMarketChartPng(svg: SVGElement, date: string, kind
     try {
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = `${date}-${kind}-report.png`;
+      link.download = `${date}-${kind}${section ? `-${section}` : ''}-report.png`;
       try {
         document.body.append(link);
         link.click();
