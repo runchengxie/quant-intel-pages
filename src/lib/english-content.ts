@@ -1,3 +1,4 @@
+import { LEGACY_ASIA_SOURCE_TIME_SEMANTICS } from './asia-overview-time-metadata.ts';
 import { ASIA_IMAGE_LABELS, ASIA_RESEARCH_TRANSLATIONS, US_REPORT_LABELS } from './locale.ts';
 
 const PHRASES: Array<[string, string]> = [
@@ -269,7 +270,7 @@ const COMPLETE_TERMS: Array<[string, string]> = [
   ['包含亚洲市场收盘摘要、市场广度、资金流向、市场温度、周度变化及关键来源', 'Includes the Asia close summary, market breadth, money flow, market temperature, weekly changes, and key sources'],
 ];
 
-const dictionary = new Map<string, string>([...PHRASES, ...COMPLETE_TERMS, ...Object.values(ASIA_IMAGE_LABELS), ...Object.values(ASIA_RESEARCH_TRANSLATIONS), ...Object.values(US_REPORT_LABELS)]);
+const dictionary = new Map<string, string>([...PHRASES, ...COMPLETE_TERMS, ...Object.values(ASIA_IMAGE_LABELS), ...Object.values(ASIA_RESEARCH_TRANSLATIONS), ...Object.values(US_REPORT_LABELS), [LEGACY_ASIA_SOURCE_TIME_SEMANTICS, ASIA_IMAGE_LABELS.sourceTimeSemantics[1]]]);
 const terms = [...dictionary.keys()].sort((left, right) => right.length - left.length);
 const letter = /\p{L}/u;
 
