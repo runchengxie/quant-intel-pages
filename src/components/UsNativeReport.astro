@@ -2,8 +2,11 @@
 import type { MarketDailySummary } from '../lib/market-facts.ts';
 import { buildUsReportDocument } from '../lib/us-report-document.ts';
 import ReportDocumentView from './ReportDocumentView.astro';
+import ReportSectionExports from './ReportSectionExports.astro';
 interface Props { summary: MarketDailySummary; locale: 'en' | 'zh' }
 const { summary, locale } = Astro.props;
 const document = buildUsReportDocument(summary, locale);
 ---
 <article class="report-native" data-native-us><ReportDocumentView document={document}/></article>
+
+<ReportSectionExports document={document} kind="market-daily" />

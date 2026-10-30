@@ -6,8 +6,9 @@ import '../styles/report-editorial.css';
 import SiteHeader from "./SiteHeader.astro";
 import ThemeInit from "./ThemeInit.astro";
 import ReportDocumentView from "./ReportDocumentView.astro";
+import ReportSectionExports from "./ReportSectionExports.astro";
 import {buildWeeklyReportDocument} from "../lib/weekly-report-document";
-import {buildReportSvg} from "../lib/report-document-svg";
+import {buildWholeReportImage} from "../lib/report-sections";
 import {reportDocumentLabels} from "../lib/report-document-labels";
 import {
   weeklyLabels,
@@ -27,7 +28,7 @@ const report = landing ? reports[0] : datedReport;
 const history = reports.filter(row => row.date !== report?.date);
 const t = weeklyLabels[locale];
 const reportDocument = report ? buildWeeklyReportDocument(report,locale) : undefined;
-const styledSvg = reportDocument ? buildReportSvg(reportDocument) : undefined;
+const styledSvg = reportDocument ? buildWholeReportImage(reportDocument) : undefined;
 const number = (value: number, digits = 2) =>
   new Intl.NumberFormat(locale === "en" ? "en-US" : "zh-CN", {
     maximumFractionDigits: digits,
@@ -106,9 +107,12 @@ const route = (language: WeeklyLocale, date = "") =>
               <section class="weekly-report-body" data-weekly-report-body>
                 <ReportDocumentView document={{...reportDocument!,panels:reportDocument!.panels.filter(p=>p.id!=='weekly-state')}} />
               </section>
+              <ReportSectionExports document={reportDocument!} kind="weekly" />
+              {styledSvg&&<>
               <p class="link-row"><button type="button" data-report-image data-report-date={report.date} data-report-kind="weekly" data-report-content-hash={report.content_hash} data-chart-target="#weekly-report-chart svg" data-status-target="#weekly-image-status">{t.download}</button></p>
               <p id="weekly-image-status" class="report-caption" role="status"></p>
               <details class="report-export secondary-report" data-report-export><summary>{reportDocumentLabels[locale].imageView}</summary><div id="weekly-report-chart" class="market-chart-graphic market-report-graphic" set:html={styledSvg} /></details>
+              </>}
               <details class="secondary-report" data-weekly-original>
                 <summary>{t.original}</summary>
                 <p><a href={`${base}/${report.source_url}`}>{t.source}</a></p>
