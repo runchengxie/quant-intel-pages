@@ -125,3 +125,7 @@ identity controls. Weekly offers a newly styled derivative while retaining the
 immutable original published PNG. The delivery integration uses the derivative
 for future sends; existing delivery receipts remain authoritative. Weekly also
 retains four native trend panels, lazy interactive views and dated history links.
+
+## Report presentation checks
+
+Website builds run the [report presentation checks](report-validation.en.md) before rendering. The guide covers frozen snapshots, candidate Markdown and validation receipts.

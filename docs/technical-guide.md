@@ -90,3 +90,7 @@ python3 -m http.server 8000 --directory "$preview_root"
 同一检出中的 `npm test`、`npm run check`、网站构建和浏览器测试要依次运行。Node 测试也会启动 Astro 构建，它们共用检出目录的 `.astro` 缓存。即使最终输出目录不同，同时构建仍可能删除另一进程需要的预渲染文件。
 
 并行开发使用独立工作树。并行运行浏览器测试时，设置 `PLAYWRIGHT_PORT` 分配不同端口。完整验证命令见 [开发约定](../AGENTS.zh-CN.md)，报告随日期更新时的测试要求见[动态发布测试说明](testing-dynamic-publications.md)。
+
+## 报告展示检查
+
+网站构建前会运行[报告展示检查](report-validation.zh-CN.md)。说明中列出了冻结快照、候选 Markdown 和验收记录的用法。
