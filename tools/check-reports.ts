@@ -31,8 +31,9 @@ function inputHashes(root: string): Record<string,string> {
 }
 interface Candidate {schema_version:string;report_id:string;markdown_path:string;markdown_sha256:string;producer_revision:string;consumer_revision:string;}
 function readCandidate(file:string) {
+ const metadata=lstatSync(file);if(!metadata.isFile()||metadata.isSymbolicLink()||metadata.size>32768)throw Error('candidate_manifest_invalid');
  const raw=readFileSync(file,'utf8');if(Buffer.byteLength(raw)>32768)throw Error('candidate_too_large');
- const value=JSON.parse(raw) as Candidate;
+ let value:Candidate;try{value=JSON.parse(raw) as Candidate;}catch{throw Error('candidate_manifest_invalid');}
  const fields='consumer_revision,markdown_path,markdown_sha256,producer_revision,report_id,schema_version';
  if(!value||typeof value!=='object'||Object.keys(value).sort().join(',')!==fields||JSON.stringify(value)!==raw.trim()
   ||value.schema_version!=='market_intel.asia_report_candidate.v1'
@@ -60,14 +61,18 @@ async function inspectPair(documents:ReportDocument[],expected:Record<string,num
  const reports=[];
  for(const document of documents){
   const checked=checkReportDocument(document,expected);let mode='whole';let sections:unknown[]=[];
-  if(checked.issues.some(issue=>issue.code==='whole_image_budget_exceeded')){
-   try {
-    const {buildReportSectionImages}=await import('../src/lib/report-sections');
-    sections=buildReportSectionImages(document).map(section=>({key:section.key,panels:section.document.panels.map(panel=>panel.id)}));
-    if(!sections.length)throw Error('no_sections');
+  try {
+   const {buildReportSectionImages}=await import('../src/lib/report-sections');
+   const rendered=buildReportSectionImages(document);
+   sections=rendered.map(section=>({key:section.key,panels:section.document.panels.map(panel=>panel.id)}));
+   const actual=rendered.flatMap(section=>section.document.panels.map(panel=>panel.id)).sort();
+   const expectedPanels=document.panels.filter(panel=>!panel.disclosure).map(panel=>panel.id).sort();
+   if(JSON.stringify(actual)!==JSON.stringify(expectedPanels))checked.issues.push({code:'section_panel_coverage'});
+   for(const section of rendered)checked.issues.push(...checkReportDocument(section.document,{},()=>section.svg).issues);
+   if(rendered.length&&checked.issues.some(issue=>issue.code==='whole_image_budget_exceeded')){
     checked.issues=checked.issues.filter(issue=>issue.code!=='whole_image_budget_exceeded');mode='sections_only';
-   }catch{checked.issues.push({code:'section_image_render_failed'});}
-  }
+   }
+  }catch{checked.issues.push({code:'section_image_render_failed'});}
   reports.push({locale:document.locale,...checked,export_mode:mode,sections});
  }
  const issues=compareReportFacts(documents[0],documents[1]);
@@ -93,6 +98,7 @@ async function inspectInputs(candidate:ReturnType<typeof readCandidate>|undefine
 }
 async function main() {
  const {values}=parseArgs({options:{snapshot:{type:'string'},receipt:{type:'string'},candidate:{type:'string'}}});
+ values.receipt??=process.env.REPORT_VALIDATION_RECEIPT;
  const root=realpathSync(values.snapshot??process.env.ASTRO_DATA_ROOT??'artifacts/public');
  process.env.ASTRO_DATA_ROOT=root;
  if(values.receipt){

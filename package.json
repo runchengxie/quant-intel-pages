@@ -6,6 +6,8 @@
   },
   "scripts": {
     "build": "astro build",
+    "prebuild": "npm run verify:reports",
+    "verify:reports": "tsx tools/check-reports.ts",
     "check": "npm run legacy:check && npm run theme:check && astro check",
     "test": "tsx --test tests/*.cjs",
     "test:browser": "playwright test",
