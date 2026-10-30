@@ -4,8 +4,8 @@ import {buildReportSections,buildWholeReportImage} from '../../src/lib/report-se
 for(const locale of ['en','zh'] as const)for(const width of [390,1280])test(`section PNG download preserves dated identity at ${width}px ${locale}`,async({page})=>{
  await page.setViewportSize({width,height:950});
  await page.goto(`/quant-intel-pages/${locale==='en'?'en/':'?locale=zh-CN'}`);
- const document=dailyDocuments(locale).asia;
- const sections=buildReportSections(document);const section=sections.find(section=>section.key==='money-flow')??sections[0];expect(section).toBeDefined();
+ const reportDocument=dailyDocuments(locale).asia;
+ const sections=buildReportSections(reportDocument);const section=sections.find(section=>section.key==='money-flow')??sections[0];expect(section).toBeDefined();
  const button=page.locator(`button[data-report-kind="asia-daily"][data-report-section="${section.key}"]`);
  await expect(button).toHaveCount(1);
  const group=button.locator('xpath=ancestor::details[1]');
@@ -14,7 +14,7 @@ for(const locale of ['en','zh'] as const)for(const width of [390,1280])test(`sec
  await expect(svg).toBeHidden();
  const logical=await svg.evaluate(node=>({width:Number(node.getAttribute('width')),height:Number(node.getAttribute('height'))}));
  expect(logical.width).toBe(960);expect(logical.height).toBeLessThanOrEqual(8000);
- const expectedMoneyflow=document.panels.find(panel=>panel.id==='chart-moneyflow');
+ const expectedMoneyflow=reportDocument.panels.find(panel=>panel.id==='chart-moneyflow');
  expect(await svg.locator('[data-report-panel]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-report-panel')))).toEqual(section.document.panels.map(panel=>panel.id));
  await expect(svg.locator('[data-report-panel="chart-moneyflow"]')).toHaveCount(expectedMoneyflow?1:0);
  if(!expectedMoneyflow)await expect(page.locator('[data-native-asia] [data-report-panel="supplemental-chart-status"]')).toHaveCount(1);
@@ -23,7 +23,7 @@ for(const locale of ['en','zh'] as const)for(const width of [390,1280])test(`sec
  const pending=page.waitForEvent('download');await button.click();const download=await pending;
  expect(download.suggestedFilename()).toBe(`${latestEvening.date}-asia-daily-${section.key}-report.png`);
  await expect(group.locator(`[data-section-status="${section.key}"]`)).toContainText(locale==='en'?'PNG':'PNG');
- await expect(page.locator('#download-asia-report')).toHaveCount(buildWholeReportImage(document)?1:0);
+ await expect(page.locator('#download-asia-report')).toHaveCount(buildWholeReportImage(reportDocument)?1:0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
 });
 test('duplicate section keys scope to their own report and reject invalid filename identity',async({page})=>{
