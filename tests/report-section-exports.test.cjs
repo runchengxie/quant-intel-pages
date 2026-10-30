@@ -25,7 +25,7 @@ test('large whole report can export admitted sections without relaxing the SVG h
 });
 test('invalid section identity is rejected before allocating browser resources',async()=>{
  const {downloadMarketChartPng}=await import('../src/lib/market-chart-download.ts');
- for(const key of ['../private','money/flow','', 'A','a'.repeat(65)])await assert.rejects(downloadMarketChartPng({},'2026-10-29','asia-daily',key),/section/i);
+ for(const key of ['../private','money/flow','', 'A','a'.repeat(65),null,{},1])await assert.rejects(downloadMarketChartPng({},'2026-10-29','asia-daily',key),/section/i);
 });
 test('whole export suppresses only the typed height budget error',async()=>{
  const {buildWholeReportImage}=await import('../src/lib/report-sections.ts');

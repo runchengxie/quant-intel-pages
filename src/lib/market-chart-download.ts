@@ -19,7 +19,7 @@ function serializeSvgWithResolvedTheme(svg: SVGElement): string {
 export async function downloadMarketChartPng(svg: SVGElement, date: string, kind: ChartKind = 'market-daily', section?: string): Promise<void> {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('无效报告日期');
   if (!['market-daily', 'asia-daily', 'weekly'].includes(kind)) throw new Error('无效报告类型');
-  if (section !== undefined && (!/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(section) || section.length > 64)) throw new Error('Invalid report section identity');
+  if (section !== undefined && (typeof section !== 'string' || !/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(section) || section.length > 64)) throw new Error('Invalid report section identity');
   const width = Number(svg?.getAttribute('width'));
   const height = Number(svg?.getAttribute('height'));
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
