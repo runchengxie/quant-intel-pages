@@ -1,7 +1,7 @@
 import type { ReportDocument, ReportPanel, ReportRow } from './report-document.ts';
 import type { LoadedCharts } from './reports.ts';
 import type { ChartPoint } from './chart-data.ts';
-import { holidayRows } from './asia-report-image.ts';
+import { holidayRows } from './asia-holiday-sessions.ts';
 import { asiaMarketOverview } from './asia-market-overview.ts';
 import { reportTable, sectionLines, dailyReturn } from './asia-report-tables.ts';
 import { renderReportPanel, normalizePanelLine, type Draw } from './asia-report-panels.ts';
