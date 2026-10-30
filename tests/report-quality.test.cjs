@@ -39,3 +39,7 @@ test('locale facts include numeric secondary cells and stable source URLs',async
  zh.panels[0].rows[0].cells[0].text='9,999.99 亿元';assert.ok(compareReportFacts(en,zh).length);
  zh.panels[0].rows[0].cells[0].text='3,842.19 亿元';zh.panels[0].rows[0].sources[0].url='https://example.com/second';assert.ok(compareReportFacts(en,zh).length);
 });
+test('security codes survive locale changes and SVG row rendering',async()=>{
+ const {compareReportFacts,checkReportDocument}=await import('../src/lib/report-quality.ts');const en=sample();en.panels[0].rows=[{id:'turnover-0',label:'宁德时代 300750',value:100,valueText:'100 CNY 100m'}];const zh=structuredClone(en);zh.locale='zh';zh.panels[0].rows[0].label='工商银行 600900';assert.ok(compareReportFacts(en,zh).length);
+ const result=checkReportDocument(en,{},()=>'<svg width="960" height="100"><g data-report-row-panel="industry" data-report-row="turnover-0"><text>100 CNY 100m</text></g></svg>');assert.ok(result.issues.some(issue=>issue.code==='image_label_missing'));
+});

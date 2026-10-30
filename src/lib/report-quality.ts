@@ -76,6 +76,8 @@ export function checkReportDocument(
     for (const panel of document.panels.filter(panel=>!panel.disclosure)) for (const row of panel.rows ?? []) {
       const body=renderedRows.get(escapeXml(panel.id)+'\u001f'+escapeXml(row.id));
       if(body===undefined){issues.push({code:'image_row_missing',panel:panel.id,row:row.id});continue;}
+      const text=body.replace(/<[^>]*>/g,'').replace(/\s/g,'');
+      if(!text.includes(escapeXml(row.label).replace(/\s/g,'')))issues.push({code:'image_label_missing',panel:panel.id,row:row.id});
       if(row.valueText&&!body.includes(escapeXml(formatDisplayValue(row.valueText,document.locale))))issues.push({code:'image_value_missing',panel:panel.id,row:row.id});
       for(const cell of row.cells??[])if(!body.includes(escapeXml(formatDisplayValue(cell.text,document.locale))))issues.push({code:'image_cell_missing',panel:panel.id,row:row.id});
     }
@@ -93,7 +95,7 @@ const cellNumbers=(text:string)=>(text.replace(/\b(?:CNY|USD)\s+100m\b/gi,'').re
 export function reportFacts(document: ReportDocument) {
   return {id:document.id,date:document.date,sources:sourceUrls(document.sources),panels:document.panels.map(panel=>({
     id:panel.id,kind:panel.kind,disclosure:panel.disclosure ?? false,scale:panel.scale,sources:sourceUrls(panel.sources),
-    rows:(panel.rows ?? []).map(row=>({id:row.id,value:row.value,kind:row.kind,date:row.observationDate,scale:row.scale,cells:(row.cells??[]).map(cell=>cellNumbers(cell.text)),sources:sourceUrls(row.sources)})),
+    rows:(panel.rows ?? []).map(row=>({id:row.id,securityCodes:row.label.match(/(?<!\d)\d{6}(?!\d)/g)??[],value:row.value,kind:row.kind,date:row.observationDate,scale:row.scale,cells:(row.cells??[]).map(cell=>cellNumbers(cell.text)),sources:sourceUrls(row.sources)})),
     series:(panel.series ?? []).map(series=>series.values.map(point=>({date:point.date,value:point.value}))),
   }))};
 }
