@@ -1,23 +1,29 @@
 import {expect,test} from '@playwright/test';
-import {latestEvening} from './daily-source';
+import {dailyDocuments,latestEvening} from './daily-source';
+import {buildReportSections,buildWholeReportImage} from '../../src/lib/report-sections';
 for(const locale of ['en','zh'] as const)for(const width of [390,1280])test(`section PNG download preserves dated identity at ${width}px ${locale}`,async({page})=>{
  await page.setViewportSize({width,height:950});
  await page.goto(`/quant-intel-pages/${locale==='en'?'en/':'?locale=zh-CN'}`);
- const button=page.locator('button[data-report-kind="asia-daily"][data-report-section="money-flow"]');
+ const reportDocument=dailyDocuments(locale).asia;
+ const sections=buildReportSections(reportDocument);const section=sections.find(section=>section.key==='money-flow')??sections[0];expect(section).toBeDefined();
+ const button=page.locator(`button[data-report-kind="asia-daily"][data-report-section="${section.key}"]`);
  await expect(button).toHaveCount(1);
  const group=button.locator('xpath=ancestor::details[1]');
  await group.locator(':scope > summary').click();
- const svg=group.locator('[data-section-image="money-flow"] svg');
+ const svg=group.locator(`[data-section-image="${section.key}"] svg`);
  await expect(svg).toBeHidden();
  const logical=await svg.evaluate(node=>({width:Number(node.getAttribute('width')),height:Number(node.getAttribute('height'))}));
  expect(logical.width).toBe(960);expect(logical.height).toBeLessThanOrEqual(8000);
- await expect(svg.locator('[data-report-panel="chart-moneyflow"]')).toHaveCount(1);
- await expect(svg.locator('[data-report-panel="industry"]')).toHaveCount(0);
+ const expectedMoneyflow=reportDocument.panels.find(panel=>panel.id==='chart-moneyflow');
+ expect(await svg.locator('[data-report-panel]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-report-panel')))).toEqual(section.document.panels.map(panel=>panel.id));
+ await expect(svg.locator('[data-report-panel="chart-moneyflow"]')).toHaveCount(expectedMoneyflow?1:0);
+ if(!expectedMoneyflow)await expect(page.locator('[data-native-asia] [data-report-panel="supplemental-chart-status"]')).toHaveCount(1);
+ if(section.key==='money-flow')await expect(svg.locator('[data-report-panel="industry"]')).toHaveCount(0);
  expect(await svg.textContent()).toContain(latestEvening.date);
  const pending=page.waitForEvent('download');await button.click();const download=await pending;
- expect(download.suggestedFilename()).toBe(`${latestEvening.date}-asia-daily-money-flow-report.png`);
- await expect(group.locator('[data-section-status="money-flow"]')).toContainText(locale==='en'?'PNG':'PNG');
- await expect(page.locator('#download-asia-report')).toHaveCount(1);
+ expect(download.suggestedFilename()).toBe(`${latestEvening.date}-asia-daily-${section.key}-report.png`);
+ await expect(group.locator(`[data-section-status="${section.key}"]`)).toContainText(locale==='en'?'PNG':'PNG');
+ await expect(page.locator('#download-asia-report')).toHaveCount(buildWholeReportImage(reportDocument)?1:0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
 });
 test('duplicate section keys scope to their own report and reject invalid filename identity',async({page})=>{
