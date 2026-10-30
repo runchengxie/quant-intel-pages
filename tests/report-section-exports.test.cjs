@@ -35,3 +35,12 @@ test('whole export suppresses only the typed height budget error',async()=>{
  assert.equal(buildWholeReportImage(long),null);
  assert.throws(()=>buildWholeReportImage({...document,locale:'invalid'}));
 });
+test('missing or unverified money-flow observations remain absent while source availability stays visible',async()=>{
+ const fs=require('node:fs');const {buildAsiaReportDocument}=await import('../src/lib/asia-report-document.ts');const {buildReportSectionImages}=await import('../src/lib/report-sections.ts');
+ const report={id:'2026-10-23-evening',date:'2026-10-23',kind:'evening'};const markdown=fs.readFileSync('tests/fixtures/asia-document/reports/2026-10-23-evening.md','utf8');
+ for(const locale of ['en','zh'])for(const status of ['missing','skipped']){
+  const reason='No verified money-flow observations';const chart={key:'moneyflow',title:'Money flow',status,reason,points:[{label:'Unverified stock 300308.SZ',value:123.45678,unit:'亿元',observation_date:report.date,source_label:'source',source_url:'https://example.com/source'}]};
+  const doc=buildAsiaReportDocument(report,[chart],markdown,locale);assert.ok(!doc.panels.some(panel=>panel.id==='chart-moneyflow'));assert.ok(doc.panels.find(panel=>panel.id==='supplemental-chart-status').paragraphs.join(' ').includes(reason));
+  const section=buildReportSectionImages(doc).find(section=>section.key==='money-flow');assert.ok(section);assert.ok(!section.document.panels.some(panel=>panel.id==='chart-moneyflow'));assert.ok(!section.svg.includes('123.45678'));
+ }
+});
