@@ -1,6 +1,6 @@
 {
   "schema_version": "market_intel_pages.reports.v1",
-  "generated_at": "2026-10-29T18:45:19+08:00",
+  "generated_at": "2026-10-30T11:28:43+08:00",
   "reports": [
     {
       "id": "2026-10-23-evening",
@@ -702,10 +702,10 @@
         {
           "title": "报告信息",
           "paragraphs": [
-            "生成时间: 2026-10-29 18:45:18.682411",
+            "生成时间: 2026-10-30 11:27:21.275304",
             "数据日期: 2026-10-29",
-            "报告生成方式: scheduled",
-            "本报告按计划生成，生成时间为本次实际运行时间。"
+            "报告生成方式: backfill",
+            "本报告为历史数据补发，生成时间是本次重建时间，不代表当时已发布。"
           ]
         },
         {
@@ -819,18 +819,18 @@
         {
           "title": "八、高成交核心票 TOP10",
           "paragraphs": [
-            "| 代码 | 成交额(亿) | 涨跌 |",
-            "|------|-----------|------|",
-            "| 300308 | 194.8 | -8.53% |",
-            "| 300502 | 139.0 | -11.06% |",
-            "| 300394 | 125.3 | -19.77% |",
-            "| 688825 | 119.5 | -3.36% |",
-            "| 603986 | 99.1 | -4.79% |",
-            "| 300750 | 85.8 | -0.03% |",
-            "| 688256 | 80.8 | -4.70% |",
-            "| 002384 | 69.4 | -10.00% |",
-            "| 300223 | 65.8 | -0.29% |",
-            "| 600487 | 62.8 | -7.98% |"
+            "| 名称 | 代码 | 成交额(亿) | 涨跌 |",
+            "|------|------|-----------|------|",
+            "| 中际旭创 | 300308.SZ | 194.8 | -8.53% |",
+            "| 新易盛 | 300502.SZ | 139.0 | -11.06% |",
+            "| 天孚通信 | 300394.SZ | 125.3 | -19.77% |",
+            "| 长鑫科技 | 688825.SH | 119.5 | -3.36% |",
+            "| 兆易创新 | 603986.SH | 99.1 | -4.79% |",
+            "| 宁德时代 | 300750.SZ | 85.8 | -0.03% |",
+            "| 寒武纪 | 688256.SH | 80.8 | -4.70% |",
+            "| 东山精密 | 002384.SZ | 69.4 | -10.00% |",
+            "| 君正股份 | 300223.SZ | 65.8 | -0.29% |",
+            "| 亨通光电 | 600487.SH | 62.8 | -7.98% |"
           ]
         },
         {
@@ -849,9 +849,42 @@
           "title": "十、极端异动",
           "paragraphs": [
             "涨幅前五: 301079.SZ 邵阳液压(+20.01%)、301232.SZ 飞沃科技(+17.09%)、300177.SZ 中海达(+14.19%)、301155.SZ 海力风电(+12.43%)、301446.SZ 福事特(+12.34%)",
-            "跌幅前五: 300394.SZ 天孚通信(-19.77%)、301718.SZ(-17.58%)、920000.BJ 安徽凤凰(-16.15%)、301205.SZ 联特科技(-15.84%)、688525.SH 佰维存储(-15.79%)",
+            "跌幅前五: 300394.SZ 天孚通信(-19.77%)、301718.SZ(-17.58%)、920000.BJ 安徽凤凰(-16.15%)、301205.SZ 联特科技(-15.84%)、688525.SH 佰维存储(-15.79%)"
+          ]
+        },
+        {
+          "title": "海外主题研究证据",
+          "paragraphs": [
+            "回溯探索性研究，不是当日预测；未经历史时点数据认证。",
+            "研究：overseas-semiconductor-sox-20261029；样本：2020-01-02–2026-10-16；生成时间（UTC）：2026-10-29T15:46:13.930847+00:00；源码版本：5122f1abd54bc69037631a4d45f8e28c24a29647。",
+            "MSE 改善为正表示误差下降，为负表示误差上升；区间跨零不能证明存在改善。",
+            "sw_semiconductor.gap.lag0：sw_semiconductor；gap；滞后 0 个交易日；n=1643；基线=global；增广=theme_residual；MSE 改善=0.057998，95% 区间 [0.0340489, 0.0894525]；来源 ID：000300_sh_tushare_daily, 510300_sh_fund_adj, 510300_sh_fund_daily, 512480_sh_fund_adj, 512480_sh_fund_daily, 801081_si_sw_daily, eurusd_fxcm_fx_daily, hsi_tushare_daily, ks11_tushare_daily, n225_tushare_daily, spx_tushare_daily, usdcnh_fxcm_fx_daily, usdjpy_fxcm_fx_daily, yahoo_sox。",
+            "sw_semiconductor.post_open.lag0：sw_semiconductor；post_open；滞后 0 个交易日；n=1643；基线=global；增广=theme_residual；MSE 改善=0.00102981，95% 区间 [-0.00317442, 0.00454962]；来源 ID：000300_sh_tushare_daily, 510300_sh_fund_adj, 510300_sh_fund_daily, 512480_sh_fund_adj, 512480_sh_fund_daily, 801081_si_sw_daily, eurusd_fxcm_fx_daily, hsi_tushare_daily, ks11_tushare_daily, n225_tushare_daily, spx_tushare_daily, usdcnh_fxcm_fx_daily, usdjpy_fxcm_fx_daily, yahoo_sox。",
+            "sw_semiconductor.gap.lag1：sw_semiconductor；gap；滞后 1 个交易日；n=1634；基线=global；增广=theme_residual；MSE 改善=-0.00164728，95% 区间 [-0.00484915, 0.00124979]；来源 ID：000300_sh_tushare_daily, 510300_sh_fund_adj, 510300_sh_fund_daily, 512480_sh_fund_adj, 512480_sh_fund_daily, 801081_si_sw_daily, eurusd_fxcm_fx_daily, hsi_tushare_daily, ks11_tushare_daily, n225_tushare_daily, spx_tushare_daily, usdcnh_fxcm_fx_daily, usdjpy_fxcm_fx_daily, yahoo_sox。",
+            "sw_semiconductor.post_open.lag1：sw_semiconductor；post_open；滞后 1 个交易日；n=1634；基线=global；增广=theme_residual；MSE 改善=-0.000204282，95% 区间 [-0.00454033, 0.00395332]；来源 ID：000300_sh_tushare_daily, 510300_sh_fund_adj, 510300_sh_fund_daily, 512480_sh_fund_adj, 512480_sh_fund_daily, 801081_si_sw_daily, eurusd_fxcm_fx_daily, hsi_tushare_daily, ks11_tushare_daily, n225_tushare_daily, spx_tushare_daily, usdcnh_fxcm_fx_daily, usdjpy_fxcm_fx_daily, yahoo_sox。",
+            "512480.next_tradable_open.lag0：512480；next_tradable_open；滞后 0 个交易日；n=1398；基线=global；增广=theme_residual；MSE 改善=-0.00104362，95% 区间 [-0.00761677, 0.00543725]；来源 ID：000300_sh_tushare_daily, 510300_sh_fund_adj, 510300_sh_fund_daily, 512480_sh_fund_adj, 512480_sh_fund_daily, 801081_si_sw_daily, eurusd_fxcm_fx_daily, hsi_tushare_daily, ks11_tushare_daily, n225_tushare_daily, spx_tushare_daily, usdcnh_fxcm_fx_daily, usdjpy_fxcm_fx_daily, yahoo_sox。",
+            "512480.next_tradable_open.lag1：512480；next_tradable_open；滞后 1 个交易日；n=1390；基线=global；增广=theme_residual；MSE 改善=-0.00582273，95% 区间 [-0.0142061, 0.00235395]；来源 ID：000300_sh_tushare_daily, 510300_sh_fund_adj, 510300_sh_fund_daily, 512480_sh_fund_adj, 512480_sh_fund_daily, 801081_si_sw_daily, eurusd_fxcm_fx_daily, hsi_tushare_daily, ks11_tushare_daily, n225_tushare_daily, spx_tushare_daily, usdcnh_fxcm_fx_daily, usdjpy_fxcm_fx_daily, yahoo_sox。",
+            "来源 hsi_tushare_daily：[https://tushare.pro/document/2](https://tushare.pro/document/2)（SHA-256 1f0272f33ea63e6d5ef4c8974d0b0309575f8eaefdf89c166fe6bedd63f12851）",
+            "来源 n225_tushare_daily：[https://tushare.pro/document/2](https://tushare.pro/document/2)（SHA-256 74e83c4cebdbbd5bd8799a83cd3803e6c1ec44359ad37e92f5364fd25e8c36f2）",
+            "来源 ks11_tushare_daily：[https://tushare.pro/document/2](https://tushare.pro/document/2)（SHA-256 75fb3da91d9f660aeb37672a4a2cf038fbb25a26f879f0a11a5df1bf76c9b2c0）",
+            "来源 spx_tushare_daily：[https://tushare.pro/document/2](https://tushare.pro/document/2)（SHA-256 cc86cef984a9a42cba83791c96f0567320cc3843dbde1d24a0a5e94c48c5c674）",
+            "来源 000300_sh_tushare_daily：[https://tushare.pro/document/2](https://tushare.pro/document/2)（SHA-256 560f6a471acaeaa52e75a0f6f6f8fd10d19cadc430121dac41f5014ee437d3d6）",
+            "来源 801081_si_sw_daily：[https://tushare.pro/document/2](https://tushare.pro/document/2)（SHA-256 078142f897e466eda51670793dfce10e5df2fef05a5aa22dec9d0d1a32907f36）",
+            "来源 usdcnh_fxcm_fx_daily：[https://www.tushare.pro/document/2?doc_id=261](https://www.tushare.pro/document/2?doc_id=261)（SHA-256 45168c9a3c6b78f9a9726d28fd5a5aa0df23f57e5b4da76ef0ec973ddf079455）",
+            "来源 usdjpy_fxcm_fx_daily：[https://www.tushare.pro/document/2?doc_id=261](https://www.tushare.pro/document/2?doc_id=261)（SHA-256 b0bcb568200f5134d3778b190b5529be20a522ba4838bb7107e3c4783ba46149）",
+            "来源 eurusd_fxcm_fx_daily：[https://www.tushare.pro/document/2?doc_id=261](https://www.tushare.pro/document/2?doc_id=261)（SHA-256 d46af73dc4b91cc1310fb18207f4690e50c5cee9ae86641c81829f1aabfa77a8）",
+            "来源 510300_sh_fund_daily：[https://tushare.pro/document/2](https://tushare.pro/document/2)（SHA-256 fc178cd7fbe3114dca16314786c892cb8b9b7fd753827a2c88ca5f94fada540f）",
+            "来源 510300_sh_fund_adj：[https://tushare.pro/document/2](https://tushare.pro/document/2)（SHA-256 3211a444a8de8369654c4810fa207a0ada5289cfb0ea2f41bc9c8b4ce6ae705a）",
+            "来源 512480_sh_fund_daily：[https://tushare.pro/document/2](https://tushare.pro/document/2)（SHA-256 bf12a8a7889e54b16dd2a34afc8a6ccc44e5ac086f9a39440fb737f361f46d22）",
+            "来源 512480_sh_fund_adj：[https://tushare.pro/document/2](https://tushare.pro/document/2)（SHA-256 c8b930ef45cfb6bde4351eab01768b9993448ac8cb01eade91416706fe36b80c）",
+            "来源 yahoo_sox：[https://finance.yahoo.com/quote/^SOX/history/](https://finance.yahoo.com/quote/^SOX/history/)（SHA-256 f14f226ff7403e3196e6b6d9c1acc91f4cb0170116de4d91423bdf739f7b70be）",
+            "局限：Assumed daily-close availability; no historical retrieval vintages.",
+            "局限：Previously inspected years; not an untouched holdout.",
+            "局限：Extant ETF selection and opening-price fill proxies; no capacity proof.",
+            "局限：Descriptive block-bootstrap intervals; no multiple-testing correction.",
+            "局限：One-session delay is sensitivity analysis, not verified provider latency.",
             "---",
-            "*数据: Tushare / market-data-platform | 主题: 研究编辑部 | 生成: 2026-10-29 18:45*"
+            "*数据: Tushare / market-data-platform | 主题: 研究编辑部 | 生成: 2026-10-30 11:27*"
           ]
         },
         {
@@ -862,6 +895,7 @@
             "| 香港 | 恒生指数 | 2026-10-29 | 22958.65 | -0.59% | 已收盘 |",
             "| 日本 | 日经225 | 2026-10-29 | 64659.47 | +1.10% | 已收盘 |",
             "| 韩国 | KOSPI | 2026-10-29 | 5937.66 | -1.24% | 已收盘 |",
+            "<!-- market_intel.asia_overview.v1 {\"date\":\"2026-10-29\",\"source_time_kind\":\"exchange_session_close\"} -->",
             "- [香港收盘数据](https://finance.yahoo.com/quote/^HSI/history/)；2026-10-29T08:00:00+00:00；证据：`asia.close.52577bcf9051cd858c5639e6c1dd846017d6721a5781111159bb8bedd8d1a0a7`",
             "- [日本收盘数据](https://finance.yahoo.com/quote/^N225/history/)；2026-10-29T06:30:00+00:00；证据：`asia.close.3b19ee2c7899fd32af07eb9e704b07f9043e8b62cc3f92369d85d0b7b66ba5ad`",
             "- [韩国收盘数据](https://finance.yahoo.com/quote/^KS11/history/)；2026-10-29T06:30:00+00:00；证据：`asia.close.629551d1d883f7326c335974436f66d72ec79e02c6de7d2cf96a8a97cdd9f2fc`",
@@ -870,7 +904,8 @@
         }
       ],
       "source_url": "reports/2026-10-29-evening.md",
-      "summary": "目标日期 2026-10-29；原报告生成于 2026-10-29 18:45（北京时间）。"
+      "generation_mode": "backfill",
+      "summary": "目标日期 2026-10-29；原报告生成于 2026-10-30 11:27（北京时间）。"
     }
   ]
 }

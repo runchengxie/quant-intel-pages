@@ -47,7 +47,7 @@ const leader = (value: string): boolean => {
 function validFields(key: string, row: string[]): boolean {
   if (key === 'industry') return Boolean(row[0]) && missingOr(row[1], signedPercent)
     && missingOr(row[2], signedPercent) && missingOr(row[3], count) && missingOr(row[4], share);
-  if (key === 'turnover') return /^\d{6}$/.test(row[0]) && missingOr(row[1], decimal) && missingOr(row[2], signedPercent);
+  if (key === 'turnover') return /^(?:.+ )?\d{6}(?:\.(?:SH|SZ|BJ))?$/.test(row[0]) && missingOr(row[1], decimal) && missingOr(row[2], signedPercent);
   return Boolean(row[0]) && missingOr(row[1], signedPercent) && missingOr(row[2], leader) && missingOr(row[3], count);
 }
 
@@ -73,7 +73,9 @@ export function reportTable(markdown: string, heading: string): ReportTable | nu
       if (!match) { table.fallback.push(line); continue; }
       for (const entry of match[2].split('、')) {
         const row = /^([\d]{6}\.(?:SZ|SH|BJ))(?: (.+))?\(([+-]?\d+(?:\.\d+)?%)\)$/.exec(entry.trim());
+        const named = /^(.+) ([\d]{6}\.(?:SZ|SH|BJ))\(([+-]?\d+(?:\.\d+)?%)\)$/.exec(entry.trim());
         if (row) table.rows.push([match[1], row[2] ? row[1] + " " + decodeName(row[2]) : row[1], row[3]]);
+        else if(named)table.rows.push([match[1],named[2]+" "+decodeName(named[1]),named[3]]);
         else table.fallback.push(entry);
       }
     }
@@ -88,11 +90,19 @@ export function reportTable(markdown: string, heading: string): ReportTable | nu
     table.key = spec[0];
     if (table.key === 'industry' || table.key === 'turnover') table.preview = 10;
     let headerFound = false;
+    let namedTurnover = false;
     for (const line of lines) {
       if (/^\|[\s|:-]+\|$/.test(line)) continue;
       if (!line.startsWith('|')) { table.notes.push(line); continue; }
       if (!line.endsWith('|')) { table.fallback.push(line); continue; }
-      const row = cells(line);
+      let row = cells(line);
+      if(!headerFound&&table.key==='turnover'&&row.join('|')==='名称|代码|成交额(亿)|涨跌'){
+        namedTurnover=true;headerFound=true;table.headers=['名称及代码',labels.amount[0],'涨跌'];continue;
+      }
+      if(namedTurnover){
+        if(row.length!==4||!row[0]||!/^\d{6}\.(?:SH|SZ|BJ)$/.test(row[1])){table.fallback.push(line);continue;}
+        row=[row[0]==='N/A'?row[1]:`${decodeName(row[0])} ${row[1]}`,row[2],row[3]];
+      }
       if (!headerFound && row.join('|') === spec[1].join('|')) {
         table.headers = row.map((cell) => cell === '成交额(亿)' ? labels.amount[0] : cell);
         headerFound = true;

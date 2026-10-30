@@ -95,7 +95,7 @@ const cellNumbers=(text:string)=>(text.replace(/\b(?:CNY|USD)\s+100m\b/gi,'').re
 export function reportFacts(document: ReportDocument) {
   return {id:document.id,date:document.date,sources:sourceUrls(document.sources),panels:document.panels.map(panel=>({
     id:panel.id,kind:panel.kind,disclosure:panel.disclosure ?? false,scale:panel.scale,sources:sourceUrls(panel.sources),
-    rows:(panel.rows ?? []).map(row=>({id:row.id,securityCodes:row.label.match(/(?<!\d)\d{6}(?!\d)/g)??[],value:row.value,kind:row.kind,date:row.observationDate,scale:row.scale,cells:(row.cells??[]).map(cell=>cellNumbers(cell.text)),sources:sourceUrls(row.sources)})),
+    rows:(panel.rows ?? []).map(row=>({id:row.id,securityCodes:row.label.match(/(?<!\d)\d{6}(?:\.(?:SH|SZ|BJ))?(?!\d)/g)??[],value:row.value,kind:row.kind,date:row.observationDate,scale:row.scale,cells:(row.cells??[]).map(cell=>cellNumbers(cell.text)),sources:sourceUrls(row.sources)})),
     series:(panel.series ?? []).map(series=>series.values.map(point=>({date:point.date,value:point.value}))),
   }))};
 }
