@@ -5,8 +5,8 @@
     "md",
     "txt"
   ],
-  "as_of": "2026-11-04T22:30:39.896508+00:00",
-  "generated_at": "2026-11-04T22:30:39.896508+00:00",
+  "as_of": "2026-11-04T23:15:29.402845+00:00",
+  "generated_at": "2026-11-04T23:15:29.402845+00:00",
   "run_id": "daily-2026-11-04",
   "sections": [
     {
@@ -55,6 +55,8 @@
       "key": "cross_asset",
       "title": "跨资产行情",
       "facts": [
+        "cross_asset.brent.close",
+        "cross_asset.brent.change_percent",
         "cross_asset.gold.close",
         "cross_asset.gold.change_percent",
         "cross_asset.silver.close",
@@ -105,8 +107,8 @@
       "unit": "percent",
       "source": "US Treasury",
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve",
-      "source_time": "2026-11-04T22:30:20.678326+00:00",
-      "retrieved_at": "2026-11-04T22:30:20.678326+00:00",
+      "source_time": "2026-11-04T23:15:18.737266+00:00",
+      "retrieved_at": "2026-11-04T23:15:18.737266+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -120,8 +122,8 @@
       "unit": "basis_points",
       "source": "US Treasury",
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve",
-      "source_time": "2026-11-04T22:30:20.678326+00:00",
-      "retrieved_at": "2026-11-04T22:30:20.678326+00:00",
+      "source_time": "2026-11-04T23:15:18.737266+00:00",
+      "retrieved_at": "2026-11-04T23:15:18.737266+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -135,8 +137,8 @@
       "unit": "percent",
       "source": "US Treasury",
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve",
-      "source_time": "2026-11-04T22:30:20.678326+00:00",
-      "retrieved_at": "2026-11-04T22:30:20.678326+00:00",
+      "source_time": "2026-11-04T23:15:18.737266+00:00",
+      "retrieved_at": "2026-11-04T23:15:18.737266+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -150,8 +152,8 @@
       "unit": "basis_points",
       "source": "US Treasury",
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve",
-      "source_time": "2026-11-04T22:30:20.678326+00:00",
-      "retrieved_at": "2026-11-04T22:30:20.678326+00:00",
+      "source_time": "2026-11-04T23:15:18.737266+00:00",
+      "retrieved_at": "2026-11-04T23:15:18.737266+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -165,8 +167,8 @@
       "unit": "percent",
       "source": "US Treasury",
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve",
-      "source_time": "2026-11-04T22:30:20.678326+00:00",
-      "retrieved_at": "2026-11-04T22:30:20.678326+00:00",
+      "source_time": "2026-11-04T23:15:18.737266+00:00",
+      "retrieved_at": "2026-11-04T23:15:18.737266+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -180,8 +182,8 @@
       "unit": "basis_points",
       "source": "US Treasury",
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve",
-      "source_time": "2026-11-04T22:30:20.678326+00:00",
-      "retrieved_at": "2026-11-04T22:30:20.678326+00:00",
+      "source_time": "2026-11-04T23:15:18.737266+00:00",
+      "retrieved_at": "2026-11-04T23:15:18.737266+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -195,8 +197,8 @@
       "unit": "percent",
       "source": "US Treasury",
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve",
-      "source_time": "2026-11-04T22:30:20.678326+00:00",
-      "retrieved_at": "2026-11-04T22:30:20.678326+00:00",
+      "source_time": "2026-11-04T23:15:18.737266+00:00",
+      "retrieved_at": "2026-11-04T23:15:18.737266+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -210,8 +212,8 @@
       "unit": "basis_points",
       "source": "US Treasury",
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve",
-      "source_time": "2026-11-04T22:30:20.678326+00:00",
-      "retrieved_at": "2026-11-04T22:30:20.678326+00:00",
+      "source_time": "2026-11-04T23:15:18.737266+00:00",
+      "retrieved_at": "2026-11-04T23:15:18.737266+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -225,8 +227,8 @@
       "unit": "percent_yoy",
       "source": "FRED",
       "source_url": "https://fred.stlouisfed.org/series/CPIAUCNS",
-      "source_time": "2026-11-04T22:30:24.382442+00:00",
-      "retrieved_at": "2026-11-04T22:30:24.382442+00:00",
+      "source_time": "2026-11-04T23:15:19.345283+00:00",
+      "retrieved_at": "2026-11-04T23:15:19.345283+00:00",
       "quality": "ok",
       "observation_date": "2026-09-01"
     },
@@ -240,8 +242,8 @@
       "unit": "percent_yoy",
       "source": "FRED",
       "source_url": "https://fred.stlouisfed.org/series/PCEPI",
-      "source_time": "2026-11-04T22:30:27.101548+00:00",
-      "retrieved_at": "2026-11-04T22:30:27.101548+00:00",
+      "source_time": "2026-11-04T23:15:20.414473+00:00",
+      "retrieved_at": "2026-11-04T23:15:20.414473+00:00",
       "quality": "ok",
       "observation_date": "2026-09-01"
     },
@@ -255,8 +257,8 @@
       "unit": "percent",
       "source": "FRED",
       "source_url": "https://fred.stlouisfed.org/series/UNRATE",
-      "source_time": "2026-11-04T22:30:29.944707+00:00",
-      "retrieved_at": "2026-11-04T22:30:29.944707+00:00",
+      "source_time": "2026-11-04T23:15:21.047617+00:00",
+      "retrieved_at": "2026-11-04T23:15:21.047617+00:00",
       "quality": "ok",
       "observation_date": "2026-09-01"
     },
@@ -270,8 +272,8 @@
       "unit": "thousand_persons",
       "source": "FRED",
       "source_url": "https://fred.stlouisfed.org/series/PAYEMS",
-      "source_time": "2026-11-04T22:30:31.666509+00:00",
-      "retrieved_at": "2026-11-04T22:30:31.666509+00:00",
+      "source_time": "2026-11-04T23:15:21.620234+00:00",
+      "retrieved_at": "2026-11-04T23:15:21.620234+00:00",
       "quality": "ok",
       "observation_date": "2026-09-01"
     },
@@ -285,8 +287,8 @@
       "unit": "percent",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/%5EGSPC/history/",
-      "source_time": "2026-11-04T22:30:36.854430+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.854430+00:00",
+      "source_time": "2026-11-04T23:15:26.393879+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.393879+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -300,8 +302,8 @@
       "unit": "percent",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/%5EDJI/history/",
-      "source_time": "2026-11-04T22:30:36.854430+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.854430+00:00",
+      "source_time": "2026-11-04T23:15:26.393879+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.393879+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -315,8 +317,8 @@
       "unit": "percent",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/%5EIXIC/history/",
-      "source_time": "2026-11-04T22:30:36.854430+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.854430+00:00",
+      "source_time": "2026-11-04T23:15:26.393879+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.393879+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -330,8 +332,8 @@
       "unit": "percent",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/%5ERUT/history/",
-      "source_time": "2026-11-04T22:30:36.854430+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.854430+00:00",
+      "source_time": "2026-11-04T23:15:26.393879+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.393879+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -345,8 +347,8 @@
       "unit": "points",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/%5EGSPC/history/",
-      "source_time": "2026-11-04T22:30:36.854430+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.854430+00:00",
+      "source_time": "2026-11-04T23:15:26.393879+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.393879+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -360,8 +362,8 @@
       "unit": "points",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/%5EDJI/history/",
-      "source_time": "2026-11-04T22:30:36.854430+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.854430+00:00",
+      "source_time": "2026-11-04T23:15:26.393879+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.393879+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -375,8 +377,8 @@
       "unit": "points",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/%5EIXIC/history/",
-      "source_time": "2026-11-04T22:30:36.854430+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.854430+00:00",
+      "source_time": "2026-11-04T23:15:26.393879+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.393879+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -390,8 +392,8 @@
       "unit": "points",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/%5ERUT/history/",
-      "source_time": "2026-11-04T22:30:36.854430+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.854430+00:00",
+      "source_time": "2026-11-04T23:15:26.393879+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.393879+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -405,8 +407,8 @@
       "unit": "USD/share",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/MSFT/history/",
-      "source_time": "2026-11-04T22:30:36.855107+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.855107+00:00",
+      "source_time": "2026-11-04T23:15:26.394516+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.394516+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -420,8 +422,8 @@
       "unit": "percent",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/MSFT/history/",
-      "source_time": "2026-11-04T22:30:36.855107+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.855107+00:00",
+      "source_time": "2026-11-04T23:15:26.394516+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.394516+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -435,8 +437,8 @@
       "unit": "USD/share",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/AAPL/history/",
-      "source_time": "2026-11-04T22:30:36.855107+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.855107+00:00",
+      "source_time": "2026-11-04T23:15:26.394516+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.394516+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -450,8 +452,8 @@
       "unit": "percent",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/AAPL/history/",
-      "source_time": "2026-11-04T22:30:36.855107+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.855107+00:00",
+      "source_time": "2026-11-04T23:15:26.394516+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.394516+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -465,8 +467,8 @@
       "unit": "USD/share",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/NVDA/history/",
-      "source_time": "2026-11-04T22:30:36.855107+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.855107+00:00",
+      "source_time": "2026-11-04T23:15:26.394516+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.394516+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -480,8 +482,8 @@
       "unit": "percent",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/NVDA/history/",
-      "source_time": "2026-11-04T22:30:36.855107+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.855107+00:00",
+      "source_time": "2026-11-04T23:15:26.394516+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.394516+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -495,8 +497,8 @@
       "unit": "USD/share",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/AMZN/history/",
-      "source_time": "2026-11-04T22:30:36.855107+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.855107+00:00",
+      "source_time": "2026-11-04T23:15:26.394516+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.394516+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -510,8 +512,8 @@
       "unit": "percent",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/AMZN/history/",
-      "source_time": "2026-11-04T22:30:36.855107+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.855107+00:00",
+      "source_time": "2026-11-04T23:15:26.394516+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.394516+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -525,8 +527,8 @@
       "unit": "USD/share",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/GOOGL/history/",
-      "source_time": "2026-11-04T22:30:36.855107+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.855107+00:00",
+      "source_time": "2026-11-04T23:15:26.394516+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.394516+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -540,8 +542,8 @@
       "unit": "percent",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/GOOGL/history/",
-      "source_time": "2026-11-04T22:30:36.855107+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.855107+00:00",
+      "source_time": "2026-11-04T23:15:26.394516+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.394516+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -555,8 +557,8 @@
       "unit": "USD/share",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/META/history/",
-      "source_time": "2026-11-04T22:30:36.855107+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.855107+00:00",
+      "source_time": "2026-11-04T23:15:26.394516+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.394516+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -570,8 +572,38 @@
       "unit": "percent",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/META/history/",
-      "source_time": "2026-11-04T22:30:36.855107+00:00",
-      "retrieved_at": "2026-11-04T22:30:36.855107+00:00",
+      "source_time": "2026-11-04T23:15:26.394516+00:00",
+      "retrieved_at": "2026-11-04T23:15:26.394516+00:00",
+      "quality": "ok",
+      "observation_date": "2026-11-04"
+    },
+    {
+      "id": "cross_asset.brent.close",
+      "metric": "commodity_close",
+      "instrument": "Brent Last Day Financial Futures (BZF27.NYM)",
+      "value": 94.63,
+      "previous": null,
+      "change": null,
+      "unit": "USD/barrel",
+      "source": "Yahoo Finance",
+      "source_url": "https://finance.yahoo.com/quote/BZF27.NYM/history/",
+      "source_time": "2026-11-04T23:15:22.091130+00:00",
+      "retrieved_at": "2026-11-04T23:15:22.091130+00:00",
+      "quality": "ok",
+      "observation_date": "2026-11-04"
+    },
+    {
+      "id": "cross_asset.brent.change_percent",
+      "metric": "daily_return",
+      "instrument": "Brent Last Day Financial Futures (BZF27.NYM)",
+      "value": -8.6583,
+      "previous": null,
+      "change": -8.6583,
+      "unit": "percent",
+      "source": "Yahoo Finance",
+      "source_url": "https://finance.yahoo.com/quote/BZF27.NYM/history/",
+      "source_time": "2026-11-04T23:15:22.091130+00:00",
+      "retrieved_at": "2026-11-04T23:15:22.091130+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -585,8 +617,8 @@
       "unit": "USD/troy_ounce",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/GCZ26.CMX/history/",
-      "source_time": "2026-11-04T22:30:32.625797+00:00",
-      "retrieved_at": "2026-11-04T22:30:32.625797+00:00",
+      "source_time": "2026-11-04T23:15:22.548025+00:00",
+      "retrieved_at": "2026-11-04T23:15:22.548025+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -600,8 +632,8 @@
       "unit": "percent",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/GCZ26.CMX/history/",
-      "source_time": "2026-11-04T22:30:32.625797+00:00",
-      "retrieved_at": "2026-11-04T22:30:32.625797+00:00",
+      "source_time": "2026-11-04T23:15:22.548025+00:00",
+      "retrieved_at": "2026-11-04T23:15:22.548025+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -615,8 +647,8 @@
       "unit": "USD/troy_ounce",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/SIZ26.CMX/history/",
-      "source_time": "2026-11-04T22:30:33.145343+00:00",
-      "retrieved_at": "2026-11-04T22:30:33.145343+00:00",
+      "source_time": "2026-11-04T23:15:23.016466+00:00",
+      "retrieved_at": "2026-11-04T23:15:23.016466+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
@@ -630,38 +662,38 @@
       "unit": "percent",
       "source": "Yahoo Finance",
       "source_url": "https://finance.yahoo.com/quote/SIZ26.CMX/history/",
-      "source_time": "2026-11-04T22:30:33.145343+00:00",
-      "retrieved_at": "2026-11-04T22:30:33.145343+00:00",
+      "source_time": "2026-11-04T23:15:23.016466+00:00",
+      "retrieved_at": "2026-11-04T23:15:23.016466+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
     {
       "id": "cross_asset.bitcoin_spot.close",
       "metric": "crypto_spot_close",
-      "instrument": "BTC/USD spot at 16:00 ET (Kraken XBT/USD)",
-      "value": 80056.7,
+      "instrument": "BTC/USD cryptocurrency EOD (FMP BTCUSD)",
+      "value": 80365.21491,
       "previous": null,
       "change": null,
       "unit": "USD/bitcoin",
-      "source": "Kraken",
-      "source_url": "https://www.kraken.com/prices/bitcoin",
-      "source_time": "2026-11-04T21:00:00+00:00",
-      "retrieved_at": "2026-11-04T22:30:34.941197+00:00",
+      "source": "Financial Modeling Prep",
+      "source_url": "https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full",
+      "source_time": "2026-11-04T23:15:24.315054+00:00",
+      "retrieved_at": "2026-11-04T23:15:24.315060+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     },
     {
       "id": "cross_asset.bitcoin_spot.change_percent",
       "metric": "daily_return",
-      "instrument": "BTC/USD spot at 16:00 ET (Kraken XBT/USD)",
-      "value": 2.9378220154065993,
+      "instrument": "BTC/USD cryptocurrency EOD (FMP BTCUSD)",
+      "value": 3.9159454075843536,
       "previous": null,
-      "change": 2.9378220154065993,
+      "change": 3.9159454075843536,
       "unit": "percent",
-      "source": "Kraken",
-      "source_url": "https://www.kraken.com/prices/bitcoin",
-      "source_time": "2026-11-04T21:00:00+00:00",
-      "retrieved_at": "2026-11-04T22:30:34.941197+00:00",
+      "source": "Financial Modeling Prep",
+      "source_url": "https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full",
+      "source_time": "2026-11-04T23:15:24.315054+00:00",
+      "retrieved_at": "2026-11-04T23:15:24.315060+00:00",
       "quality": "ok",
       "observation_date": "2026-11-04"
     }
@@ -669,8 +701,7 @@
   "events": [],
   "claims": [],
   "missing_sources": [
-    "research",
-    "cross_asset"
+    "research"
   ],
   "quality_summary": {
     "status": "degraded"
@@ -698,11 +729,11 @@
     },
     "cross_asset": {
       "quality": "degraded",
-      "reason": "one_or_more_contracts_unavailable"
+      "reason": "optional_futures_unavailable"
     },
     "btc_spot": {
       "quality": "ok",
-      "reason": "kraken_fallback"
+      "reason": "ok"
     },
     "equities": {
       "quality": "ok",
@@ -710,6 +741,6 @@
       "reviewed_movers": []
     }
   },
-  "content_hash": "22b8581e52f4730f3b24f7db61f12512e69b9b6e8099de87837b003f6237eeda",
-  "source_report_sha256": "bcad21773bcde462dd970540029d5577152135ab5fc61f64d6c95ad4eb7294a9"
+  "content_hash": "1d7a8d3c8f2edad2522cb23c1040e2a7d056a28d7b4b602577929a0bd6312123",
+  "source_report_sha256": "e473f281b19dca3cd17f570cf7661532bce09cc230c0e8e0bc382cfd18b0aed8"
 }
