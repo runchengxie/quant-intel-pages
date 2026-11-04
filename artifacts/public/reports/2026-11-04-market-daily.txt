@@ -1,0 +1,83 @@
+美股市场日报｜2026-11-04 美东报告日
+报告生成时间：2026-11-04T22:05:31.955252+00:00；逐项显示原始观测日。
+
+一、美股市场表现
+- 标普 500 收盘：7688.62 点（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/%5EGSPC/history/
+- 道指收盘：53356.12 点（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/%5EDJI/history/
+- 纳指收盘：25736.51 点（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/%5EIXIC/history/
+- 罗素 2000 收盘：2856.95 点（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/%5ERUT/history/
+- 标普 500 日涨跌：+1.58%（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/%5EGSPC/history/
+- 道指日涨跌：+3.03%（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/%5EDJI/history/
+- 纳指日涨跌：+1.44%（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/%5EIXIC/history/
+- 罗素 2000 日涨跌：+1.58%（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/%5ERUT/history/
+
+二、重点个股
+- MSFT：555.80 美元，+6.68%（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/MSFT/history/
+- AAPL：349.51 美元，+5.31%（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/AAPL/history/
+- NVDA：200.13 美元，-3.17%（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/NVDA/history/
+- AMZN：266.03 美元，+6.12%（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/AMZN/history/
+- GOOGL：288.93 美元，+3.18%（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/GOOGL/history/
+- META：630.00 美元，+1.44%（观测日 2026-11-04）
+  来源：https://finance.yahoo.com/quote/META/history/
+- 暂无经核实内容。
+
+三、美债收益率
+- 2 年期美债收益率日变动：-3.00 bp（观测日 2026-11-04）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve
+- 5 年期美债收益率日变动：-5.00 bp（观测日 2026-11-04）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve
+- 10 年期美债收益率日变动：-5.00 bp（观测日 2026-11-04）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve
+- 30 年期美债收益率日变动：-4.00 bp（观测日 2026-11-04）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve
+- 2 年期美债收益率水平：4.58%（观测日 2026-11-04）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve
+- 5 年期美债收益率水平：4.69%（观测日 2026-11-04）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve
+- 10 年期美债收益率水平：4.90%（观测日 2026-11-04）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve
+- 30 年期美债收益率水平：5.28%（观测日 2026-11-04）
+  来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve
+
+四、跨资产行情
+- BTC/USD 现货收盘：80056.70 美元/BTC（观测日 2026-11-04）
+  来源：https://www.kraken.com/prices/bitcoin
+- BTC/USD 现货日涨跌：+2.94%（观测日 2026-11-04）
+  来源：https://www.kraken.com/prices/bitcoin
+
+五、市场驱动因素
+- 暂无经核实内容。
+
+六、经济数据与美联储动态
+- CPI 同比：3.74%（观测日 2026-09-01）
+  来源：https://fred.stlouisfed.org/series/CPIAUCNS
+- PCE 同比：3.65%（观测日 2026-09-01）
+  来源：https://fred.stlouisfed.org/series/PCEPI
+- 失业率：4.20%（观测日 2026-09-01）
+  来源：https://fred.stlouisfed.org/series/UNRATE
+- 非农就业月变动：29.00 千人（观测日 2026-09-01）
+  来源：https://fred.stlouisfed.org/series/PAYEMS
+
+七、公司新闻
+- 暂无经核实内容。
+
+
+尚缺：研究解释、布伦特期货行情、黄金期货行情、白银期货行情。
+
+数据说明
+可选数据未提供：比特币期货行情。
+
+风险提示：市场有风险，投资需谨慎。
