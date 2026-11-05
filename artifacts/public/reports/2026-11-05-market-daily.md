@@ -1,9 +1,9 @@
 # 美股市场日报（2026-11-05）
 
 数据状态：degraded
-报告生成时间：2026-11-05T22:30:40.556715+00:00（美东报告日 2026-11-05）
+报告生成时间：2026-11-05T23:15:29.806093+00:00（美东报告日 2026-11-05）
 
-尚缺：研究解释、布伦特期货行情。
+尚缺：研究解释。
 
 ## 美股市场表现
 
@@ -42,9 +42,10 @@
 
 | 品种 | 价格 | 日涨跌 | 观测日 | 来源 |
 |---|---:|---:|---|---|
-| COMEX 黄金期货 | 4,097.90 美元/金衡盎司 | +0.61% | 2026-11-05 | [Yahoo Finance](https://finance.yahoo.com/quote/GCZ26.CMX/history/) |
-| COMEX 白银期货 | 51.83 美元/金衡盎司 | -0.86% | 2026-11-05 | [Yahoo Finance](https://finance.yahoo.com/quote/SIZ26.CMX/history/) |
-| BTC/USD 现货 | 76,098.20 美元/BTC | -4.94% | 2026-11-05 | [Kraken](https://www.kraken.com/prices/bitcoin) |
+| 布伦特期货 | 99.15 美元/桶 | +4.79% | 2026-11-05 | [Yahoo Finance](https://finance.yahoo.com/quote/BZF27.NYM/history/) |
+| COMEX 黄金期货 | 4,096.50 美元/金衡盎司 | +0.58% | 2026-11-05 | [Yahoo Finance](https://finance.yahoo.com/quote/GCZ26.CMX/history/) |
+| COMEX 白银期货 | 51.76 美元/金衡盎司 | -1.00% | 2026-11-05 | [Yahoo Finance](https://finance.yahoo.com/quote/SIZ26.CMX/history/) |
+| BTC/USD 现货 | 75,267.64 美元/BTC | -6.42% | 2026-11-05 | [FMP](https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full) |
 
 ## 市场驱动因素
 
@@ -72,7 +73,7 @@
 | 指数行情 | 已核实 | 目标交易日数据齐全 |
 | 研究材料 | 有缺项 | 研究材料尚未接入，不提供未经核实的解释 |
 | 跨资产行情 | 有缺项 | 详见逐项观测日与来源 |
-| 比特币现货 | 已核实 | 详见逐项观测日与来源 |
+| 比特币现货 | 已核实 | 来源状态正常 |
 | 美股个股行情 | 已核实 | 核心观察股票行情齐全 |
 
 证据编号对应已审阅材料；公开报告不包含私有核验工作底稿。

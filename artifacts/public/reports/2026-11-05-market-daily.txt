@@ -1,5 +1,5 @@
 美股市场日报｜2026-11-05 美东报告日
-报告生成时间：2026-11-05T22:30:40.556715+00:00；逐项显示原始观测日。
+报告生成时间：2026-11-05T23:15:29.806093+00:00；逐项显示原始观测日。
 
 一、美股市场表现
 - 标普 500 收盘：7353.73 点（观测日 2026-11-05）
@@ -53,18 +53,22 @@
   来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve
 
 四、跨资产行情
-- COMEX 黄金期货收盘：4097.90 美元/金衡盎司（观测日 2026-11-05）
+- 布伦特期货收盘：99.15 美元/桶（观测日 2026-11-05）
+  来源：https://finance.yahoo.com/quote/BZF27.NYM/history/
+- 布伦特日涨跌：+4.79%（观测日 2026-11-05）
+  来源：https://finance.yahoo.com/quote/BZF27.NYM/history/
+- COMEX 黄金期货收盘：4096.50 美元/金衡盎司（观测日 2026-11-05）
   来源：https://finance.yahoo.com/quote/GCZ26.CMX/history/
-- 黄金日涨跌：+0.61%（观测日 2026-11-05）
+- 黄金日涨跌：+0.58%（观测日 2026-11-05）
   来源：https://finance.yahoo.com/quote/GCZ26.CMX/history/
-- COMEX 白银期货收盘：51.83 美元/金衡盎司（观测日 2026-11-05）
+- COMEX 白银期货收盘：51.76 美元/金衡盎司（观测日 2026-11-05）
   来源：https://finance.yahoo.com/quote/SIZ26.CMX/history/
-- 白银日涨跌：-0.86%（观测日 2026-11-05）
+- 白银日涨跌：-1.00%（观测日 2026-11-05）
   来源：https://finance.yahoo.com/quote/SIZ26.CMX/history/
-- BTC/USD 现货收盘：76098.20 美元/BTC（观测日 2026-11-05）
-  来源：https://www.kraken.com/prices/bitcoin
-- BTC/USD 现货日涨跌：-4.94%（观测日 2026-11-05）
-  来源：https://www.kraken.com/prices/bitcoin
+- BTC/USD 现货收盘：75267.64 美元/BTC（观测日 2026-11-05）
+  来源：https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full
+- BTC/USD 现货日涨跌：-6.42%（观测日 2026-11-05）
+  来源：https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full
 
 五、市场驱动因素
 - 暂无经核实内容。
@@ -83,7 +87,7 @@
 - 暂无经核实内容。
 
 
-尚缺：研究解释、布伦特期货行情。
+尚缺：研究解释。
 
 数据说明
 可选数据未提供：比特币期货行情。
