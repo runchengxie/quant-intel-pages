@@ -1,5 +1,5 @@
 美股市场日报｜2026-11-06 美东报告日
-报告生成时间：2026-11-06T22:30:34.343593+00:00；逐项显示原始观测日。
+报告生成时间：2026-11-06T23:15:31.547780+00:00；逐项显示原始观测日。
 
 一、美股市场表现
 - 标普 500 收盘：7376.86 点（观测日 2026-11-06）
@@ -53,6 +53,10 @@
   来源：https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve
 
 四、跨资产行情
+- 布伦特期货收盘：97.76 美元/桶（观测日 2026-11-06）
+  来源：https://finance.yahoo.com/quote/BZF27.NYM/history/
+- 布伦特日涨跌：-0.54%（观测日 2026-11-06）
+  来源：https://finance.yahoo.com/quote/BZF27.NYM/history/
 - COMEX 黄金期货收盘：4079.50 美元/金衡盎司（观测日 2026-11-06）
   来源：https://finance.yahoo.com/quote/GCZ26.CMX/history/
 - 黄金日涨跌：-0.83%（观测日 2026-11-06）
@@ -61,10 +65,10 @@
   来源：https://finance.yahoo.com/quote/SIZ26.CMX/history/
 - 白银日涨跌：-0.78%（观测日 2026-11-06）
   来源：https://finance.yahoo.com/quote/SIZ26.CMX/history/
-- BTC/USD 现货收盘：75772.40 美元/BTC（观测日 2026-11-06）
-  来源：https://www.kraken.com/prices/bitcoin
-- BTC/USD 现货日涨跌：-0.43%（观测日 2026-11-06）
-  来源：https://www.kraken.com/prices/bitcoin
+- BTC/USD 现货收盘：75805.43 美元/BTC（观测日 2026-11-06）
+  来源：https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full
+- BTC/USD 现货日涨跌：-0.22%（观测日 2026-11-06）
+  来源：https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full
 
 五、市场驱动因素
 - 暂无经核实内容。
@@ -83,7 +87,7 @@
 - 暂无经核实内容。
 
 
-尚缺：研究解释、布伦特期货行情。
+尚缺：研究解释。
 
 数据说明
 可选数据未提供：比特币期货行情。
