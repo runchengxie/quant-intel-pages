@@ -43,6 +43,12 @@ def formal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         ],
         check=True,
     )
+    # This fixture owns a separate checkout; ambient runner GITHUB_SHA belongs
+    # to the parent repository, so give the fixture its own matching CI context.
+    monkeypatch.setenv(
+        "GITHUB_SHA",
+        subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip(),
+    )
     binary = tmp_path / "bin"
     binary.mkdir()
     exporter = binary / "exporter"
