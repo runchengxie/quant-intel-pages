@@ -119,19 +119,36 @@ def exporter_provenance(command: str, expected: str) -> dict[str, Any]:
     if not first.startswith("#!/") or " " in first[2:] or not Path(first[2:]).name.startswith("python"):
         raise ValueError("exporter requires a direct Python console script")
     interpreter = Path(first[2:])
-    probe = """import importlib.metadata as m,json,sys
+    probe = """import importlib.metadata as m,importlib.util as u,json,sys,hashlib,base64
 from pathlib import Path
-d=m.distribution('market-intel')
-launcher=[f.hash.value for f in (d.files or []) if Path(d.locate_file(f)).resolve()==Path(sys.argv[1]).resolve() and f.hash and f.hash.mode=='sha256']
-print(json.dumps({'version':d.version,'direct_url':json.loads(d.read_text('direct_url.json') or '{}'),'launcher':launcher,'installed_distributions':sorted((i.metadata['Name'],i.version) for i in m.distributions())}))
+d=m.distribution('market-intel');files=list(d.files or []);executable=Path(sys.argv[1]).resolve()
+launcher=[f.hash.value for f in files if Path(d.locate_file(f)).resolve()==executable and f.hash and f.hash.mode=='sha256']
+verified={}
+for f in files:
+ p=Path(d.locate_file(f))
+ if p.resolve()==executable: continue
+ if p.suffix=='.py' and (not f.hash or f.hash.mode!='sha256'): raise ValueError('missing module RECORD hash')
+ if not f.hash: continue
+ if f.hash.mode!='sha256' or p.is_symlink() or not p.resolve().is_relative_to(Path(sys.prefix).resolve()): raise ValueError('unsafe installed RECORD')
+ digest=hashlib.sha256(p.read_bytes()).digest()
+ if base64.urlsafe_b64encode(digest).decode().rstrip('=')!=f.hash.value: raise ValueError('installed file changed')
+ verified[str(p.resolve())]=digest.hex()
+module=Path(d.locate_file('market_intel_publication/export_site_snapshot.py')).resolve()
+if str(module) not in verified: raise ValueError('exporter module not covered by RECORD')
+spec=u.find_spec('market_intel_publication.export_site_snapshot')
+if not spec or not spec.origin or Path(spec.origin).resolve()!=module: raise ValueError('exporter import origin differs')
+print(json.dumps({'version':d.version,'direct_url':json.loads(d.read_text('direct_url.json') or '{}'),'launcher':launcher,'module_origin':str(module),'module_sha256':verified[str(module)],'verified_distribution_files':len(verified),'installed_distributions':sorted((i.metadata['Name'],i.version) for i in m.distributions())}))
 """
-    result = subprocess.run(
-        [str(interpreter), "-I", "-c", probe, str(executable)],
-        check=True,
-        capture_output=True,
-        text=True,
-        timeout=30,
-    )
+    try:
+        result = subprocess.run(
+            [str(interpreter), "-I", "-c", probe, str(executable)],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except subprocess.CalledProcessError as error:
+        raise ValueError("exporter package RECORD or import evidence failed") from error
     observed = json.loads(result.stdout)
     record = validate_exporter_metadata(observed, expected)
     digest = file_record(executable)["sha256"]
@@ -144,11 +161,19 @@ print(json.dumps({'version':d.version,'direct_url':json.loads(d.read_text('direc
             "executable_sha256": digest,
             "interpreter": str(interpreter),
             "executable": str(executable),
+            "module_origin": observed["module_origin"],
+            "module_sha256": observed["module_sha256"],
+            "verified_distribution_files": observed["verified_distribution_files"],
             "installed_distributions": observed["installed_distributions"],
             "dependency_lock": file_record(lock) if lock.is_file() else None,
         }
     )
     return record
+
+
+def validate_served_snapshot(snapshot: dict[str, FileRecord], output: dict[str, FileRecord]) -> None:
+    if any(output.get(path) != record for path, record in snapshot.items()):
+        raise ValueError("final output does not preserve the validated snapshot")
 
 
 def verify_identity(identity: Path, output: Path, quality: Path) -> None:
@@ -165,6 +190,7 @@ def verify_identity(identity: Path, output: Path, quality: Path) -> None:
     if value.get("validation", {}).get("sha256") != file_record(quality)["sha256"]:
         raise ValueError("quality receipt identity changed")
     validate_quality(quality, value.get("exported_snapshot", {}))
+    validate_served_snapshot(value.get("exported_snapshot", {}), value["output"])
 
 
 def main() -> None:

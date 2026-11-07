@@ -57,12 +57,18 @@ def _render_astro(root: Path, snapshot: Path, built: Path, quality: Path | None 
         shutil.copytree(rendered, built)
 
 
-def _export(root: Path, snapshot: Path, summaries: Path | None, command: str) -> None:
+def _export(
+    root: Path, snapshot: Path, summaries: Path | None, command: str, interpreter: str | None = None
+) -> None:
     args = [command, "--root", str(root), "--output", str(snapshot)]
     if summaries is not None:
         args.extend(["--summaries", str(summaries.resolve())])
+    env = None
+    if interpreter:
+        args = [interpreter, "-I", *args]
+        env = {key: value for key, value in os.environ.items() if key not in {"PYTHONPATH", "PYTHONHOME"}}
     try:
-        subprocess.run(args, cwd=root, check=True, capture_output=True, text=True, timeout=180)
+        subprocess.run(args, cwd=root, env=env, check=True, capture_output=True, text=True, timeout=180)
     except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
         raise RuntimeError("Platform public snapshot export failed") from error
 
@@ -144,6 +150,11 @@ def _finish(
         raise ValueError("original inputs changed during build")
     if identity.source_identity(root) != record["source"]:
         raise ValueError("source identity changed during build")
+    output_records = identity.hash_tree(output)
+    identity.validate_served_snapshot(before, output_records)
+    exporter = record["generator"]["exporter"]
+    if identity.exporter_provenance(exporter["executable"], options.exporter_revision) != exporter:
+        raise ValueError("exporter provenance changed during build")
     quality = identity.validate_quality(options.quality, before)
     if (
         quality.get("validator_revision") != record["source"]["revision"]
@@ -160,7 +171,7 @@ def _finish(
                 "validator_revision": quality.get("validator_revision"),
                 "validator_sha256": quality.get("validator_sha256"),
             },
-            "output": identity.hash_tree(output),
+            "output": output_records,
         }
     )
     return identity.stage_identity(options.identity, record)
@@ -193,6 +204,15 @@ def _promote(
         raise
 
 
+def _summaries_input(path: Path | None, output: Path) -> Path | None:
+    if path is None:
+        return None
+    path = identity.plain_path(path).resolve()
+    if path.is_relative_to(output) or output.is_relative_to(path):
+        raise ValueError("summaries input must be separate from replaced output")
+    return path
+
+
 def build_site(
     root: Path,
     output: Path,
@@ -206,6 +226,7 @@ def build_site(
         raise ValueError("build output must be separate from the repository")
     if output == output.parent:
         raise ValueError("build output cannot be a filesystem root")
+    summaries_path = _summaries_input(summaries_path, output)
     output.parent.mkdir(parents=True, exist_ok=True)
     command = _snapshot_command()
     record = _prepare(root, output, identity_options, command) if identity_options else None
@@ -219,7 +240,8 @@ def build_site(
                 record["generator"]["command"].extend(["--summaries", str(summaries_path)])
             export_root, summaries, record["original_inputs"] = _frozen_inputs(root, summaries_path, work)
         snapshot, staging, rendered = work / "snapshot", work / "site", work / "rendered"
-        _export(export_root, snapshot, summaries, command)
+        interpreter = record["generator"]["exporter"]["interpreter"] if record else None
+        _export(export_root, snapshot, summaries, command, interpreter)
         before = identity.hash_tree(snapshot)
         _render_astro(root, snapshot, rendered, identity_options.quality if identity_options else None)
         shutil.copytree(snapshot, staging)

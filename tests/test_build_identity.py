@@ -105,6 +105,8 @@ def test_identity_verifier_rejects_missing_extra_changed_output(tmp_path: Path, 
     output = tmp_path / "site"
     output.mkdir()
     (output / "index.html").write_bytes(b"")
+    (output / "data").mkdir()
+    (output / "data/empty").write_bytes(b"")
     quality = write_quality(tmp_path / "quality.json", {"data/empty": EMPTY_SHA})
     record = {
         "schema_version": "market_intel_pages.build_identity.v1",
@@ -113,7 +115,10 @@ def test_identity_verifier_rejects_missing_extra_changed_output(tmp_path: Path, 
         "status": "completed",
         "exported_snapshot": {"data/empty": {"sha256": EMPTY_SHA, "size": 0}},
         "validation": {"sha256": hashlib.sha256(quality.read_bytes()).hexdigest()},
-        "output": {"index.html": {"sha256": EMPTY_SHA, "size": 0}},
+        "output": {
+            "index.html": {"sha256": EMPTY_SHA, "size": 0},
+            "data/empty": {"sha256": EMPTY_SHA, "size": 0},
+        },
     }
     path = tmp_path / "identity.json"
     path.write_text(json.dumps(record))
@@ -148,6 +153,18 @@ def test_verifier_cli_rejects_invalid_receipt(tmp_path: Path) -> None:
     assert result.returncode != 0
 
 
+def add_owned_module(purelib: Path, metadata: Path) -> None:
+    package = purelib / "market_intel_publication"
+    package.mkdir()
+    with (metadata / "RECORD").open("a") as stream:
+        for name in ("__init__.py", "export_site_snapshot.py"):
+            path = package / name
+            path.write_text("")
+            stream.write(
+                f"market_intel_publication/{name},sha256={base64.urlsafe_b64encode(hashlib.sha256(b'').digest()).decode().rstrip('=')},0\n"
+            )
+
+
 def test_exporter_probe_reads_its_own_installed_distribution(tmp_path: Path) -> None:
     subprocess.run([sys.executable, "-m", "venv", "--without-pip", str(tmp_path / "env")], check=True)
     python = tmp_path / "env/bin/python"
@@ -170,6 +187,7 @@ def test_exporter_probe_reads_its_own_installed_distribution(tmp_path: Path) -> 
     (metadata / "RECORD").write_text(
         f"../../../bin/market-export-site-snapshot,sha256={encoded},{command.stat().st_size}\n"
     )
+    add_owned_module(purelib, metadata)
     record = identity.exporter_provenance(str(command), REVISION)
     assert record["version"] == "1.0"
     assert record["revision"] == REVISION
@@ -232,6 +250,7 @@ def test_exporter_probe_rejects_replaced_launcher_with_valid_distribution(tmp_pa
     (metadata / "RECORD").write_text("../../../bin/market-export-site-snapshot,sha256=INVALID,1\n")
     command = tmp_path / "env/bin/market-export-site-snapshot"
     command.write_text(f'#!{python}\nprint("replaced")\n')
+    add_owned_module(purelib, metadata)
     with pytest.raises(ValueError, match="launcher"):
         identity.exporter_provenance(str(command), REVISION)
 
@@ -246,3 +265,60 @@ def test_receipt_dotdot_cannot_escape_overlap_detection(tmp_path: Path) -> None:
     )
     with pytest.raises(ValueError, match="receipt"):
         identity.validate_paths(root, tmp_path / "site", options)
+
+
+def test_verifier_links_snapshot_to_served_output(tmp_path: Path) -> None:
+    output = tmp_path / "site"
+    (output / "data").mkdir(parents=True)
+    (output / "data/file").write_text("UNVALIDATED")
+    quality = write_quality(tmp_path / "quality.json", {"data/file": EMPTY_SHA})
+    record = {
+        "schema_version": "market_intel_pages.build_identity.v1",
+        "owner": "quant-intel-pages",
+        "purpose": "public_site",
+        "status": "completed",
+        "exported_snapshot": {"data/file": {"sha256": EMPTY_SHA, "size": 0}},
+        "validation": {"sha256": hashlib.sha256(quality.read_bytes()).hexdigest()},
+        "output": {"data/file": {"sha256": hashlib.sha256(b"UNVALIDATED").hexdigest(), "size": 11}},
+    }
+    receipt = tmp_path / "identity.json"
+    receipt.write_text(json.dumps(record))
+    with pytest.raises(ValueError, match="snapshot"):
+        identity.verify_identity(receipt, output, quality)
+
+
+def test_exporter_rejects_installed_module_modified_after_install(tmp_path: Path) -> None:
+    subprocess.run([sys.executable, "-m", "venv", "--without-pip", str(tmp_path / "env")], check=True)
+    python = tmp_path / "env/bin/python"
+    purelib = Path(
+        subprocess.check_output(
+            [str(python), "-c", 'import sysconfig;print(sysconfig.get_path("purelib"))'], text=True
+        ).strip()
+    )
+    metadata = purelib / "market_intel-1.0.dist-info"
+    metadata.mkdir()
+    (metadata / "METADATA").write_text("Metadata-Version: 2.1\nName: market-intel\nVersion: 1.0\n")
+    (metadata / "direct_url.json").write_text(json.dumps({"vcs_info": {"vcs": "git", "commit_id": REVISION}}))
+    package = purelib / "market_intel_publication"
+    package.mkdir()
+    (package / "__init__.py").write_text("")
+    module = package / "export_site_snapshot.py"
+    module.write_text('print("original")\n')
+    command = tmp_path / "env/bin/market-export-site-snapshot"
+    command.write_text(f"#!{python}\nfrom market_intel_publication.export_site_snapshot import main\n")
+    rows = []
+    for name, path in (
+        ("../../../bin/market-export-site-snapshot", command),
+        ("market_intel_publication/__init__.py", package / "__init__.py"),
+        ("market_intel_publication/export_site_snapshot.py", module),
+    ):
+        encoded = base64.urlsafe_b64encode(hashlib.sha256(path.read_bytes()).digest()).decode().rstrip("=")
+        rows.append(f"{name},sha256={encoded},{path.stat().st_size}")
+    (metadata / "RECORD").write_text("\n".join(rows) + "\n")
+    assert (
+        identity.exporter_provenance(str(command), REVISION)["module_sha256"]
+        == hashlib.sha256(module.read_bytes()).hexdigest()
+    )
+    module.write_text('print("changed")\n')
+    with pytest.raises(ValueError, match="exporter"):
+        identity.exporter_provenance(str(command), REVISION)

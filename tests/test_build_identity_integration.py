@@ -66,6 +66,8 @@ hashes={p.relative_to(snapshot).as_posix():hashlib.sha256(p.read_bytes()).hexdig
 Path(os.environ['REPORT_VALIDATION_RECEIPT']).write_text(json.dumps({'schema_version':'market_intel.report_quality.v1','status':'passed','input_sha256':hashes,'validator_revision':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'validator_sha256':hashlib.sha256(Path('tools/check-reports.ts').read_bytes()).hexdigest()}))
 (out/'index.html').write_text('rendered')
 change=os.environ.get('FIXTURE_CHANGE')
+if change=='overwrite':
+ (out/'data').mkdir();(out/'data/reports.json').write_text('UNVALIDATED')
 if change=='modify': (snapshot/'data/reports.json').write_text('changed')
 if change=='add': (snapshot/'extra').write_text('extra')
 if change=='delete': (snapshot/'data/reports.json').unlink()
@@ -83,7 +85,12 @@ if change=='validator':
     monkeypatch.setattr(
         build_identity,
         "exporter_provenance",
-        lambda command, expected: {"revision": expected, "version": "1"},
+        lambda command, expected: {
+            "revision": expected,
+            "version": "1",
+            "interpreter": sys.executable,
+            "executable": command,
+        },
     )
     output = tmp_path / "site"
     output.mkdir()
@@ -192,3 +199,37 @@ def test_wrong_validator_source_cannot_authorize_formal_output(formal, monkeypat
         build_site.build_site(root, output, identity_options=options)
     assert (output / "old").read_text() == "previous"
     assert not options.identity.exists()
+
+
+def test_rendered_output_cannot_replace_validated_snapshot(formal, monkeypatch) -> None:
+    root, output, options = formal
+    monkeypatch.setenv("FIXTURE_CHANGE", "overwrite")
+    with pytest.raises(ValueError, match="snapshot"):
+        build_site.build_site(root, output, identity_options=options)
+    assert (output / "old").read_text() == "previous"
+    assert not options.identity.exists()
+
+
+def test_summaries_inside_output_are_rejected_without_deleting_input(formal) -> None:
+    root, output, options = formal
+    summaries = output / "summaries.json"
+    summaries.write_text('{"keep":"input"}')
+    with pytest.raises(ValueError, match="summaries"):
+        build_site.build_site(root, output, summaries, identity_options=options)
+    assert summaries.read_text() == '{"keep":"input"}'
+    assert (output / "old").read_text() == "previous"
+    assert not options.quality.exists()
+
+
+def test_formal_export_does_not_import_pythonpath_shadow(formal, monkeypatch) -> None:
+    root, output, options = formal
+    shadow = output.parent / "shadow"
+    shadow.mkdir()
+    marker = output.parent / "shadow-executed"
+    (shadow / "shutil.py").write_text(
+        f'from pathlib import Path\nPath({str(marker)!r}).write_text("bad")\nraise RuntimeError("shadowed shutil")\n'
+    )
+    monkeypatch.setenv("PYTHONPATH", str(shadow))
+    build_site.build_site(root, output, identity_options=options)
+    assert options.identity.exists()
+    assert not marker.exists()
