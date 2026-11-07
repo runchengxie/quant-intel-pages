@@ -236,3 +236,23 @@ def test_pages_adapter_has_no_platform_source_imports() -> None:
     ]
     assert not any(name.startswith("market_intel_") for name in imports)
     assert "sys.path" not in source
+
+
+def test_astro_renders_beside_repository_before_copying_external_output(tmp_path: Path, monkeypatch) -> None:
+    root = tmp_path / "source/repo"
+    root.mkdir(parents=True)
+    snapshot = tmp_path / "inputs"
+    snapshot.mkdir()
+    external = tmp_path / "external/site"
+
+    def run(command, **kwargs):
+        built = Path(kwargs["env"]["ASTRO_OUT_DIR"])
+        if built.parent.parent != root.parent:
+            raise subprocess.CalledProcessError(1, command, stderr="Astro asset rename crosses filesystems")
+        built.mkdir()
+        (built / "index.html").write_text("rendered")
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(build_site.subprocess, "run", run)
+    build_site._render_astro(root, snapshot, external)
+    assert (external / "index.html").read_text() == "rendered"

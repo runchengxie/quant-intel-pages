@@ -28,7 +28,7 @@ def _copy_tree(source: Path, destination: Path) -> None:
         shutil.copytree(source, destination, dirs_exist_ok=True)
 
 
-def _render_astro(root: Path, snapshot: Path, built: Path, quality: Path | None = None) -> None:
+def _run_astro(root: Path, snapshot: Path, built: Path, quality: Path | None) -> None:
     env = {**os.environ, "ASTRO_DATA_ROOT": str(snapshot), "ASTRO_OUT_DIR": str(built)}
     if quality:
         env["REPORT_VALIDATION_RECEIPT"] = str(quality)
@@ -46,6 +46,15 @@ def _render_astro(root: Path, snapshot: Path, built: Path, quality: Path | None 
         raise RuntimeError("Astro static build failed") from error
     if not (built / "index.html").is_file():
         raise RuntimeError("Astro build did not produce index.html")
+
+
+def _render_astro(root: Path, snapshot: Path, built: Path, quality: Path | None = None) -> None:
+    # Astro renames assets from its source-side .astro directory. Render on that
+    # filesystem before copying to the independently staged external output.
+    with tempfile.TemporaryDirectory(prefix="quant-intel-astro-", dir=root.parent) as temporary:
+        rendered = Path(temporary) / "site"
+        _run_astro(root, snapshot, rendered, quality)
+        shutil.copytree(rendered, built)
 
 
 def _export(root: Path, snapshot: Path, summaries: Path | None, command: str) -> None:
