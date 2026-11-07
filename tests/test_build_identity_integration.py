@@ -22,6 +22,8 @@ def formal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     (root / "artifacts/public/data/reports.json").write_text("{}")
     (root / "src/legacy").mkdir(parents=True)
     (root / "src/legacy/app.js").write_text("legacy")
+    (root / "tools").mkdir()
+    (root / "tools/check-reports.ts").write_text("fixture checker")
     for name in ("package-lock.json", "uv.lock"):
         (root / name).write_text("{}")
     subprocess.run(["git", "init", "-q", str(root)], check=True)
@@ -55,13 +57,13 @@ shutil.copytree(Path(args[args.index('--root')+1])/'artifacts/public',args[args.
     npm = binary / "npm"
     npm.write_text(
         f"#!{sys.executable}\n"
-        + """import os,json,hashlib,sys
+        + """import os,json,hashlib,sys,subprocess
 from pathlib import Path
 if sys.argv[1]=='--version':
  print('1.0');sys.exit(0)
 snapshot=Path(os.environ['ASTRO_DATA_ROOT']);out=Path(os.environ['ASTRO_OUT_DIR']);out.mkdir()
 hashes={p.relative_to(snapshot).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in snapshot.rglob('*') if p.is_file()}
-Path(os.environ['REPORT_VALIDATION_RECEIPT']).write_text(json.dumps({'schema_version':'market_intel.report_quality.v1','status':'passed','input_sha256':hashes,'validator_revision':'a'*40,'validator_sha256':'b'*64}))
+Path(os.environ['REPORT_VALIDATION_RECEIPT']).write_text(json.dumps({'schema_version':'market_intel.report_quality.v1','status':'passed','input_sha256':hashes,'validator_revision':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'validator_sha256':hashlib.sha256(Path('tools/check-reports.ts').read_bytes()).hexdigest()}))
 (out/'index.html').write_text('rendered')
 change=os.environ.get('FIXTURE_CHANGE')
 if change=='modify': (snapshot/'data/reports.json').write_text('changed')
@@ -69,6 +71,8 @@ if change=='add': (snapshot/'extra').write_text('extra')
 if change=='delete': (snapshot/'data/reports.json').unlink()
 if change=='original': (Path(os.environ['FIXTURE_ROOT'])/'artifacts/public/data/reports.json').write_text('changed')
 if change=='quality': Path(os.environ['REPORT_VALIDATION_RECEIPT']).write_text('{}')
+if change=='validator':
+ p=Path(os.environ['REPORT_VALIDATION_RECEIPT']);d=json.loads(p.read_text());d['validator_sha256']='b'*64;p.write_text(json.dumps(d))
 """
     )
     for executable in (exporter, npm):
@@ -178,3 +182,12 @@ def test_summaries_override_is_hashed_and_used(formal) -> None:
     override.write_text("{}")
     build_site.build_site(root, output, override, identity_options=options)
     assert json.loads(options.identity.read_text())["original_inputs"]["summaries_override"]["size"] == 2
+
+
+def test_wrong_validator_source_cannot_authorize_formal_output(formal, monkeypatch) -> None:
+    root, output, options = formal
+    monkeypatch.setenv("FIXTURE_CHANGE", "validator")
+    with pytest.raises(ValueError, match="validator"):
+        build_site.build_site(root, output, identity_options=options)
+    assert (output / "old").read_text() == "previous"
+    assert not options.identity.exists()

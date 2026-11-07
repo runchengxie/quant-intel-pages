@@ -80,7 +80,22 @@ def _prepare(root: Path, output: Path, options: identity.IdentityOptions, comman
         "source": identity.source_identity(root),
         "generator": {
             "builder_sha256": identity.file_record(Path(__file__))["sha256"],
-            "command": ["python", "scripts/build_site.py", "--identity", "<external-receipt>"],
+            "command": [
+                "python",
+                "scripts/build_site.py",
+                "--root",
+                str(root),
+                "--output",
+                str(output),
+                "--identity",
+                str(options.identity),
+                "--quality-receipt",
+                str(options.quality),
+                "--task-id",
+                options.task_id,
+                "--exporter-revision",
+                options.exporter_revision,
+            ],
             "exporter": identity.exporter_provenance(command, options.exporter_revision),
             "versions": identity.runtime_versions(),
             "locks": {name: identity.file_record(root / name) for name in ("package-lock.json", "uv.lock")},
@@ -130,6 +145,11 @@ def _finish(
     if identity.source_identity(root) != record["source"]:
         raise ValueError("source identity changed during build")
     quality = identity.validate_quality(options.quality, before)
+    if (
+        quality.get("validator_revision") != record["source"]["revision"]
+        or quality.get("validator_sha256") != identity.file_record(root / "tools/check-reports.ts")["sha256"]
+    ):
+        raise ValueError("quality validator does not match source identity")
     record.update(
         {
             "completed_at_utc": identity.utc_now(),
