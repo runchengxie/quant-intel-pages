@@ -17,7 +17,28 @@ Deploy publishes reviewed Platform snapshots with explicit public markers to Pag
 
 ## Publication records
 
-The website workflow preserves `market-intel-ledger-<run_id>-1`, containing the validated `data/` and `reports/`. Deploy uses this ledger to verify publication inputs. A successful build confirms snapshot validation and static rendering. Confirm production publication using Deploy publisher state and actual Pages URLs.
+The website workflow preserves `market-intel-ledger-<run_id>-1`, containing the validated `data/` and `reports/`, the external `build-identity.json`, and `report-validation.json`. Deploy uses this ledger to verify publication inputs. A successful build confirms snapshot validation and static rendering. Confirm production publication using Deploy publisher state and actual Pages URLs.
+
+### Build identity
+
+Formal workflow builds require `market_intel_pages.build_identity.v1`. It records the clean Pages revision, installed exporter's immutable VCS commit, launcher and owner package RECORD hashes, and actual module import origin, installed dependency versions and lock hashes, original public inputs, the exported validation snapshot, the passed quality receipt, and every final output file. The original inputs, exported snapshot and rendered output are separate trees. Formal export uses the audited interpreter with `-I` and clears `PYTHONPATH`/`PYTHONHOME`. Every exported snapshot file must survive final assembly with identical bytes; renderers cannot replace validated downloads. A summaries override must be outside the output tree. Input changes or receipt failures prevent output promotion; failed rollback retains recovery material and reports its location.
+
+The workflow verifies output and quality hashes before uploading the site. Identity files stay outside public website output. The task ID includes the actual run ID and attempt; the ledger name retains its existing `-1` suffix for compatibility. The ledger artifact is retained for 90 days; Deploy's existing archival step stores it permanently under its configured archive root in `pages_ledgers/<artifact-id>`, with a separate artifact/run/hash receipt. A `completed` identity describes a build; publisher state, the matching workflow deployment and actual URLs establish publication.
+
+Local identity is opt-in and requires clean source plus a VCS-installed pinned exporter (directory/editable installations are rejected). Use the pinned CLI installation from the [local build guide](technical-guide.en.md#local-build), ensure `DATA_ROOT` is resolved for this machine, and choose a new task directory:
+
+```bash
+task_output="$DATA_ROOT/quant/quant-intel-pages/tasks/<task-id>"
+mkdir -p "$task_output"
+python scripts/build_site.py --output "$task_output/site" \
+  --identity "$task_output/build-identity.json" \
+  --quality-receipt "$task_output/report-validation.json" \
+  --task-id '<task-id>' --exporter-revision '<installed-40-character-commit>'
+python scripts/build_identity.py verify --identity "$task_output/build-identity.json" \
+  --output "$task_output/site" --quality "$task_output/report-validation.json"
+```
+
+Receipts must use new paths outside source and output, and must not traverse symlinks. The exporter needs a direct Python console script. Missing provenance or quality evidence blocks formal mode. Ordinary builds without these four identity options remain available. Identity records observed bytes and provenance; it does not promise identical outputs across different operating systems or dependency environments. Historical builds keep unknown source/task/agent values unknown. No identity grants permission to delete an archive; apply the separate [archive lifecycle](archive-lifecycle.md) and an explicit owner retention decision.
 
 Production credentials, stable release directories, and timers belong outside Git. Development tasks must not change or trigger them. Before changing production publishers, inspect pending receipts, rollback releases, and both report URL families in a separate deployment change.
 
