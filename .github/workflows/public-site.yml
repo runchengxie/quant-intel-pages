@@ -43,6 +43,8 @@ jobs:
       - name: Install Platform CLI
         run: |
           uv sync --project platform-cli --locked --no-dev
+          uv pip install --python platform-cli/.venv/bin/python --no-deps --reinstall-package market-intel \
+            "git+https://github.com/runchengxie/quant-intel-platform.git@$(git -C platform-cli rev-parse HEAD)"
           echo "$GITHUB_WORKSPACE/platform-cli/.venv/bin" >> "$GITHUB_PATH"
           platform-cli/.venv/bin/market-export-site-snapshot --help
       - name: Install website dependencies
@@ -66,7 +68,11 @@ jobs:
           SITE_OUTPUT: ${{ runner.temp }}/quant-intel-pages-site
           REPORT_VALIDATION_RECEIPT: ${{ runner.temp }}/report-validation.json
         run: |
-          python scripts/build_site.py --output "$SITE_OUTPUT"
+          python scripts/build_site.py --output "$SITE_OUTPUT" \
+            --identity "${{ runner.temp }}/build-identity.json" \
+            --quality-receipt "$REPORT_VALIDATION_RECEIPT" \
+            --task-id "github-${{ github.run_id }}-${{ github.run_attempt }}" \
+            --exporter-revision "$(git -C platform-cli rev-parse HEAD)"
           npm run check
           python tools/audit_structure.py --output "${{ runner.temp }}/structure.json"
           npm audit
@@ -92,6 +98,23 @@ jobs:
           name: public-site-browser-failure
           path: ${{ runner.temp }}/playwright-results/
           if-no-files-found: ignore
+      - name: Verify build identity and preserve receipts
+        env:
+          SITE_OUTPUT: ${{ runner.temp }}/quant-intel-pages-site
+          IDENTITY_ROOT: ${{ runner.temp }}
+        run: |
+          python scripts/build_identity.py verify --identity "$IDENTITY_ROOT/build-identity.json" \
+            --output "$SITE_OUTPUT" --quality "$IDENTITY_ROOT/report-validation.json"
+          if [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
+            mkdir -p "$IDENTITY_ROOT/market-intel-ledger"
+            cp "$IDENTITY_ROOT/build-identity.json" "$IDENTITY_ROOT/report-validation.json" "$IDENTITY_ROOT/market-intel-ledger/"
+          fi
+      - name: Upload build identity
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-identity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/build-identity.json
+          if-no-files-found: error
       - name: Preserve publication ledger
         if: github.event_name != 'pull_request'
         env:
