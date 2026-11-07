@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import subprocess
 import sys
 from pathlib import Path
@@ -135,7 +136,9 @@ def test_failed_atomic_swap_restores_previous_output(tmp_path: Path, monkeypatch
         ),
     )
     monkeypatch.setattr(
-        build_site, "_render_astro", lambda _root, snapshot: (snapshot / "index.html").write_text("new")
+        build_site,
+        "_render_astro",
+        lambda _root, _snapshot, built, _quality: (built.mkdir(), (built / "index.html").write_text("new")),
     )
     original_replace = Path.replace
     failed = False
@@ -157,7 +160,9 @@ def test_failed_atomic_swap_restores_previous_output(tmp_path: Path, monkeypatch
 def test_main_parses_arguments_and_prints_success(monkeypatch: pytest.MonkeyPatch, capsys) -> None:
     calls: list[tuple[Path, Path, Path | None]] = []
     monkeypatch.setattr(
-        build_site, "build_site", lambda root, output, summaries: calls.append((root, output, summaries))
+        build_site,
+        "build_site",
+        lambda root, output, summaries, **_kwargs: calls.append((root, output, summaries)),
     )
     monkeypatch.setattr(sys, "argv", ["build_site.py", "--root", ".", "--output", "/tmp/site"])
 
@@ -222,5 +227,12 @@ def test_workflow_uses_public_owner_cli_without_generation_secrets() -> None:
 
 def test_pages_adapter_has_no_platform_source_imports() -> None:
     source = Path("scripts/build_site.py").read_text(encoding="utf-8")
-    assert "market_intel_" not in source
+    imports = [node.module or "" for node in ast.walk(ast.parse(source)) if isinstance(node, ast.ImportFrom)]
+    imports += [
+        alias.name
+        for node in ast.walk(ast.parse(source))
+        if isinstance(node, ast.Import)
+        for alias in node.names
+    ]
+    assert not any(name.startswith("market_intel_") for name in imports)
     assert "sys.path" not in source

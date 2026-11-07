@@ -5,10 +5,14 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import platform
 import re
 import stat
 import subprocess
+import tempfile
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, TypedDict
 
@@ -111,7 +115,7 @@ def exporter_provenance(command: str, expected: str) -> dict[str, Any]:
     """Inspect the distribution through the console script's own interpreter."""
     executable = plain_path(Path(command)).resolve()
     first = executable.read_text().splitlines()[0]
-    if not first.startswith("#!/") or " " in first[2:]:
+    if not first.startswith("#!/") or " " in first[2:] or not Path(first[2:]).name.startswith("python"):
         raise ValueError("exporter requires a direct Python console script")
     interpreter = Path(first[2:])
     probe = (
@@ -157,6 +161,57 @@ def main() -> None:
     args = parser.parse_args()
     verify_identity(args.identity, args.output, args.quality)
     print("Build identity verified")
+
+
+def source_identity(root: Path) -> dict[str, Any]:
+    def git(*args: str) -> str:
+        return subprocess.run(
+            ["git", "-C", str(root), *args], check=True, capture_output=True, text=True, timeout=30
+        ).stdout.strip()
+
+    revision = git("rev-parse", "HEAD")
+    if git("status", "--porcelain", "--untracked-files=normal"):
+        raise ValueError("formal identity requires clean source")
+    declared = os.environ.get("GITHUB_SHA")
+    if declared and declared != revision:
+        raise ValueError("checkout revision does not match CI source")
+    return {"revision": revision, "dirty": False, "declared_ci_revision": declared}
+
+
+def utc_now() -> str:
+    return datetime.now(UTC).isoformat()
+
+
+def runtime_versions() -> dict[str, str]:
+    versions = {"python": platform.python_version()}
+    for name in ("node", "npm"):
+        versions[name] = subprocess.run(
+            [name, "--version"], check=True, capture_output=True, text=True, timeout=30
+        ).stdout.strip()
+    return versions
+
+
+def stage_identity(path: Path, value: dict[str, Any]) -> Path:
+    plain_path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", prefix=".build-identity-", dir=path.parent, delete=False
+    ) as stream:
+        pending = Path(stream.name)
+        try:
+            json.dump(value, stream, ensure_ascii=False, indent=2)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        except BaseException:
+            pending.unlink(missing_ok=True)
+            raise
+    return pending
+
+
+def publish_identity(pending: Path, target: Path) -> None:
+    plain_path(target)
+    os.link(pending, target)  # exclusive: never overwrite an existing receipt
 
 
 if __name__ == "__main__":

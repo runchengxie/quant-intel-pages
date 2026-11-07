@@ -145,3 +145,68 @@ def test_verifier_cli_rejects_invalid_receipt(tmp_path: Path) -> None:
         capture_output=True,
     )
     assert result.returncode != 0
+
+
+def test_exporter_probe_reads_its_own_installed_distribution(tmp_path: Path) -> None:
+    subprocess.run([sys.executable, "-m", "venv", "--without-pip", str(tmp_path / "env")], check=True)
+    python = tmp_path / "env/bin/python"
+    purelib = Path(
+        subprocess.check_output(
+            [str(python), "-c", 'import sysconfig;print(sysconfig.get_path("purelib"))'], text=True
+        ).strip()
+    )
+    metadata = purelib / "market_intel-1.0.dist-info"
+    metadata.mkdir()
+    (metadata / "METADATA").write_text("Metadata-Version: 2.1\nName: market-intel\nVersion: 1.0\n")
+    (metadata / "direct_url.json").write_text(
+        json.dumps(
+            {"url": "https://example.invalid/project", "vcs_info": {"vcs": "git", "commit_id": REVISION}}
+        )
+    )
+    command = tmp_path / "env/bin/market-export-site-snapshot"
+    command.write_text(f'#!{python}\nprint("exporter")\n')
+    record = identity.exporter_provenance(str(command), REVISION)
+    assert record["version"] == "1.0"
+    assert record["revision"] == REVISION
+    assert record["executable_sha256"] == hashlib.sha256(command.read_bytes()).hexdigest()
+    (metadata / "direct_url.json").write_text("{}")
+    with pytest.raises(ValueError, match="exporter"):
+        identity.exporter_provenance(str(command), REVISION)
+    command.write_text("#!/bin/sh\nexec python anything\n")
+    with pytest.raises(ValueError, match="exporter"):
+        identity.exporter_provenance(str(command), REVISION)
+
+
+def test_source_ci_revision_mismatch_rejected(tmp_path: Path, monkeypatch) -> None:
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(tmp_path),
+            "-c",
+            "user.name=Fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "commit",
+            "--allow-empty",
+            "-qm",
+            "fixture",
+        ],
+        check=True,
+    )
+    monkeypatch.setenv("GITHUB_SHA", "b" * 40)
+    with pytest.raises(ValueError, match="CI source"):
+        identity.source_identity(tmp_path)
+
+
+def test_existing_identity_is_not_overwritten(tmp_path: Path) -> None:
+    target = tmp_path / "identity.json"
+    target.write_text("existing")
+    pending = identity.stage_identity(target, {"status": "completed"})
+    try:
+        with pytest.raises(FileExistsError):
+            identity.publish_identity(pending, target)
+        assert target.read_text() == "existing"
+    finally:
+        pending.unlink()
