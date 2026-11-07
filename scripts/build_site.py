@@ -215,6 +215,8 @@ def build_site(
     try:
         export_root, summaries = root, summaries_path
         if record is not None:
+            if summaries_path:
+                record["generator"]["command"].extend(["--summaries", str(summaries_path)])
             export_root, summaries, record["original_inputs"] = _frozen_inputs(root, summaries_path, work)
         snapshot, staging, rendered = work / "snapshot", work / "site", work / "rendered"
         _export(export_root, snapshot, summaries, command)

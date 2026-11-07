@@ -182,6 +182,7 @@ def test_summaries_override_is_hashed_and_used(formal) -> None:
     override.write_text("{}")
     build_site.build_site(root, output, override, identity_options=options)
     assert json.loads(options.identity.read_text())["original_inputs"]["summaries_override"]["size"] == 2
+    assert "--summaries" in json.loads(options.identity.read_text())["generator"]["command"]
 
 
 def test_wrong_validator_source_cannot_authorize_formal_output(formal, monkeypatch) -> None:
