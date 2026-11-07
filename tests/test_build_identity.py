@@ -234,3 +234,15 @@ def test_exporter_probe_rejects_replaced_launcher_with_valid_distribution(tmp_pa
     command.write_text(f'#!{python}\nprint("replaced")\n')
     with pytest.raises(ValueError, match="launcher"):
         identity.exporter_provenance(str(command), REVISION)
+
+
+def test_receipt_dotdot_cannot_escape_overlap_detection(tmp_path: Path) -> None:
+    root = tmp_path / "repo"
+    root.mkdir()
+    other = tmp_path / "other"
+    other.mkdir()
+    options = identity.IdentityOptions(
+        other / ".." / "repo" / "identity.json", tmp_path / "quality.json", "task", REVISION
+    )
+    with pytest.raises(ValueError, match="receipt"):
+        identity.validate_paths(root, tmp_path / "site", options)

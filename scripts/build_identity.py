@@ -86,8 +86,8 @@ def validate_quality(receipt: Path, snapshot: dict[str, FileRecord]) -> dict[str
 
 
 def validate_paths(root: Path, output: Path, options: IdentityOptions) -> None:
-    receipts = (plain_path(options.identity), plain_path(options.quality))
-    if receipts[0] == receipts[1]:
+    receipts = (plain_path(options.identity).resolve(), plain_path(options.quality).resolve())
+    if receipts[0].is_relative_to(receipts[1]) or receipts[1].is_relative_to(receipts[0]):
         raise ValueError("receipt paths must differ")
     for receipt in receipts:
         for directory in (root, output):
