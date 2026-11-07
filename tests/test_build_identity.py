@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -165,6 +166,10 @@ def test_exporter_probe_reads_its_own_installed_distribution(tmp_path: Path) -> 
     )
     command = tmp_path / "env/bin/market-export-site-snapshot"
     command.write_text(f'#!{python}\nprint("exporter")\n')
+    encoded = base64.urlsafe_b64encode(hashlib.sha256(command.read_bytes()).digest()).decode().rstrip("=")
+    (metadata / "RECORD").write_text(
+        f"../../../bin/market-export-site-snapshot,sha256={encoded},{command.stat().st_size}\n"
+    )
     record = identity.exporter_provenance(str(command), REVISION)
     assert record["version"] == "1.0"
     assert record["revision"] == REVISION
@@ -210,3 +215,22 @@ def test_existing_identity_is_not_overwritten(tmp_path: Path) -> None:
         assert target.read_text() == "existing"
     finally:
         pending.unlink()
+
+
+def test_exporter_probe_rejects_replaced_launcher_with_valid_distribution(tmp_path: Path) -> None:
+    subprocess.run([sys.executable, "-m", "venv", "--without-pip", str(tmp_path / "env")], check=True)
+    python = tmp_path / "env/bin/python"
+    purelib = Path(
+        subprocess.check_output(
+            [str(python), "-c", 'import sysconfig;print(sysconfig.get_path("purelib"))'], text=True
+        ).strip()
+    )
+    metadata = purelib / "market_intel-1.0.dist-info"
+    metadata.mkdir()
+    (metadata / "METADATA").write_text("Metadata-Version: 2.1\nName: market-intel\nVersion: 1.0\n")
+    (metadata / "direct_url.json").write_text(json.dumps({"vcs_info": {"vcs": "git", "commit_id": REVISION}}))
+    (metadata / "RECORD").write_text("../../../bin/market-export-site-snapshot,sha256=INVALID,1\n")
+    command = tmp_path / "env/bin/market-export-site-snapshot"
+    command.write_text(f'#!{python}\nprint("replaced")\n')
+    with pytest.raises(ValueError, match="launcher"):
+        identity.exporter_provenance(str(command), REVISION)

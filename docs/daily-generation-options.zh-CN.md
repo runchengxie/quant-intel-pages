@@ -17,7 +17,28 @@ Deploy 将经过审核、带有公开标记的 Platform 报告快照提交到 Pa
 
 ## 发布记录
 
-网站工作流保存 `market-intel-ledger-<run_id>-1`，其中包含本次已校验的 `data/` 与 `reports/`。Deploy 以此账本复核发布来源。构建成功说明数据校验与静态渲染完成。还需核对 Deploy 的发布状态和 Pages 实际 URL，才能确认生产发布完成。
+网站工作流保存 `market-intel-ledger-<run_id>-1`，其中包含本次已校验的 `data/` 与 `reports/`，以及独立的 `build-identity.json` 和 `report-validation.json`。Deploy 以此账本复核发布来源。构建成功说明数据校验与静态渲染完成。还需核对 Deploy 的发布状态和 Pages 实际 URL，才能确认生产发布完成。
+
+### 构建身份
+
+正式工作流要求生成 `market_intel_pages.build_identity.v1`。记录包含干净的 Pages 源码版本、已安装导出器的不可变 VCS 提交和启动脚本哈希、已安装依赖版本和锁文件哈希、原始公开输入、导出后的校验快照、通过的质量回执，以及最终输出逐文件哈希。原始输入、导出快照和渲染输出使用不同目录。输入变化或回执失败会阻止替换输出；回滚本身失败时会保留恢复材料并报告位置。
+
+工作流在上传网站前核对输出和质量回执哈希，身份文件不会进入公开网站。任务 ID 包含实际 run ID 和 attempt；账本名称暂保留兼容的 `-1` 后缀。CI 账本保留 90 天；Deploy 现有归档步骤将其永久保存到配置的 archive root 下 `pages_ledgers/<artifact-id>`，并另存 artifact、run 和文件哈希回执。身份中的 `completed` 仅表示构建完成；发布还需对应的工作流部署、publisher 状态和实际 URL 佐证。
+
+本地构建可选择启用身份记录，需要干净源码和从固定 VCS 提交安装的导出器，不接受目录或 editable 安装。先按[本地构建指南](technical-guide.md#本地构建)安装固定 CLI，解析本机 `DATA_ROOT`，然后选一个新的任务目录：
+
+```bash
+task_output="$DATA_ROOT/quant/quant-intel-pages/tasks/<task-id>"
+mkdir -p "$task_output"
+python scripts/build_site.py --output "$task_output/site" \
+  --identity "$task_output/build-identity.json" \
+  --quality-receipt "$task_output/report-validation.json" \
+  --task-id '<task-id>' --exporter-revision '<installed-40-character-commit>'
+python scripts/build_identity.py verify --identity "$task_output/build-identity.json" \
+  --output "$task_output/site" --quality "$task_output/report-validation.json"
+```
+
+回执须使用源码和输出之外的新路径，不允许经过符号链接。导出器需要直接使用 Python 解释器的 console script。正式模式缺少来源或质量证据时会停止；不传这四个身份参数的普通构建仍可使用。记录证明实际观察到的字节和来源，不承诺不同操作系统或依赖环境会生成完全相同的输出。历史构建的源码、任务和执行者仍按未知保留。身份记录不授权删除归档，须另遵守[归档生命周期](archive-lifecycle.md)和 owner 的明确留存决定。
 
 生产凭据、稳定发布目录和定时器属于仓库外配置。开发任务不应修改或触发这些配置。切换生产发布器前，应在独立的部署变更中检查待处理回执、回滚版本和两类报告 URL。
 

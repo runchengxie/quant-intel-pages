@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import os
@@ -108,7 +109,7 @@ def validate_exporter_metadata(value: dict[str, Any], expected: str) -> dict[str
         or not value.get("version")
     ):
         raise ValueError("exporter must have matching immutable installed VCS metadata")
-    return {"revision": expected, "version": value["version"], "direct_url": direct}
+    return {"revision": expected, "version": value["version"], "vcs": "git"}
 
 
 def exporter_provenance(command: str, expected: str) -> dict[str, Any]:
@@ -118,19 +119,33 @@ def exporter_provenance(command: str, expected: str) -> dict[str, Any]:
     if not first.startswith("#!/") or " " in first[2:] or not Path(first[2:]).name.startswith("python"):
         raise ValueError("exporter requires a direct Python console script")
     interpreter = Path(first[2:])
-    probe = (
-        "import importlib.metadata as m,json;d=m.distribution('market-intel');"
-        "print(json.dumps({'version':d.version,'direct_url':json.loads(d.read_text('direct_url.json') or '{}')}))"
-    )
+    probe = """import importlib.metadata as m,json,sys
+from pathlib import Path
+d=m.distribution('market-intel')
+launcher=[f.hash.value for f in (d.files or []) if Path(d.locate_file(f)).resolve()==Path(sys.argv[1]).resolve() and f.hash and f.hash.mode=='sha256']
+print(json.dumps({'version':d.version,'direct_url':json.loads(d.read_text('direct_url.json') or '{}'),'launcher':launcher,'installed_distributions':sorted((i.metadata['Name'],i.version) for i in m.distributions())}))
+"""
     result = subprocess.run(
-        [str(interpreter), "-I", "-c", probe], check=True, capture_output=True, text=True, timeout=30
+        [str(interpreter), "-I", "-c", probe, str(executable)],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=30,
     )
-    record = validate_exporter_metadata(json.loads(result.stdout), expected)
+    observed = json.loads(result.stdout)
+    record = validate_exporter_metadata(observed, expected)
+    digest = file_record(executable)["sha256"]
+    encoded = base64.urlsafe_b64encode(bytes.fromhex(digest)).decode().rstrip("=")
+    if observed.get("launcher") != [encoded]:
+        raise ValueError("exporter launcher does not match installed distribution")
+    lock = executable.parents[2] / "uv.lock"
     record.update(
         {
-            "executable_sha256": file_record(executable)["sha256"],
+            "executable_sha256": digest,
             "interpreter": str(interpreter),
             "executable": str(executable),
+            "installed_distributions": observed["installed_distributions"],
+            "dependency_lock": file_record(lock) if lock.is_file() else None,
         }
     )
     return record
