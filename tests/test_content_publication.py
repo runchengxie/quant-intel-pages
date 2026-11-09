@@ -196,3 +196,24 @@ def test_context_cannot_overlap_content_or_output(external):
     overlapping.write_bytes(context.read_bytes())
     with pytest.raises(ValueError, match="separate"):
         publish(external, overlapping)
+
+
+def test_context_hash_cannot_be_refreshed_after_validation(external, monkeypatch):
+    context = context_file(external)
+    original = build_identity.file_record
+    calls = 0
+
+    def observe(path):
+        nonlocal calls
+        if path == context:
+            calls += 1
+            if calls == 3:
+                value = json.loads(context.read_text())
+                value["workflow_run_id"] = "999"
+                context.write_text(json.dumps(value))
+        return original(path)
+
+    monkeypatch.setattr(build_identity, "file_record", observe)
+    with pytest.raises(ValueError, match="context changed"):
+        publish(external, context)
+    assert (external[1] / "old").exists()

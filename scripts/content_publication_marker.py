@@ -125,7 +125,7 @@ def prepare(record: dict[str, Any] | None, path: Path | None) -> None:
     bind(result, record)
     record["publication"] = {
         "context_path": str(path),
-        "context": identity.file_record(path),
+        "context": before,
         "marker": result,
     }
     record["generator"]["command"].extend(["--publication-context", str(path)])
