@@ -25,7 +25,7 @@ for (const locale of ["en", "zh"] as const) {
       const history = page.locator(".market-history > details").filter({ has: page.locator("summary", { hasText: date }) });
       await history.locator("summary").first().click();
       await expect(history.locator("[data-native-us]")).toBeVisible();
-      await expect(history.locator(`a[href*="${date}-market-daily.md"]`)).toBeVisible();
+      await expect(history.locator(`button[data-report-date="${date}"]:not([data-report-section])`)).toBeVisible();
     }
     await page.locator("[data-locale-switch]").click();
     await expect(page.locator("html")).toHaveAttribute("lang", locale === "en" ? "zh-CN" : "en-US");
