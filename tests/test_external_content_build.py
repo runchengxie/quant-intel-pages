@@ -323,3 +323,91 @@ def test_v2_duplicate_identity_fields_rejected(external):
     options.identity.write_text(raw.replace("{", '{"status":"untrusted",', 1))
     with pytest.raises(ValueError, match="duplicate"):
         identity.verify_identity(options.identity, output, options.quality)
+
+
+@pytest.mark.parametrize("kind", ["schema", "order", "oversize", "bad_time"])
+def test_external_rejects_malformed_receipt_contract(external, kind):
+    receipt = external[4]
+    value = json.loads(receipt.read_text())
+    if kind == "schema":
+        value["schema_version"] = "market_intel.site_content_receipt.v0"
+    elif kind == "order":
+        value["files"].append({**value["files"][0], "path": "data/aaa.json"})
+    elif kind == "bad_time":
+        value["created_at_utc"] = "not-a-dateZ"
+    else:
+        receipt.write_text(" " * 2_000_001)
+    if kind != "oversize":
+        receipt.write_text(json.dumps(value))
+    with pytest.raises(ValueError, match="content"):
+        build(external)
+
+
+def test_receipt_mutation_while_reading_blocks_build(external, monkeypatch):
+    from scripts import content_identity
+
+    read = content_identity.read_receipt
+
+    def changed(path):
+        value = read(path)
+        path.write_text("{}")
+        return value
+
+    monkeypatch.setattr(content_identity, "read_receipt", changed)
+    with pytest.raises(ValueError, match="changed during validation"):
+        build(external)
+
+
+def test_added_file_outside_public_root_during_render_blocks_build(external, monkeypatch):
+    render = build_site._render_astro
+
+    def changed(*args, **kwargs):
+        render(*args, **kwargs)
+        (external[3] / "unexpected").write_text("extra")
+
+    monkeypatch.setattr(build_site, "_render_astro", changed)
+    with pytest.raises(ValueError, match="original content"):
+        build(external)
+
+
+@pytest.mark.parametrize("kind", ["snapshot_type", "dirty", "dotdot", "input_hash", "validator"])
+def test_v2_requires_consistent_source_inputs_and_validator(external, kind):
+    build(external)
+    _, output, options, _, _ = external
+    value = json.loads(options.identity.read_text())
+    if kind == "snapshot_type":
+        value["exported_snapshot"] = []
+    elif kind == "dirty":
+        value["source"]["dirty"] = True
+    elif kind == "dotdot":
+        value["source"]["root"] += "/../other"
+    elif kind == "input_hash":
+        value["original_inputs"]["public"]["data/reports.json"]["sha256"] = "d" * 64
+    else:
+        value["validation"]["status"] = "failed"
+    options.identity.write_text(json.dumps(value))
+    with pytest.raises(ValueError):
+        identity.verify_identity(options.identity, output, options.quality)
+
+
+def test_v1_rejects_unknown_identity_schema(tmp_path):
+    path = tmp_path / "identity.json"
+    path.write_text(json.dumps({"schema_version": "market_intel_pages.build_identity.v0"}))
+    with pytest.raises(ValueError, match="invalid completed"):
+        identity.verify_identity(path, tmp_path / "site", tmp_path / "quality")
+
+
+def test_identity_paths_reject_same_receipt_target(formal):
+    root, output, options = formal
+    repeated = identity.IdentityOptions(
+        options.identity, options.identity, options.task_id, options.exporter_revision
+    )
+    with pytest.raises(ValueError, match="paths must differ"):
+        build_site.build_site(root, output, identity_options=repeated)
+
+
+def test_formal_identity_rejects_noncommit_exporter_revision(formal):
+    root, output, options = formal
+    invalid = identity.IdentityOptions(options.identity, options.quality, options.task_id, "main")
+    with pytest.raises(ValueError, match="invalid task or exporter"):
+        build_site.build_site(root, output, identity_options=invalid)
