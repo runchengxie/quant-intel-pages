@@ -25,14 +25,14 @@ async function checkHome(page: import("@playwright/test").Page, locale: "en" | "
     await expect(page.locator("#asia-session")).toContainText(latestEvening.date);
     await expect(page.locator("#asia-session [data-native-asia]").first()).toBeVisible();
   } else {
-    await expect(page.locator("#asia-session .empty")).toHaveText(empty[locale].asia);
+    await expect(page.locator("#asia-session").getByText(empty[locale].asia, { exact: true })).toBeVisible();
     await expect(page.locator("#asia-session [data-native-asia]")).toHaveCount(0);
   }
   if (us?.markdown) {
     await expect(page.locator("#us-session")).toContainText(us.date);
     await expect(page.locator("#us-session [data-native-us]").first()).toBeVisible();
   } else {
-    await expect(page.locator("#us-session .empty")).toHaveText(empty[locale].us);
+    await expect(page.locator("#us-session").getByText(empty[locale].us, { exact: true })).toBeVisible();
     await expect(page.locator("#us-session [data-native-us]")).toHaveCount(0);
   }
 }
