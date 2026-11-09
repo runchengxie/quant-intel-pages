@@ -18,4 +18,4 @@ Start with the [maintenance guide](docs/technical-guide.en.md) for page structur
 
 Run `npm test`, `npm run check`, site builds and browser tests in sequence within one checkout. They share Astro's build cache, so concurrent builds can break each other. Use separate worktrees for parallel work.
 
-Verified external content can also be rendered locally; see [content builds](docs/content-publication.md).
+Verified external content supports local builds and an opt-in publication workflow; legacy deployment remains the default. See [content publication](docs/content-publication.md).

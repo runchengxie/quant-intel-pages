@@ -26,7 +26,7 @@ Open <http://localhost:8000/quant-intel-pages/>. The builder asks the Platform C
 - `artifacts/public/` holds reviewed public inputs. Private archives stay outside this repository.
 - `scripts/build_site.py` calls the installed Platform CLI to prepare frontend inputs. It does not import Platform source code.
 - `scripts/public_site_alerts.py` tracks website builds and updates failure or recovery Issues.
-- `.github/workflows/public-site.yml` checks and deploys the static site, retaining a publication ledger.
+- `.github/workflows/public-site.yml` runs full source checks and deploys in default legacy mode. The [content publication guide](content-publication.md) describes the shared build workflow, opt-in content deployment and retained ledger.
 
 Platform is pinned by commit in the workflow so snapshot validation uses a reviewed owner release. The site workflow has no model credentials and runs no report generation. Public report date and age monitoring belongs to `quant-intel-deploy`. Use [AGENTS.md](../AGENTS.md) and [daily generation options](daily-generation-options.md) for ownership and handoff details.
 

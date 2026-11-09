@@ -12,10 +12,11 @@ from typing import Any
 
 if __package__:
     from . import build_identity as identity
-    from . import content_identity
+    from . import content_identity, content_publication_marker
 else:
     import build_identity as identity
     import content_identity
+    import content_publication_marker
 
 
 def _snapshot_command() -> str:
@@ -159,8 +160,6 @@ def _finish(
         source["root"] = str(root)
     if source != record["source"]:
         raise ValueError("source identity changed during build")
-    output_records = identity.hash_tree(output)
-    identity.validate_served_snapshot(before, output_records)
     exporter = record["generator"]["exporter"]
     if identity.exporter_provenance(exporter["executable"], options.exporter_revision) != exporter:
         raise ValueError("exporter provenance changed during build")
@@ -170,6 +169,9 @@ def _finish(
         or quality.get("validator_sha256") != identity.file_record(root / "tools/check-reports.ts")["sha256"]
     ):
         raise ValueError("quality validator does not match source identity")
+    content_publication_marker.stage(record, output)
+    output_records = identity.hash_tree(output)
+    identity.validate_served_snapshot(before, output_records)
     record.update(
         {
             "completed_at_utc": identity.utc_now(),
@@ -249,6 +251,7 @@ def build_site(
     identity_options: identity.IdentityOptions | None = None,
     public_inputs: Path | None = None,
     content_receipt: Path | None = None,
+    publication_context: Path | None = None,
 ) -> None:
     """Preserve previous output on build failure; formal builds also require identity."""
     root, output = identity.plain_path(root).resolve(), identity.plain_path(output).resolve()
@@ -265,6 +268,7 @@ def build_site(
     record = _prepare(root, output, identity_options, command) if identity_options else None
     if external and record is not None and identity_options:
         content_identity.prepare(record, root, *external, identity_options.exporter_revision)
+    content_publication_marker.prepare(record, publication_context)
     work = Path(tempfile.mkdtemp(prefix="quant-intel-pages-", dir=output.parent))
     pending = None
     retain = False
@@ -302,6 +306,7 @@ def main() -> None:
         "--public-inputs", type=Path, help="verified external root containing artifacts/public"
     )
     parser.add_argument("--content-receipt", type=Path, help="matching Platform verification receipt")
+    parser.add_argument("--publication-context", type=Path, help="trusted Pages workflow context")
     parser.add_argument("--identity", type=Path)
     parser.add_argument("--quality-receipt", type=Path)
     parser.add_argument("--task-id")
@@ -318,6 +323,7 @@ def main() -> None:
         identity_options=options,
         public_inputs=args.public_inputs,
         content_receipt=args.content_receipt,
+        publication_context=args.publication_context,
     )
     print(f"Built public site at {args.output}")
 

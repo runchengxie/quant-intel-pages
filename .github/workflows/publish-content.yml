@@ -1,0 +1,126 @@
+name: Publish content
+run-name: Publish content ${{ inputs.candidate_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_id:
+        required: true
+        type: string
+      content_asset_id:
+        required: true
+        type: string
+      content_sha256:
+        required: true
+        type: string
+      producer_revision:
+        required: true
+        type: string
+      renderer_revision:
+        required: true
+        type: string
+      expected_parent_publication_id:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+# Lock covers parent comparison, build and deploy; pending replacement is not FIFO.
+concurrency:
+  group: quant-intel-pages-production
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      first: ${{ steps.green.outputs.first }}
+    steps:
+      - name: Validate dispatch before owner checkout
+        env:
+          MODE: ${{ vars.CONTENT_PUBLICATION_MODE }}
+          RENDERER_REVISION: ${{ inputs.renderer_revision }}
+          PRODUCER_REVISION: ${{ inputs.producer_revision }}
+        run: |
+          test "$MODE" = artifact-v1
+          test "$GITHUB_REF" = refs/heads/main
+          test "$RENDERER_REVISION" = "$GITHUB_SHA"
+          test "$PRODUCER_REVISION" = 70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be
+      - name: Require successful merged main source checks
+        id: green
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const repository = {owner: 'runchengxie', repo: 'quant-intel-pages'};
+            if (context.repo.owner !== repository.owner || context.repo.repo !== repository.repo) {
+              throw new Error('Fixed Pages repository required');
+            }
+            const result = await github.rest.actions.listWorkflowRuns({
+              ...repository, workflow_id: 'public-site.yml', head_sha: context.sha,
+              branch: 'main', event: 'push', status: 'success', per_page: 100
+            });
+            if (!result.data.workflow_runs.some(run => run.head_sha === context.sha &&
+                run.head_branch === 'main' && run.event === 'push' && run.conclusion === 'success' &&
+                run.head_repository.full_name === 'runchengxie/quant-intel-pages')) {
+              throw new Error('Renderer must be a green merged main revision');
+            }
+            const previous = await github.rest.actions.listWorkflowRuns({
+              ...repository, workflow_id: 'publish-content.yml', status: 'success', per_page: 1
+            });
+            core.setOutput('first', String(previous.data.total_count === 0));
+      - name: Check out trusted main run revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+  build:
+    needs: preflight
+    uses: ./.github/workflows/site-build.yml
+    with:
+      profile: content
+      candidate_id: ${{ inputs.candidate_id }}
+      content_asset_id: ${{ inputs.content_asset_id }}
+      content_sha256: ${{ inputs.content_sha256 }}
+      expected_parent_publication_id: ${{ inputs.expected_parent_publication_id }}
+      first_publication: ${{ needs.preflight.outputs.first == 'true' }}
+  deploy:
+    needs: build
+    if: needs.build.outputs.publication_status == 'publish'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Recheck parent inside the production lock
+        uses: actions/github-script@v8
+        env:
+          EXPECTED_PARENT: ${{ inputs.expected_parent_publication_id }}
+          PROPOSED_MARKER: ${{ needs.build.outputs.publication_marker }}
+        with:
+          script: |
+            const response = await fetch('https://runchengxie.github.io/quant-intel-pages/data/site-publication.json',
+              {redirect: 'error', headers: {'Cache-Control': 'no-cache'}});
+            if (response.status === 404 && process.env.EXPECTED_PARENT === '__bootstrap__') return;
+            if (!response.ok) throw new Error('Cannot verify live publication parent');
+            const body = await response.text();
+            if (body.length > 4096) throw new Error('Publication marker too large');
+            const current = JSON.parse(body);
+            const proposed = JSON.parse(process.env.PROPOSED_MARKER);
+            if (current.schema_version !== 'market_intel_pages.site_publication.v1' ||
+                current.publication_id !== process.env.EXPECTED_PARENT ||
+                current.publication_id === proposed.publication_id) {
+              throw new Error('Live publication parent changed');
+            }
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Deploy Pages site
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -18,4 +18,4 @@
 
 同一检出中的 `npm test`、`npm run check`、网站构建和浏览器测试要依次运行。它们共用 Astro 构建缓存，同时运行可能导致构建失败。并行开发请使用独立工作树。
 
-也可在本地渲染经过验证的外部内容，详见[内容构建指南](docs/content-publication.zh-CN.md)。
+已验证的外部内容支持本地构建及显式启用的发布工作流，默认仍采用旧部署方式。详见[内容发布指南](docs/content-publication.zh-CN.md)。

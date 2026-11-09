@@ -7,6 +7,7 @@ const port = process.env.PLAYWRIGHT_PORT || "4321";
 
 export default defineConfig({
   testDir: "./tests/browser",
+  testIgnore: "content-publication.spec.ts",
   timeout: 30_000,
   expect: { timeout: 10_000 },
   workers: process.env.CI ? 1 : undefined,

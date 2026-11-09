@@ -83,13 +83,15 @@ class IssueClient:
     def list_comments(self, number: int) -> list[dict[str, Any]]:
         return self._list_pages(f"/issues/{number}/comments")
 
-    def latest_workflow_run(self, branch: str) -> dict[str, Any] | None:
+    def latest_workflow_run(self, branch: str, workflow: str = "public-site.yml") -> dict[str, Any] | None:
         """Read the latest completed Public website run for the exact branch."""
+        if workflow not in {"public-site.yml", "publish-content.yml"}:
+            raise ValueError("unknown website workflow")
         matching: list[dict[str, Any]] = []
         page = 1
         while True:
             query = urlencode({"branch": branch, "status": "completed", "per_page": 100, "page": page})
-            response = self._request("GET", f"/actions/workflows/public-site.yml/runs?{query}")
+            response = self._request("GET", f"/actions/workflows/{workflow}/runs?{query}")
             if not isinstance(response, dict) or not isinstance(response.get("workflow_runs"), list):
                 raise RuntimeError("GitHub Actions API returned invalid run data")
             runs = response["workflow_runs"]
@@ -234,7 +236,7 @@ def process_workflow_event(
         return "ignored"
     branch = run.get("head_branch")
     if (
-        run.get("name") != "Public website"
+        run.get("name") not in {"Public website", "Publish content"}
         or not _branch_allowed(branch)
         or run.get("status") != "completed"
         or run.get("conclusion") not in {"success", "failure"}
@@ -246,7 +248,9 @@ def process_workflow_event(
     run_id = run.get("id")
     if not isinstance(run_id, int) or run_id <= 0:
         raise ValueError("workflow_run.id must be positive")
-    latest = None if dry_run else client.latest_workflow_run(branch)
+    content_run = run["name"] == "Publish content"
+    workflow = "publish-content.yml" if content_run else "public-site.yml"
+    latest = None if dry_run else client.latest_workflow_run(branch, workflow)
     if latest is not None and latest["id"] > run_id:
         if latest.get("conclusion") not in {"success", "failure"}:
             return "ignored"
@@ -258,7 +262,12 @@ def process_workflow_event(
         else None
     )
     return _alert(
-        client, key=f"build:{branch}", finding=finding, repository=repository, run_id=run_id, dry_run=dry_run
+        client,
+        key=f"build:{'content:' if content_run else ''}{branch}",
+        finding=finding,
+        repository=repository,
+        run_id=run_id,
+        dry_run=dry_run,
     )
 
 

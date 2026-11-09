@@ -1,0 +1,219 @@
+name: Shared website build
+on:
+  workflow_call:
+    inputs:
+      profile:
+        required: true
+        type: string
+      synthetic:
+        type: boolean
+        default: false
+      candidate_id:
+        type: string
+        default: ''
+      content_asset_id:
+        type: string
+        default: ''
+      content_sha256:
+        type: string
+        default: ''
+      expected_parent_publication_id:
+        type: string
+        default: ''
+      first_publication:
+        type: boolean
+        default: false
+    outputs:
+      publication_status:
+        value: ${{ jobs.build.outputs.publication_status }}
+      publication_marker:
+        value: ${{ jobs.build.outputs.publication_marker }}
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      publication_status: ${{ steps.content.outputs.status }}
+      publication_marker: ${{ steps.content.outputs.marker }}
+    env:
+      ESBUILD_BINARY_PATH: ${{ github.workspace }}/node_modules/@esbuild/linux-x64/bin/esbuild
+      PRODUCER_REVISION: 70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be
+    steps:
+      - name: Validate build mode and profile
+        env:
+          MODE: ${{ vars.CONTENT_PUBLICATION_MODE }}
+          PROFILE: ${{ inputs.profile }}
+        run: |
+          case "$MODE" in ''|legacy|artifact-v1) ;; *) exit 1 ;; esac
+          case "$PROFILE" in source|content) ;; *) exit 1 ;; esac
+          echo "SITE_OUTPUT=$RUNNER_TEMP/site" >> "$GITHUB_ENV"
+          echo "IDENTITY_ROOT=$RUNNER_TEMP" >> "$GITHUB_ENV"
+          echo "REPORT_VALIDATION_RECEIPT=$RUNNER_TEMP/report-validation.json" >> "$GITHUB_ENV"
+      - name: Check out Pages
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Check out pinned Platform CLI
+        uses: actions/checkout@v6
+        with:
+          repository: runchengxie/quant-intel-platform
+          ref: 70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be
+          path: platform-cli
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install Platform CLI
+        run: |
+          uv sync --project platform-cli --locked --no-dev
+          uv pip install --python platform-cli/.venv/bin/python --no-deps --reinstall-package market-intel \
+            "git+https://github.com/runchengxie/quant-intel-platform.git@$PRODUCER_REVISION"
+          echo "$GITHUB_WORKSPACE/platform-cli/.venv/bin" >> "$GITHUB_PATH"
+          platform-cli/.venv/bin/market-export-site-snapshot --help
+      - name: Install website dependencies
+        run: npm ci
+      - name: Install Pages development checks
+        if: inputs.profile == 'source'
+        run: uv sync --locked --group dev --no-install-project
+      - name: Lint, format, type check, and unused code
+        if: inputs.profile == 'source'
+        run: |
+          uv run ruff check scripts tests tools
+          uv run ruff format --check scripts tests tools
+          uv run ty check
+          uv run vulture scripts tests tools --min-confidence 80
+      - name: Run Python and Node checks
+        if: inputs.profile == 'source'
+        run: |
+          uv run pytest --cov-report=xml
+          npm test
+          node --check src/legacy/app.js
+          node --check src/legacy/summary-utils.js
+      - name: Generate synthetic content candidate
+        if: inputs.profile == 'content' && inputs.synthetic
+        run: |
+          python tools/synthetic_content.py --output "$RUNNER_TEMP/synthetic-source"
+          market-pack-site-content --root "$RUNNER_TEMP/synthetic-source" \
+            --output "$RUNNER_TEMP/content.zip" --created-at 2026-11-01T00:00:00Z \
+            --producer-revision "$PRODUCER_REVISION" --receipt "$RUNNER_TEMP/pack-receipt.json"
+      - name: Download fixed public repository asset
+        if: inputs.profile == 'content' && !inputs.synthetic
+        env:
+          ASSET_ID: ${{ inputs.content_asset_id }}
+          ARCHIVE_SHA256: ${{ inputs.content_sha256 }}
+        run: python scripts/content_asset.py --asset-id "$ASSET_ID" --sha256 "$ARCHIVE_SHA256" --output "$RUNNER_TEMP/content.zip"
+      - name: Verify content with installed owner and bind trusted context
+        id: content
+        if: inputs.profile == 'content'
+        env:
+          SYNTHETIC: ${{ inputs.synthetic }}
+          ARCHIVE_SHA256: ${{ inputs.content_sha256 }}
+          CANDIDATE_ID: ${{ inputs.synthetic && format('synthetic-{0}-{1}', github.run_id, github.run_attempt) || inputs.candidate_id }}
+          EXPECTED_PARENT: ${{ inputs.expected_parent_publication_id }}
+          FIRST_PUBLICATION: ${{ inputs.first_publication }}
+        run: |
+          args=()
+          if [ "$SYNTHETIC" = true ]; then
+            ARCHIVE_SHA256="$(sha256sum "$RUNNER_TEMP/content.zip" | cut -d' ' -f1)"
+            args+=(--synthetic)
+          fi
+          market-verify-site-content --bundle "$RUNNER_TEMP/content.zip" --sha256 "$ARCHIVE_SHA256" \
+            --output "$RUNNER_TEMP/verified" --expected-producer-revision "$PRODUCER_REVISION" \
+            --receipt "$RUNNER_TEMP/content-receipt.json"
+          python scripts/publication_request.py --receipt "$RUNNER_TEMP/content-receipt.json" \
+            --context "$RUNNER_TEMP/publication-context.json" "${args[@]}"
+      - name: Build verified site
+        env:
+          PROFILE: ${{ inputs.profile }}
+        run: |
+          args=()
+          if [ "$PROFILE" = content ]; then
+            args+=(--public-inputs "$RUNNER_TEMP/verified" --content-receipt "$RUNNER_TEMP/content-receipt.json"
+              --publication-context "$RUNNER_TEMP/publication-context.json")
+          fi
+          python scripts/build_site.py --output "$SITE_OUTPUT" \
+            --identity "$IDENTITY_ROOT/build-identity.json" --quality-receipt "$REPORT_VALIDATION_RECEIPT" \
+            --task-id "github-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --exporter-revision "$PRODUCER_REVISION" "${args[@]}"
+      - name: Audit source and dependencies
+        if: inputs.profile == 'source'
+        run: |
+          npm run check
+          python tools/audit_structure.py --output "$RUNNER_TEMP/structure.json"
+          npm audit
+          uv run pip-audit --strict --format json --output "$RUNNER_TEMP/dependency-audit.json"
+      - name: Upload report validation receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-validation-${{ inputs.profile }}-${{ inputs.synthetic }}
+          path: ${{ runner.temp }}/report-validation.json
+          if-no-files-found: ignore
+      - name: Install Chromium for browser checks
+        run: npx playwright install --with-deps chromium
+      - name: Source browser checks
+        id: browser
+        if: inputs.profile == 'source'
+        env:
+          PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/playwright-results
+        run: npm run test:browser
+      - name: Content browser checks on the exact built output
+        if: inputs.profile == 'content'
+        env:
+          CONTENT_SITE_ROOT: ${{ runner.temp }}/site
+          CONTENT_BUILD_IDENTITY: ${{ runner.temp }}/build-identity.json
+          PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/playwright-results
+        run: npm run test:browser -- --config playwright.content.config.ts
+      - name: Upload browser failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-site-browser-failure-${{ inputs.profile }}-${{ inputs.synthetic }}
+          path: ${{ runner.temp }}/playwright-results/
+          if-no-files-found: ignore
+      - name: Verify build identity and preserve receipts
+        run: |
+          python scripts/build_identity.py verify --identity "$IDENTITY_ROOT/build-identity.json" \
+            --output "$SITE_OUTPUT" --quality "$IDENTITY_ROOT/report-validation.json"
+          if [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
+            mkdir -p "$IDENTITY_ROOT/market-intel-ledger"
+            cp "$IDENTITY_ROOT/build-identity.json" "$IDENTITY_ROOT/report-validation.json" "$IDENTITY_ROOT/market-intel-ledger/"
+          fi
+      - name: Upload build identity
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-identity-${{ github.run_id }}-${{ github.run_attempt }}${{ inputs.synthetic && '-synthetic' || '' }}
+          path: ${{ runner.temp }}/build-identity.json
+          if-no-files-found: error
+      - name: Preserve publication ledger
+        if: github.event_name != 'pull_request'
+        env:
+          PROFILE: ${{ inputs.profile }}
+        run: |
+          mkdir -p "$IDENTITY_ROOT/market-intel-ledger/data" "$IDENTITY_ROOT/market-intel-ledger/reports"
+          cp -a "$SITE_OUTPUT/data/." "$IDENTITY_ROOT/market-intel-ledger/data/"
+          cp -a "$SITE_OUTPUT/reports/." "$IDENTITY_ROOT/market-intel-ledger/reports/"
+          if [ "$PROFILE" = content ]; then
+            cp "$RUNNER_TEMP/content.zip" "$RUNNER_TEMP/content-receipt.json" "$RUNNER_TEMP/publication-context.json" "$IDENTITY_ROOT/market-intel-ledger/"
+            cp -a "$RUNNER_TEMP/verified" "$IDENTITY_ROOT/market-intel-ledger/original"
+          fi
+      - name: Upload publication ledger
+        if: github.event_name != 'pull_request' && !inputs.synthetic
+        uses: actions/upload-artifact@v4
+        with:
+          name: market-intel-ledger-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/market-intel-ledger
+          if-no-files-found: error
+          retention-days: 90
+      - name: Upload site artifact
+        if: '!inputs.synthetic'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/site

@@ -103,6 +103,8 @@ def ordered_records(files: Any) -> dict[str, identity.FileRecord]:
         safe_relative(path)
         if not path.startswith(("data/", "reports/")) or path in records:
             raise ValueError("invalid content payload path")
+        if path == "data/site-publication.json":
+            raise ValueError("publication marker is Pages-owned")
         records[path] = {"sha256": row["sha256"], "size": row["bytes"]}
     file_records(records)
     if list(records) != sorted(records):
@@ -266,6 +268,8 @@ def verify_commands(value: dict[str, Any]) -> None:
         "--public-inputs",
         "--content-receipt",
     ]
+    if "publication" in value:
+        flags.append("--publication-context")
     if command[:2] != ["python", "scripts/build_site.py"] or command[2::2] != flags:
         raise ValueError("invalid content build command")
     arguments = dict(zip(command[2::2], command[3::2], strict=True))
@@ -276,6 +280,8 @@ def verify_commands(value: dict[str, Any]) -> None:
         "--public-inputs": value["original_inputs"]["root"],
         "--content-receipt": value["content"]["receipt_path"],
     }
+    if "publication" in value:
+        expected["--publication-context"] = value["publication"]["context_path"]
     if any(arguments[key] != expected_value for key, expected_value in expected.items()):
         raise ValueError("content build command differs from identity")
     absolute_path(arguments["--output"])
@@ -321,7 +327,7 @@ def verify_bound_quality(validation: dict[str, Any], quality: dict[str, Any]) ->
 
 
 def verify(value: dict[str, Any]) -> None:
-    exact_keys(value, IDENTITY_KEYS)
+    exact_keys(value, IDENTITY_KEYS | ({"publication"} if "publication" in value else set()))
     source, inputs, content = value["source"], value["original_inputs"], value["content"]
     exact_keys(source, {"revision", "dirty", "declared_ci_revision", "root"})
     digest(source["revision"], 40)
@@ -343,3 +349,9 @@ def verify(value: dict[str, Any]) -> None:
     file_records(value["exported_snapshot"])
     file_records(value["output"])
     verify_validation(value["validation"], source["revision"])
+    if "publication" in value:
+        if __package__:
+            from . import content_publication_marker
+        else:
+            import content_publication_marker
+        content_publication_marker.verify(value)
