@@ -8,6 +8,9 @@ on:
       synthetic:
         type: boolean
         default: false
+      synthetic_omit:
+        type: string
+        default: none
       candidate_id:
         type: string
         default: ''
@@ -50,7 +53,6 @@ jobs:
           case "$PROFILE" in source|content) ;; *) exit 1 ;; esac
           echo "SITE_OUTPUT=$RUNNER_TEMP/site" >> "$GITHUB_ENV"
           echo "IDENTITY_ROOT=$RUNNER_TEMP" >> "$GITHUB_ENV"
-          echo "REPORT_VALIDATION_RECEIPT=$RUNNER_TEMP/report-validation.json" >> "$GITHUB_ENV"
       - name: Check out Pages
         uses: actions/checkout@v6
         with:
@@ -99,8 +101,10 @@ jobs:
           node --check src/legacy/summary-utils.js
       - name: Generate synthetic content candidate
         if: inputs.profile == 'content' && inputs.synthetic
+        env:
+          SYNTHETIC_OMIT: ${{ inputs.synthetic_omit }}
         run: |
-          python tools/synthetic_content.py --output "$RUNNER_TEMP/synthetic-source"
+          python tools/synthetic_content.py --omit "$SYNTHETIC_OMIT" --output "$RUNNER_TEMP/synthetic-source"
           market-pack-site-content --root "$RUNNER_TEMP/synthetic-source" \
             --output "$RUNNER_TEMP/content.zip" --created-at 2026-11-01T00:00:00Z \
             --producer-revision "$PRODUCER_REVISION" --receipt "$RUNNER_TEMP/pack-receipt.json"
@@ -132,6 +136,7 @@ jobs:
             --context "$RUNNER_TEMP/publication-context.json" "${args[@]}"
       - name: Build verified site
         env:
+          REPORT_VALIDATION_RECEIPT: ${{ runner.temp }}/report-validation.json
           PROFILE: ${{ inputs.profile }}
         run: |
           args=()
@@ -153,7 +158,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: report-validation-${{ inputs.profile }}-${{ inputs.synthetic }}
+          name: report-validation-${{ inputs.profile }}-${{ inputs.synthetic }}${{ inputs.synthetic && format('-{0}', inputs.synthetic_omit) || '' }}
           path: ${{ runner.temp }}/report-validation.json
           if-no-files-found: ignore
       - name: Install Chromium for browser checks
@@ -175,7 +180,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: public-site-browser-failure-${{ inputs.profile }}-${{ inputs.synthetic }}
+          name: public-site-browser-failure-${{ inputs.profile }}-${{ inputs.synthetic }}${{ inputs.synthetic && format('-{0}', inputs.synthetic_omit) || '' }}
           path: ${{ runner.temp }}/playwright-results/
           if-no-files-found: ignore
       - name: Verify build identity and preserve receipts
@@ -189,7 +194,7 @@ jobs:
       - name: Upload build identity
         uses: actions/upload-artifact@v4
         with:
-          name: build-identity-${{ github.run_id }}-${{ github.run_attempt }}${{ inputs.synthetic && '-synthetic' || '' }}
+          name: build-identity-${{ github.run_id }}-${{ github.run_attempt }}${{ inputs.synthetic && format('-synthetic-{0}', inputs.synthetic_omit) || '' }}
           path: ${{ runner.temp }}/build-identity.json
           if-no-files-found: error
       - name: Preserve publication ledger
@@ -199,7 +204,9 @@ jobs:
         run: |
           mkdir -p "$IDENTITY_ROOT/market-intel-ledger/data" "$IDENTITY_ROOT/market-intel-ledger/reports"
           cp -a "$SITE_OUTPUT/data/." "$IDENTITY_ROOT/market-intel-ledger/data/"
-          cp -a "$SITE_OUTPUT/reports/." "$IDENTITY_ROOT/market-intel-ledger/reports/"
+          if [ -d "$SITE_OUTPUT/reports" ]; then
+            cp -a "$SITE_OUTPUT/reports/." "$IDENTITY_ROOT/market-intel-ledger/reports/"
+          fi
           if [ "$PROFILE" = content ]; then
             cp "$RUNNER_TEMP/content.zip" "$RUNNER_TEMP/content-receipt.json" "$RUNNER_TEMP/publication-context.json" "$IDENTITY_ROOT/market-intel-ledger/"
             cp -a "$RUNNER_TEMP/verified" "$IDENTITY_ROOT/market-intel-ledger/original"

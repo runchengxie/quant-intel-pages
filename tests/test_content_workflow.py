@@ -75,9 +75,10 @@ def test_shared_profiles_keep_source_checks_and_one_production_writer():
     assert "original" in shared
 
 
-def test_content_ledger_preserves_original_and_normalized_bytes(tmp_path):
+@pytest.mark.parametrize("with_reports", [True, False])
+def test_content_ledger_preserves_original_and_normalized_bytes(tmp_path, with_reports):
     site = tmp_path / "site"
-    for folder in ("data", "reports"):
+    for folder in ("data", "reports") if with_reports else ("data",):
         (site / folder).mkdir(parents=True)
         (site / folder / "public").write_text("normalized")
     (site / "data/site-publication.json").write_text("marker")
@@ -176,3 +177,31 @@ new (Object.getPrototypeOf(async function(){}).constructor)('github','context','
         ["node", "-e", harness, json.dumps(script), json.dumps(pulls)], capture_output=True
     )
     assert (result.returncode == 0) is (change == "none"), result.stderr
+
+
+def test_formal_quality_receipt_does_not_leak_into_independent_checks(tmp_path):
+    result = subprocess.run(
+        ["bash", "-e", "-c", guard("site-build.yml", "Validate build mode and profile")],
+        env={
+            **os.environ,
+            "MODE": "",
+            "PROFILE": "source",
+            "RUNNER_TEMP": str(tmp_path),
+            "GITHUB_ENV": str(tmp_path / "env"),
+        },
+        capture_output=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "REPORT_VALIDATION_RECEIPT" not in (tmp_path / "env").read_text()
+    shared = Path(".github/workflows/site-build.yml").read_text()
+    build = shared.split("      - name: Build verified site\n", 1)[1].split("\n      - ", 1)[0]
+    assert "REPORT_VALIDATION_RECEIPT:" in build
+
+
+def test_source_ci_exercises_admitted_absences_through_production_content_profile():
+    source = Path(".github/workflows/public-site.yml").read_text()
+    shared = Path(".github/workflows/site-build.yml").read_text()
+    assert "omit: [none, weekly, us, asia]" in source
+    assert "synthetic_omit: ${{ matrix.omit }}" in source
+    assert '--omit "$SYNTHETIC_OMIT"' in shared
+    assert "playwright.content.config.ts" in shared

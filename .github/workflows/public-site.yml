@@ -19,10 +19,15 @@ jobs:
     with:
       profile: source
   synthetic-content:
+    strategy:
+      fail-fast: false
+      matrix:
+        omit: [none, weekly, us, asia]
     uses: ./.github/workflows/site-build.yml
     with:
       profile: content
       synthetic: true
+      synthetic_omit: ${{ matrix.omit }}
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.CONTENT_PUBLICATION_MODE != 'artifact-v1'
     needs: [build, synthetic-content]

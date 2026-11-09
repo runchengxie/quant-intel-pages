@@ -115,13 +115,36 @@ jobs:
           PROPOSED_MARKER: ${{ needs.build.outputs.publication_marker }}
         with:
           script: |
-            const response = await fetch('https://runchengxie.github.io/quant-intel-pages/data/site-publication.json',
-              {redirect: 'error', headers: {'Cache-Control': 'no-cache'}});
-            if (response.status === 404 && process.env.EXPECTED_PARENT === '__bootstrap__') return;
-            if (!response.ok) throw new Error('Cannot verify live publication parent');
-            const body = await response.text();
-            if (body.length > 4096) throw new Error('Publication marker too large');
-            const current = JSON.parse(body);
+            const controller = new AbortController();
+            const deadline = setTimeout(() => controller.abort(), 30000);
+            let reader;
+            let current;
+            try {
+              const response = await fetch('https://runchengxie.github.io/quant-intel-pages/data/site-publication.json',
+                {redirect: 'error', headers: {'Cache-Control': 'no-cache'}, signal: controller.signal});
+              if (response.status === 404 && process.env.EXPECTED_PARENT === '__bootstrap__') return;
+              if (!response.ok || !response.body) throw new Error('Parent unavailable');
+              reader = response.body.getReader();
+              const chunks = [];
+              let bytes = 0;
+              while (true) {
+                const {done, value} = await reader.read();
+                if (done) break;
+                bytes += value.byteLength;
+                if (bytes > 4096) throw new Error('Parent exceeds byte limit');
+                chunks.push(value);
+              }
+              current = JSON.parse(Buffer.concat(chunks, bytes).toString('utf8'));
+            } catch {
+              throw new Error('Cannot verify live publication parent');
+            } finally {
+              clearTimeout(deadline);
+              controller.abort();
+              if (reader) {
+                void reader.cancel().catch(() => {});
+                reader.releaseLock();
+              }
+            }
             const proposed = JSON.parse(process.env.PROPOSED_MARKER);
             if (current.schema_version !== 'market_intel_pages.site_publication.v1' ||
                 current.publication_id !== process.env.EXPECTED_PARENT ||

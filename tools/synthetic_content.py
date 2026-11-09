@@ -16,7 +16,9 @@ def write(path: Path, value: dict) -> None:
     path.write_text(json.dumps(value, ensure_ascii=False) + "\n")
 
 
-def generate(root: Path, output: Path) -> None:
+def generate(root: Path, output: Path, *, omit: str = "none") -> None:
+    if omit not in {"none", "asia", "us", "weekly", "all"}:
+        raise ValueError("unknown synthetic family omission")
     public = output / "artifacts/public"
     public.mkdir(parents=True, exist_ok=False)
     (public / "reports").mkdir()
@@ -84,13 +86,37 @@ def generate(root: Path, output: Path) -> None:
     }.items():
         write(public / f"data/{name}.json", value)
 
+    _omit_generated_families(public, omit)
+
+
+def _omit_generated_families(public: Path, omit: str) -> None:
+    """Only mutate the newly created synthetic fixture, never an admitted snapshot."""
+    for family in ("asia", "us", "weekly"):
+        if omit not in {family, "all"}:
+            continue
+        if family == "asia":
+            write(
+                public / "data/reports.json",
+                {"schema_version": "market_intel_pages.reports.v1", "reports": []},
+            )
+            pattern, indexes = "*-evening.md", []
+        elif family == "us":
+            pattern, indexes = "*-market-daily.*", ["market_daily_report.json", "market_daily_reports.json"]
+        else:
+            pattern, indexes = "*-weekly.*", ["weekly_recap.json", "weekly_recaps.json"]
+        for name in indexes:
+            (public / "data" / name).unlink()
+        for path in (public / "reports").glob(pattern):
+            path.unlink()
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--omit", choices=("none", "asia", "us", "weekly", "all"), default="none")
     args = parser.parse_args()
-    generate(args.root, args.output)
+    generate(args.root, args.output, omit=args.omit)
 
 
 if __name__ == "__main__":
