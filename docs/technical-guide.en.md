@@ -10,7 +10,7 @@ For report ownership and publication records, see [the handoff guide](daily-gene
 Use Python 3.11, Node.js 24, npm and uv. Install `market-export-site-snapshot` from the pinned Platform commit.
 
 ```bash
-uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@c761aaa22cebd72283063ca11c4f1632f1c439fc"
+uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be"
 npm ci
 uv sync --locked --group dev --no-install-project
 preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)
@@ -26,7 +26,7 @@ Open <http://localhost:8000/quant-intel-pages/>. The builder asks the Platform C
 - `artifacts/public/` holds reviewed public inputs. Private archives stay outside this repository.
 - `scripts/build_site.py` calls the installed Platform CLI to prepare frontend inputs. It does not import Platform source code.
 - `scripts/public_site_alerts.py` tracks website builds and updates failure or recovery Issues.
-- `.github/workflows/public-site.yml` checks and deploys the static site, retaining a publication ledger.
+- `.github/workflows/public-site.yml` runs full source checks and deploys in default legacy mode. The [content publication guide](content-publication.md) describes the shared build workflow, opt-in content deployment and retained ledger.
 
 Platform is pinned by commit in the workflow so snapshot validation uses a reviewed owner release. The site workflow has no model credentials and runs no report generation. Public report date and age monitoring belongs to `quant-intel-deploy`. Use [AGENTS.md](../AGENTS.md) and [daily generation options](daily-generation-options.md) for ownership and handoff details.
 

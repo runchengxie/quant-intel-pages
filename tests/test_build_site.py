@@ -199,7 +199,7 @@ def test_astro_failure_preserves_previous_output(tmp_path: Path, monkeypatch: py
 
 
 def test_workflow_uses_public_owner_cli_without_generation_secrets() -> None:
-    workflow = Path(".github/workflows/public-site.yml").read_text(encoding="utf-8")
+    workflow = Path(".github/workflows/site-build.yml").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
     workflow_pin = (
         workflow.split("name: Check out pinned Platform CLI", 1)[1]
@@ -217,7 +217,8 @@ def test_workflow_uses_public_owner_cli_without_generation_secrets() -> None:
     assert "](docs/technical-guide.en.md#local-build)" in readme
     assert "](docs/technical-guide.md#本地构建)" in readme_zh
     assert "market-export-site-snapshot --help" in workflow
-    assert "name: Public website" in workflow
+    assert "name: Shared website build" in workflow
+    assert "uses: ./.github/workflows/site-build.yml" in Path(".github/workflows/public-site.yml").read_text()
     assert "  build:" in workflow
     assert "GEMINI_API_KEY" not in workflow
     assert "DEEPSEEK_API_KEY" not in workflow

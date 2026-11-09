@@ -1,6 +1,14 @@
 # Report presentation checks
 
-Every `npm run build` first runs `npm run verify:reports`. A failed check stops the website build before publication. The GitHub Actions build saves a validation receipt as the `report-validation` artifact.
+[简体中文](report-validation.zh-CN.md)
+
+Every `npm run build` first runs `npm run verify:reports`. A failed check stops the website build before publication. The shared GitHub Actions build saves `report-validation.json` in the artifact for its profile:
+
+- `report-validation-source-false`: source build.
+- `report-validation-content-false`: opt-in production content build (implemented, not activated).
+- `report-validation-content-true-<omit>`: synthetic content checks, where `<omit>` is `none`, `weekly`, `us` or `asia`. The `none` case covers all families; the others exercise admitted absence.
+
+The formal build alone receives its receipt path; independent unit and browser checks create their own receipts. A missing optional family is tested through its empty state, while present-but-empty weekly indexes remain invalid. An all-absent snapshot still fails the unchanged quality gate with `no_reports`. See the [handoff](daily-generation-options.md#publication-records) for ledger names, actual run attempts and archival compatibility.
 
 The checker reads the admitted public snapshot and renders evening reports, US reports and weekly recaps in English and Chinese. It checks ranking counts against admitted source tables, numeric formatting in image rows, dates, placeholder-only financing panels, locale fact parity, whole-image budgets and section-image coverage. Section images must also pass when a whole image fits.
 

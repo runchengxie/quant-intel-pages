@@ -12,8 +12,11 @@ from typing import Any
 
 if __package__:
     from . import build_identity as identity
+    from . import content_identity, content_publication_marker
 else:
     import build_identity as identity
+    import content_identity
+    import content_publication_marker
 
 
 def _snapshot_command() -> str:
@@ -51,7 +54,9 @@ def _run_astro(root: Path, snapshot: Path, built: Path, quality: Path | None) ->
 def _render_astro(root: Path, snapshot: Path, built: Path, quality: Path | None = None) -> None:
     # Astro renames assets from its source-side .astro directory. Render on that
     # filesystem before copying to the independently staged external output.
-    with tempfile.TemporaryDirectory(prefix="quant-intel-astro-", dir=root.parent) as temporary:
+    with tempfile.TemporaryDirectory(
+        prefix="quant-intel-astro-", dir=os.environ.get("ASTRO_WORK_ROOT", root.parent)
+    ) as temporary:
         rendered = Path(temporary) / "site"
         _run_astro(root, snapshot, rendered, quality)
         shutil.copytree(rendered, built)
@@ -59,7 +64,7 @@ def _render_astro(root: Path, snapshot: Path, built: Path, quality: Path | None 
 
 def _export(
     root: Path, snapshot: Path, summaries: Path | None, command: str, interpreter: str | None = None
-) -> None:
+) -> list[str]:
     args = [command, "--root", str(root), "--output", str(snapshot)]
     if summaries is not None:
         args.extend(["--summaries", str(summaries.resolve())])
@@ -71,6 +76,7 @@ def _export(
         subprocess.run(args, cwd=root, env=env, check=True, capture_output=True, text=True, timeout=180)
     except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
         raise RuntimeError("Platform public snapshot export failed") from error
+    return args
 
 
 def _prepare(root: Path, output: Path, options: identity.IdentityOptions, command: str) -> dict[str, Any]:
@@ -144,14 +150,16 @@ def _finish(
         raise ValueError("snapshot inputs changed during rendering")
     originals = record["original_inputs"]
     if (
-        identity.hash_tree(root / "artifacts/public") != originals["public"]
+        identity.hash_tree(Path(originals.get("root", root)) / "artifacts/public") != originals["public"]
         or (identity.file_record(summaries) if summaries else None) != originals["summaries_override"]
     ):
         raise ValueError("original inputs changed during build")
-    if identity.source_identity(root) != record["source"]:
+    source = identity.source_identity(root)
+    if "content" in record:
+        content_identity.unchanged(record)
+        source["root"] = str(root)
+    if source != record["source"]:
         raise ValueError("source identity changed during build")
-    output_records = identity.hash_tree(output)
-    identity.validate_served_snapshot(before, output_records)
     exporter = record["generator"]["exporter"]
     if identity.exporter_provenance(exporter["executable"], options.exporter_revision) != exporter:
         raise ValueError("exporter provenance changed during build")
@@ -161,6 +169,9 @@ def _finish(
         or quality.get("validator_sha256") != identity.file_record(root / "tools/check-reports.ts")["sha256"]
     ):
         raise ValueError("quality validator does not match source identity")
+    content_publication_marker.stage(record, output)
+    output_records = identity.hash_tree(output)
+    identity.validate_served_snapshot(before, output_records)
     record.update(
         {
             "completed_at_utc": identity.utc_now(),
@@ -213,12 +224,34 @@ def _summaries_input(path: Path | None, output: Path) -> Path | None:
     return path
 
 
+def _prepare_inputs(
+    root: Path,
+    summaries: Path | None,
+    work: Path,
+    record: dict[str, Any] | None,
+    external: tuple[Path, Path] | None,
+) -> tuple[Path, Path | None]:
+    if record is None:
+        return root, summaries
+    if summaries:
+        record["generator"]["command"].extend(["--summaries", str(summaries)])
+    frozen, override, record["original_inputs"] = _frozen_inputs(
+        external[0] if external else root, summaries, work
+    )
+    if external:
+        record["original_inputs"]["root"] = str(external[0])
+    return frozen, override
+
+
 def build_site(
     root: Path,
     output: Path,
     summaries_path: Path | None = None,
     *,
     identity_options: identity.IdentityOptions | None = None,
+    public_inputs: Path | None = None,
+    content_receipt: Path | None = None,
+    publication_context: Path | None = None,
 ) -> None:
     """Preserve previous output on build failure; formal builds also require identity."""
     root, output = identity.plain_path(root).resolve(), identity.plain_path(output).resolve()
@@ -226,22 +259,26 @@ def build_site(
         raise ValueError("build output must be separate from the repository")
     if output == output.parent:
         raise ValueError("build output cannot be a filesystem root")
+    external = content_identity.request(
+        root, output, summaries_path, identity_options, public_inputs, content_receipt
+    )
     summaries_path = _summaries_input(summaries_path, output)
     output.parent.mkdir(parents=True, exist_ok=True)
     command = _snapshot_command()
     record = _prepare(root, output, identity_options, command) if identity_options else None
+    if external and record is not None and identity_options:
+        content_identity.prepare(record, root, *external, identity_options.exporter_revision)
+    content_publication_marker.prepare(record, publication_context)
     work = Path(tempfile.mkdtemp(prefix="quant-intel-pages-", dir=output.parent))
     pending = None
     retain = False
     try:
-        export_root, summaries = root, summaries_path
-        if record is not None:
-            if summaries_path:
-                record["generator"]["command"].extend(["--summaries", str(summaries_path)])
-            export_root, summaries, record["original_inputs"] = _frozen_inputs(root, summaries_path, work)
+        export_root, summaries = _prepare_inputs(root, summaries_path, work, record, external)
         snapshot, staging, rendered = work / "snapshot", work / "site", work / "rendered"
         interpreter = record["generator"]["exporter"]["interpreter"] if record else None
-        _export(export_root, snapshot, summaries, command, interpreter)
+        observed_command = _export(export_root, snapshot, summaries, command, interpreter)
+        if external and record is not None:
+            record["generator"]["snapshot_command"] = observed_command
         before = identity.hash_tree(snapshot)
         _render_astro(root, snapshot, rendered, identity_options.quality if identity_options else None)
         shutil.copytree(snapshot, staging)
@@ -265,6 +302,11 @@ def main() -> None:
     parser.add_argument("--root", type=Path, default=Path.cwd(), help="Pages repository root")
     parser.add_argument("--output", type=Path, required=True, help="static site output directory")
     parser.add_argument("--summaries", type=Path, help="optional summary index override")
+    parser.add_argument(
+        "--public-inputs", type=Path, help="verified external root containing artifacts/public"
+    )
+    parser.add_argument("--content-receipt", type=Path, help="matching Platform verification receipt")
+    parser.add_argument("--publication-context", type=Path, help="trusted Pages workflow context")
     parser.add_argument("--identity", type=Path)
     parser.add_argument("--quality-receipt", type=Path)
     parser.add_argument("--task-id")
@@ -274,7 +316,15 @@ def main() -> None:
     if any(formal) and not all(formal):
         parser.error("identity, quality-receipt, task-id and exporter-revision are required together")
     options = identity.IdentityOptions(*formal) if all(formal) else None
-    build_site(args.root, args.output, args.summaries, identity_options=options)
+    build_site(
+        args.root,
+        args.output,
+        args.summaries,
+        identity_options=options,
+        public_inputs=args.public_inputs,
+        content_receipt=args.content_receipt,
+        publication_context=args.publication_context,
+    )
     print(f"Built public site at {args.output}")
 
 

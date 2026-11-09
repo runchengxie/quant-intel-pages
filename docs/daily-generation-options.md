@@ -6,7 +6,7 @@
 
 `quant-intel-platform` owns data, reports, and public snapshot validation. `quant-intel-pages` renders and hosts the static website. `quant-intel-deploy` owns production publishers and timers.
 
-Deploy publishes reviewed Platform snapshots with explicit public markers to Pages `artifacts/public/`. The Pages `public-site.yml` workflow calls `market-export-site-snapshot` from a pinned Platform commit, validates and exports `data/` and `reports/`, then builds Astro pages. This workflow does not generate reports, call models, or require model credentials.
+In the default legacy mode, Deploy publishes reviewed Platform snapshots with explicit public markers to Pages `artifacts/public/`. The Pages `public-site.yml` workflow calls `market-export-site-snapshot` from a pinned Platform commit, validates and exports `data/` and `reports/`, then builds Astro pages. This workflow does not generate reports, call models, or require model credentials.
 
 ## Changes
 
@@ -17,13 +17,13 @@ Deploy publishes reviewed Platform snapshots with explicit public markers to Pag
 
 ## Publication records
 
-The website workflow preserves `market-intel-ledger-<run_id>-1`, containing the validated `data/` and `reports/`, the external `build-identity.json`, and `report-validation.json`. Deploy uses this ledger to verify publication inputs. A successful build confirms snapshot validation and static rendering. Confirm production publication using Deploy publisher state and actual Pages URLs.
+The website workflow preserves `market-intel-ledger-<run_id>-<run_attempt>`, containing the validated `data/` and `reports/`, the external `build-identity.json`, and `report-validation.json`. Deploy uses this ledger to verify publication inputs. A successful build confirms snapshot validation and static rendering. Confirm production publication using Deploy publisher state and actual Pages URLs.
 
 ### Build identity
 
-Formal workflow builds require `market_intel_pages.build_identity.v1`. It records the clean Pages revision, installed exporter's immutable VCS commit, launcher and owner package RECORD hashes, and actual module import origin, installed dependency versions and lock hashes, original public inputs, the exported validation snapshot, the passed quality receipt, and every final output file. The original inputs, exported snapshot and rendered output are separate trees. Formal export uses the audited interpreter with `-I` and clears `PYTHONPATH`/`PYTHONHOME`. Every exported snapshot file must survive final assembly with identical bytes; renderers cannot replace validated downloads. A summaries override must be outside the output tree. Input changes or receipt failures prevent output promotion; failed rollback retains recovery material and reports its location.
+Formal source-input builds require `market_intel_pages.build_identity.v1`; verified external-content builds require v2. It records the clean Pages revision, installed exporter's immutable VCS commit, launcher and owner package RECORD hashes, and actual module import origin, installed dependency versions and lock hashes, original public inputs, the exported validation snapshot, the passed quality receipt, and every final output file. The original inputs, exported snapshot and rendered output are separate trees. Formal export uses the audited interpreter with `-I` and clears `PYTHONPATH`/`PYTHONHOME`. Every exported snapshot file must survive final assembly with identical bytes; renderers cannot replace validated downloads. A summaries override must be outside the output tree. Input changes or receipt failures prevent output promotion; failed rollback retains recovery material and reports its location.
 
-The workflow verifies output and quality hashes before uploading the site. Identity files stay outside public website output. The task ID includes the actual run ID and attempt; the ledger name retains its existing `-1` suffix for compatibility. The ledger artifact is retained for 90 days; Deploy's existing archival step stores it permanently under its configured archive root in `pages_ledgers/<artifact-id>`, with a separate artifact/run/hash receipt. A `completed` identity describes a build; publisher state, the matching workflow deployment and actual URLs establish publication.
+The workflow verifies output and quality hashes before uploading the site. Identity files stay outside public website output. The task ID includes the actual run ID and attempt; the ledger name uses that actual attempt as well. Existing `-1` artifacts stay valid: Deploy selects the run prefix and highest artifact ID, so historical ledgers need no renaming. The ledger artifact is retained for 90 days; Deploy's existing archival step stores it permanently under its configured archive root in `pages_ledgers/<artifact-id>`, with a separate artifact/run/hash receipt. A `completed` identity describes a build; publisher state, the matching workflow deployment and actual URLs establish publication.
 
 Local identity is opt-in and requires clean source plus a VCS-installed pinned exporter (directory/editable installations are rejected). Use the pinned CLI installation from the [local build guide](technical-guide.en.md#local-build), ensure `DATA_ROOT` is resolved for this machine, and choose a new task directory:
 
@@ -80,3 +80,7 @@ continue selecting the unique `#market-daily-chart svg` / `#asia-daily-chart svg
 and matching identity button. Static HTML extraction does not require opening
 the details element. Report source/hash contracts and delivery receipts do not
 change with this presentation update.
+
+## Verified external content
+
+The adapter also accepts a verified external staging root and matching owner receipt. This requires formal v2 identity; source-input builds retain v1. The opt-in `publish-content.yml` workflow and shared `site-build.yml` content profile are implemented, including installed-owner verification, formal quality checks, built-site browser checks, identity/ledger retention and parent-checked deployment. See [content publication](content-publication.md) for the paired API/CLI options and separate source/content identities. This capability has not been activated in production: unset or `legacy` mode keeps the committed-input workflow; `artifact-v1` requires a separate authorized cutover. Source CI also exercises all families and each valid family absence through the same content profile.

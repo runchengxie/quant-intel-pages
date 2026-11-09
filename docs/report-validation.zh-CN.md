@@ -1,6 +1,14 @@
 # 报告展示检查
 
-每次运行 `npm run build`，系统都会先运行 `npm run verify:reports`。检查失败时停止网站构建。GitHub Actions 会把验收记录保存在 `report-validation` 附件中。
+[English](report-validation.en.md)
+
+每次运行 `npm run build`，系统都会先运行 `npm run verify:reports`。检查失败时停止网站构建。共享 GitHub Actions 构建会将 `report-validation.json` 保存在对应构建分支的附件中：
+
+- `report-validation-source-false`：源码构建。
+- `report-validation-content-false`：可选的生产内容构建（已实现，尚未启用）。
+- `report-validation-content-true-<omit>`：合成内容检查，`<omit>` 为 `none`、`weekly`、`us` 或 `asia`。`none` 覆盖全部报告族，其余情形验收合法缺席状态。
+
+正式构建单独接收自己的回执路径；独立的单元测试和浏览器检查各自创建回执。可选报告族缺席时验证页面的空状态，但存在且为空的周报索引仍然无效。全部报告族均缺席的快照仍会被原有质量检查以 `no_reports` 拒绝。账本命名、实际运行次数和归档兼容性见[交接说明](daily-generation-options.zh-CN.md#发布记录)。
 
 检查器读取已接收的公开快照，用网页实际使用的代码生成中英文晚报、美股日报和周报。排名条数按源表核对，同时检查图片中的数值、日期、只有缺失提示的两融区块、中英文事实是否一致，以及整图和分段图片是否超出大小限制。整图能生成时，分段图片也要通过检查。
 

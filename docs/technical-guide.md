@@ -9,7 +9,7 @@
 需要 Python 3.11、Node.js 24、npm 和 uv。报告导出命令要与工作流中固定的 Platform 提交一致。
 
 ```bash
-uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@c761aaa22cebd72283063ca11c4f1632f1c439fc"
+uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be"
 npm ci
 uv sync --locked --group dev --no-install-project
 preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)
@@ -100,3 +100,5 @@ python3 -m http.server 8000 --directory "$preview_root"
 A 股股票行按名称、代码、市场后缀的顺序显示，例如 `中际旭创 300308.SZ`。网页会调整旧数据中代码在前的写法，同时兼容只有三列的旧成交榜和包含名称的四列成交榜。缺少名称或市场后缀时，保留已有字段，不按数字区间推测交易所，也不用今天的名称补历史报告。
 
 网页、整图和分段图使用同一组展示内容。独立金额值保留两位小数。小于 0.005 的非零值保留来源精度，避免显示成零。原始数值和来源文件的精度保持不变。
+
+源码工作流保留完整检查，默认采用旧部署模式。[内容发布指南](content-publication.zh-CN.md)说明共用构建流程、显式启用的内容部署及保留的发布账本。

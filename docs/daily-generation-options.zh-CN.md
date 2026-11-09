@@ -6,7 +6,7 @@
 
 `quant-intel-platform` 生成报告并校验公开文件。`quant-intel-pages` 将文件渲染成网页并托管，生产发布和定时任务由 `quant-intel-deploy` 管理。
 
-Deploy 将经过审核、带有公开标记的 Platform 报告快照提交到 Pages 的 `artifacts/public/`。Pages 的 `public-site.yml` 调用固定提交版本中的 `market-export-site-snapshot`，校验数据并导出网页所需的 `data/` 和 `reports/`，随后构建 Astro 页面。独立的网站工作流不调用模型、不生成报告，也不要求模型密钥。
+在默认的 legacy 模式下，Deploy 将经过审核、带有公开标记的 Platform 报告快照提交到 Pages 的 `artifacts/public/`。Pages 的 `public-site.yml` 调用固定提交版本中的 `market-export-site-snapshot`，校验数据并导出网页所需的 `data/` 和 `reports/`，随后构建 Astro 页面。独立的网站工作流不调用模型、不生成报告，也不要求模型密钥。
 
 ## 日常变更
 
@@ -17,13 +17,13 @@ Deploy 将经过审核、带有公开标记的 Platform 报告快照提交到 Pa
 
 ## 发布记录
 
-网站工作流保存 `market-intel-ledger-<run_id>-1`，其中包含本次已校验的 `data/` 与 `reports/`，以及独立的 `build-identity.json` 和 `report-validation.json`。Deploy 以此账本复核发布来源。构建成功说明数据校验与静态渲染完成。还需核对 Deploy 的发布状态和 Pages 实际 URL，才能确认生产发布完成。
+网站工作流保存 `market-intel-ledger-<run_id>-<run_attempt>`，其中包含本次已校验的 `data/` 与 `reports/`，以及独立的 `build-identity.json` 和 `report-validation.json`。Deploy 以此账本复核发布来源。构建成功说明数据校验与静态渲染完成。还需核对 Deploy 的发布状态和 Pages 实际 URL，才能确认生产发布完成。
 
 ### 构建身份
 
-正式工作流要求生成 `market_intel_pages.build_identity.v1`。记录包含干净的 Pages 源码版本、已安装导出器的不可变 VCS 提交、启动脚本与 owner 包的 RECORD 哈希，以及实际模块导入位置、已安装依赖版本和锁文件哈希、原始公开输入、导出后的校验快照、通过的质量回执，以及最终输出逐文件哈希。原始输入、导出快照和渲染输出使用不同目录。正式导出使用已核验解释器的 `-I` 模式，并清除 `PYTHONPATH` 和 `PYTHONHOME`。最终输出须逐项保留导出快照的原字节，渲染器不得覆盖已校验的下载文件；summaries 覆盖输入须位于输出目录之外。输入变化或回执失败会阻止替换输出；回滚本身失败时会保留恢复材料并报告位置。
+正式源码输入构建生成 `market_intel_pages.build_identity.v1`；已验证的外部内容构建要求 v2。记录包含干净的 Pages 源码版本、已安装导出器的不可变 VCS 提交、启动脚本与 owner 包的 RECORD 哈希，以及实际模块导入位置、已安装依赖版本和锁文件哈希、原始公开输入、导出后的校验快照、通过的质量回执，以及最终输出逐文件哈希。原始输入、导出快照和渲染输出使用不同目录。正式导出使用已核验解释器的 `-I` 模式，并清除 `PYTHONPATH` 和 `PYTHONHOME`。最终输出须逐项保留导出快照的原字节，渲染器不得覆盖已校验的下载文件；summaries 覆盖输入须位于输出目录之外。输入变化或回执失败会阻止替换输出；回滚本身失败时会保留恢复材料并报告位置。
 
-工作流在上传网站前核对输出和质量回执哈希，身份文件不会进入公开网站。任务 ID 包含实际 run ID 和 attempt；账本名称暂保留兼容的 `-1` 后缀。CI 账本保留 90 天；Deploy 现有归档步骤将其永久保存到配置的 archive root 下 `pages_ledgers/<artifact-id>`，并另存 artifact、run 和文件哈希回执。身份中的 `completed` 仅表示构建完成；发布还需对应的工作流部署、publisher 状态和实际 URL 佐证。
+工作流在上传网站前核对输出和质量回执哈希，身份文件不会进入公开网站。任务 ID 包含实际 run ID 和 attempt；账本名称也使用实际 attempt。已有 `-1` 附件仍然有效：Deploy 按 run 前缀和最大的 artifact ID 选取账本，无需重命名历史记录。CI 账本保留 90 天；Deploy 现有归档步骤将其永久保存到配置的 archive root 下 `pages_ledgers/<artifact-id>`，并另存 artifact、run 和文件哈希回执。身份中的 `completed` 仅表示构建完成；发布还需对应的工作流部署、publisher 状态和实际 URL 佐证。
 
 本地构建可选择启用身份记录，需要干净源码和从固定 VCS 提交安装的导出器，不接受目录或 editable 安装。先按[本地构建指南](technical-guide.md#本地构建)安装固定 CLI，解析本机 `DATA_ROOT`，然后选一个新的任务目录：
 
@@ -63,3 +63,7 @@ Platform 提供 `market-export-weekly-recap` 和 `market-import-weekly-recap`。
 ## 网页阅读与图片导出
 
 日报正文使用网页文字展示。图片 SVG 保留在可展开的 `details[data-report-export]` 中，导出器继续使用唯一的 `#market-daily-chart svg` 或 `#asia-daily-chart svg`，并核对对应身份按钮。提取静态 HTML 时无需先展开该区域。来源和哈希规则保持不变，投递回执也保留原有含义。
+
+## 已验证的外部内容
+
+构建适配器也支持验证后的外部输入根目录及对应上游回执，并强制生成 v2 身份记录；源码输入构建保留 v1。可选的 `publish-content.yml` 工作流及共享 `site-build.yml` 的内容分支已经实现，涵盖已安装上游校验、正式质量检查、构建后浏览器验收、身份与账本留存，以及核对父发布后部署。成对的 API/CLI 参数和源码与内容身份区分，详见[内容发布](content-publication.zh-CN.md)。这项能力尚未在生产启用：模式未设置或为 `legacy` 时，继续使用仓库输入；切换到 `artifact-v1` 须另行获得生产切换授权。源码 CI 也通过同一内容分支验收完整报告族及各类合法缺席状态。

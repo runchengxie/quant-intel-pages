@@ -2,7 +2,7 @@ name: Public site monitor
 
 on:
   workflow_run:
-    workflows: [Public website]
+    workflows: [Public website, Publish content]
     types: [completed]
 
 permissions:

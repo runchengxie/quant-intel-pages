@@ -21,7 +21,8 @@ class FakeIssues:
         self.closed: list[int] = []
         self.latest: dict[str, Any] | None = None
 
-    def latest_workflow_run(self, branch: str) -> dict[str, Any] | None:
+    def latest_workflow_run(self, branch: str, workflow: str = "public-site.yml") -> dict[str, Any] | None:
+        assert workflow in {"public-site.yml", "publish-content.yml"}
         assert branch in {"main", "automation/pages-daily"}
         return self.latest
 
@@ -410,7 +411,7 @@ def test_cli_reads_event_path_and_dry_run(monkeypatch: pytest.MonkeyPatch, tmp_p
 def test_workflow_has_trusted_checkout_and_global_issue_write_serialization() -> None:
     workflow = Path(__file__).parents[1] / ".github/workflows/public-site-monitor.yml"
     source = workflow.read_text(encoding="utf-8")
-    assert "workflow_run:\n    workflows: [Public website]\n    types: [completed]" in source
+    assert "workflow_run:\n    workflows: [Public website, Publish content]\n    types: [completed]" in source
     assert "schedule:" not in source
     assert "workflow_dispatch:" not in source
     assert "group: public-site-monitor-issues\n  cancel-in-progress: false" in source
@@ -420,3 +421,21 @@ def test_workflow_has_trusted_checkout_and_global_issue_write_serialization() ->
     assert "      contents: read\n" in source
     assert source.count("ref: main") == 1
     assert "${{ github.event.workflow_run" not in source
+
+
+def test_content_failure_is_not_closed_by_source_success():
+    from scripts.public_site_alerts import process_workflow_event
+
+    client = FakeIssues()
+    event = _workflow_event()
+    event["workflow_run"]["name"] = "Publish content"
+    assert process_workflow_event(client, event, repository="example/site") == "created"
+    assert "build:content:main" in client.issues[0]["body"]
+    assert (
+        process_workflow_event(
+            client, _workflow_event(conclusion="success", run_id=124), repository="example/site"
+        )
+        == "unchanged"
+    )
+    event["workflow_run"].update(id=125, conclusion="success")
+    assert process_workflow_event(client, event, repository="example/site") == "closed"

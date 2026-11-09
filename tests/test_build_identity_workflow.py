@@ -12,7 +12,7 @@ import pytest
 
 
 def workflow_gate() -> str:
-    workflow = Path(".github/workflows/public-site.yml").read_text()
+    workflow = Path(".github/workflows/site-build.yml").read_text()
     start = workflow.index("      - name: Verify build identity and preserve receipts\n")
     block = workflow[start:]
     run = block.split("        run: |\n", 1)[1].split("\n      - ", 1)[0]
