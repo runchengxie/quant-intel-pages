@@ -85,7 +85,8 @@ Deploy 协调器发现已合入且源码检查成功的新渲染版本后，须�
 `publish-content.yml` 接收 `candidate_id`、`content_asset_id`、
 `content_sha256`、`producer_revision`、`renderer_revision` 和
 `expected_parent_publication_id`。必须在 main 上触发；渲染版本须等于 GitHub 为本次
-运行实际选定的 main 提交，并已有成功的 main push 源码检查。
+运行实际选定的 main 提交，并已有成功的 main push 源码检查。该提交还须对应已合入本仓库
+main 的 PR，且等于该 PR 的合并结果提交。
 main 前进后须建立新的渲染候选，不能由请求选择其他检出版本、仓库、URL 或命令。
 
 下载器只访问固定公开 Pages 仓库的 Release asset API，核对 asset ID、声明大小和归档

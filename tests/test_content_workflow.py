@@ -123,3 +123,56 @@ def test_shared_mode_gate_executes_for_both_profiles(tmp_path, mode, success):
             capture_output=True,
         )
         assert (result.returncode == 0) is success
+
+
+@pytest.mark.parametrize(
+    "change", ["none", "absent", "unmerged", "wrong_revision", "wrong_base", "wrong_repository"]
+)
+def test_renderer_preflight_requires_its_merged_main_pr(change):
+    import json
+
+    text = Path(".github/workflows/publish-content.yml").read_text()
+    block = text.split("      - name: Require successful merged main source checks\n", 1)[1]
+    script = "\n".join(
+        line.removeprefix("            ")
+        for line in block.split("          script: |\n", 1)[1].split("\n      - ", 1)[0].splitlines()
+    )
+    pull = {
+        "state": "closed",
+        "merged_at": "2026-11-09T00:00:00Z",
+        "merge_commit_sha": "a" * 40,
+        "base": {"ref": "main", "repo": {"full_name": "runchengxie/quant-intel-pages"}},
+    }
+    if change == "unmerged":
+        pull["merged_at"] = None
+    elif change == "wrong_revision":
+        pull["merge_commit_sha"] = "b" * 40
+    elif change == "wrong_base":
+        pull["base"]["ref"] = "feature"
+    elif change == "wrong_repository":
+        pull["base"]["repo"]["full_name"] = "other/repository"
+    pulls = [] if change == "absent" else [pull]
+    harness = """
+const script = JSON.parse(process.argv[1]);
+const pulls = JSON.parse(process.argv[2]);
+const repo = {owner:'runchengxie',repo:'quant-intel-pages'};
+const context = {repo,sha:'a'.repeat(40)};
+const github = {rest:{
+  actions:{listWorkflowRuns: async args => ({data:args.workflow_id === 'public-site.yml'
+    ? {workflow_runs:[{head_sha:context.sha,head_branch:'main',event:'push',conclusion:'success',
+                      head_repository:{full_name:'runchengxie/quant-intel-pages'}}]}
+    : {total_count:0}})},
+  repos:{listPullRequestsAssociatedWithCommit: async args => {
+    if (args.commit_sha !== context.sha || args.owner !== repo.owner || args.repo !== repo.repo)
+      throw new Error('Unexpected source association request');
+    return {data:pulls};
+  }}
+}};
+const core = {setOutput:()=>{}};
+new (Object.getPrototypeOf(async function(){}).constructor)('github','context','core',script)(github,context,core)
+  .catch(error=>{process.stderr.write(error.message);process.exitCode=1;});
+"""
+    result = subprocess.run(
+        ["node", "-e", harness, json.dumps(script), json.dumps(pulls)], capture_output=True
+    )
+    assert (result.returncode == 0) is (change == "none"), result.stderr

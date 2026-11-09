@@ -93,7 +93,8 @@ do not independently deploy stale committed reports.
 `content_sha256`, `producer_revision`, `renderer_revision` and
 `expected_parent_publication_id`. Dispatch it on main. The renderer must equal
 the actual main revision selected by GitHub for that run and have successful main
-push source checks. A newer main requires a new renderer candidate. The request
+push source checks and an associated merged PR whose merge commit is that revision
+and whose base is this repository’s main. A newer main requires a new renderer candidate. The request
 cannot select another checkout, repository, URL or executable.
 
 The workflow downloads only the fixed public Pages repository Release asset API,
