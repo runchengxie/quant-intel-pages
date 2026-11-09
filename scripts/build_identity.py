@@ -178,7 +178,8 @@ def validate_served_snapshot(snapshot: dict[str, FileRecord], output: dict[str, 
 
 def verify_identity(identity: Path, output: Path, quality: Path) -> None:
     value = read_json(identity)
-    if value.get("schema_version") == "market_intel_pages.build_identity.v2":
+    is_v2 = value.get("schema_version") == "market_intel_pages.build_identity.v2"
+    if is_v2:
         if __package__:
             from . import content_identity
         else:
@@ -197,7 +198,9 @@ def verify_identity(identity: Path, output: Path, quality: Path) -> None:
         raise ValueError("output does not match build identity")
     if value.get("validation", {}).get("sha256") != file_record(quality)["sha256"]:
         raise ValueError("quality receipt identity changed")
-    validate_quality(quality, value.get("exported_snapshot", {}))
+    checked_quality = validate_quality(quality, value.get("exported_snapshot", {}))
+    if is_v2:
+        content_identity.verify_bound_quality(value["validation"], checked_quality)
     validate_served_snapshot(value.get("exported_snapshot", {}), value["output"])
 
 

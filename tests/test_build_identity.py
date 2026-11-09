@@ -322,3 +322,28 @@ def test_exporter_rejects_installed_module_modified_after_install(tmp_path: Path
     module.write_text('print("changed")\n')
     with pytest.raises(ValueError, match="exporter"):
         identity.exporter_provenance(str(command), REVISION)
+
+
+def test_v1_keeps_legacy_nested_metadata_compatibility(tmp_path: Path) -> None:
+    output = tmp_path / "site"
+    output.mkdir()
+    (output / "index.html").write_bytes(b"")
+    quality = write_quality(tmp_path / "quality.json", {})
+    record = {
+        "schema_version": "market_intel_pages.build_identity.v1",
+        "owner": "quant-intel-pages",
+        "purpose": "public_site",
+        "status": "completed",
+        "generator": {"historical_unknown": None},
+        "exported_snapshot": {},
+        "validation": {
+            "sha256": identity.file_record(quality)["sha256"],
+            "historical_unknown": None,
+        },
+        "output": identity.hash_tree(output),
+    }
+    path = tmp_path / "identity.json"
+    path.write_text(json.dumps(record))
+    before = path.read_bytes()
+    identity.verify_identity(path, output, quality)
+    assert path.read_bytes() == before

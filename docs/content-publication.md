@@ -74,3 +74,5 @@ Calls without external inputs keep the existing behavior and
 `market_intel_pages.build_identity.v1` format. Existing v1 receipts remain readable.
 See [the handoff guide](daily-generation-options.md) for publication evidence and
 [archive retention](archive-lifecycle.md) before deleting any retained artifacts.
+
+V2 verification requires exact nested generator, exporter, runtime-version, lock and validation fields. It checks recorded command arguments against source/content identity, validates provenance hashes and types, and compares validator revision and hash with the hash-bound quality receipt. This offline check does not rerun the installed exporter.

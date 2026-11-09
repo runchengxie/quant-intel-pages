@@ -195,6 +195,131 @@ def absolute_path(value: Any) -> Path:
     return Path(value)
 
 
+def text_field(value: Any) -> None:
+    if not isinstance(value, str) or not value.strip() or "\x00" in value:
+        raise ValueError("invalid content provenance text")
+
+
+def text_list(value: Any) -> None:
+    if not isinstance(value, list) or not value:
+        raise ValueError("invalid content provenance list")
+    for item in value:
+        text_field(item)
+
+
+def verify_distributions(value: Any, version: str) -> None:
+    if not isinstance(value, list) or not value:
+        raise ValueError("invalid content installed distributions")
+    for entry in value:
+        text_list(entry)
+        if len(entry) != 2:
+            raise ValueError("invalid content installed distribution pair")
+    if ["market-intel", version] not in value:
+        raise ValueError("content exporter version differs from installed distribution")
+
+
+def verify_exporter(value: Any) -> None:
+    exact_keys(
+        value,
+        {
+            "revision",
+            "version",
+            "vcs",
+            "executable_sha256",
+            "interpreter",
+            "executable",
+            "module_origin",
+            "module_sha256",
+            "verified_distribution_files",
+            "installed_distributions",
+            "dependency_lock",
+        },
+    )
+    digest(value["revision"], 40)
+    text_field(value["version"])
+    if value["vcs"] != "git":
+        raise ValueError("invalid content exporter VCS")
+    for key in ("executable_sha256", "module_sha256"):
+        digest(value[key])
+    for key in ("interpreter", "executable", "module_origin"):
+        absolute_path(value[key])
+    count = value["verified_distribution_files"]
+    if type(count) is not int or count <= 0:
+        raise ValueError("invalid content verified distribution file count")
+    verify_distributions(value["installed_distributions"], value["version"])
+    if value["dependency_lock"] is not None:
+        file_records({"dependency_lock": value["dependency_lock"]})
+
+
+def verify_commands(value: dict[str, Any]) -> None:
+    generator = value["generator"]
+    command, snapshot = generator["command"], generator["snapshot_command"]
+    text_list(command)
+    text_list(snapshot)
+    flags = [
+        "--root",
+        "--output",
+        "--identity",
+        "--quality-receipt",
+        "--task-id",
+        "--exporter-revision",
+        "--public-inputs",
+        "--content-receipt",
+    ]
+    if command[:2] != ["python", "scripts/build_site.py"] or command[2::2] != flags:
+        raise ValueError("invalid content build command")
+    arguments = dict(zip(command[2::2], command[3::2], strict=True))
+    expected = {
+        "--root": value["source"]["root"],
+        "--task-id": value["task_id"],
+        "--exporter-revision": value["content"]["producer_revision"],
+        "--public-inputs": value["original_inputs"]["root"],
+        "--content-receipt": value["content"]["receipt_path"],
+    }
+    if any(arguments[key] != expected_value for key, expected_value in expected.items()):
+        raise ValueError("content build command differs from identity")
+    absolute_path(arguments["--output"])
+    exporter = generator["exporter"]
+    if (
+        len(snapshot) != 7
+        or snapshot[:4] != [exporter["interpreter"], "-I", exporter["executable"], "--root"]
+        or snapshot[5] != "--output"
+    ):
+        raise ValueError("invalid content isolated snapshot command")
+    absolute_path(snapshot[4])
+    absolute_path(snapshot[6])
+
+
+def verify_generator(value: dict[str, Any]) -> None:
+    generator = value["generator"]
+    exact_keys(generator, {"builder_sha256", "command", "snapshot_command", "exporter", "versions", "locks"})
+    digest(generator["builder_sha256"])
+    verify_exporter(generator["exporter"])
+    exact_keys(generator["versions"], {"python", "node", "npm"})
+    for version in generator["versions"].values():
+        text_field(version)
+    exact_keys(generator["locks"], {"package-lock.json", "uv.lock"})
+    file_records(generator["locks"])
+    verify_commands(value)
+
+
+def verify_validation(value: Any, source_revision: str) -> None:
+    exact_keys(value, {"sha256", "status", "validator_revision", "validator_sha256"})
+    digest(value["sha256"])
+    digest(value["validator_sha256"])
+    digest(value["validator_revision"], 40)
+    if value["status"] != "passed" or value["validator_revision"] != source_revision:
+        raise ValueError("invalid content validator identity")
+
+
+def verify_bound_quality(validation: dict[str, Any], quality: dict[str, Any]) -> None:
+    """Compare duplicated metadata only after the caller binds the receipt bytes."""
+    if any(
+        validation[key] != quality.get(key) for key in ("status", "validator_revision", "validator_sha256")
+    ):
+        raise ValueError("content validator metadata differs from bound quality receipt")
+
+
 def verify(value: dict[str, Any]) -> None:
     exact_keys(value, IDENTITY_KEYS)
     source, inputs, content = value["source"], value["original_inputs"], value["content"]
@@ -207,6 +332,7 @@ def verify(value: dict[str, Any]) -> None:
     separate_paths(
         [absolute_path(source["root"]), absolute_path(inputs["root"]), absolute_path(content["receipt_path"])]
     )
+    verify_generator(value)
     expected = receipt_records(
         {key: content[key] for key in RECEIPT_KEYS}, value["generator"]["exporter"]["revision"]
     )
@@ -216,9 +342,4 @@ def verify(value: dict[str, Any]) -> None:
         raise ValueError("content original inputs do not match receipt")
     file_records(value["exported_snapshot"])
     file_records(value["output"])
-    if (
-        value["validation"]["validator_revision"] != source["revision"]
-        or value["validation"]["status"] != "passed"
-    ):
-        raise ValueError("invalid content validator identity")
-    digest(value["validation"]["validator_sha256"])
+    verify_validation(value["validation"], source["revision"])

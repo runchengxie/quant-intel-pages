@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 from test_build_identity_integration import formal as formal
@@ -12,7 +13,22 @@ from scripts import build_site
 
 
 @pytest.fixture
-def external(formal):
+def external(formal, monkeypatch):
+    provenance = identity.exporter_provenance
+
+    def complete_provenance(command, revision):
+        return {
+            **provenance(command, revision),
+            "vcs": "git",
+            "executable_sha256": identity.file_record(Path(command))["sha256"],
+            "module_origin": command,
+            "module_sha256": "e" * 64,
+            "verified_distribution_files": 2,
+            "installed_distributions": [["market-intel", "1"]],
+            "dependency_lock": None,
+        }
+
+    monkeypatch.setattr(identity, "exporter_provenance", complete_provenance)
     root, output, options = formal
     inputs = output.parent / "verified"
     public = inputs / "artifacts/public/data"
@@ -411,3 +427,183 @@ def test_formal_identity_rejects_noncommit_exporter_revision(formal):
     invalid = identity.IdentityOptions(options.identity, options.quality, options.task_id, "main")
     with pytest.raises(ValueError, match="invalid task or exporter"):
         build_site.build_site(root, output, identity_options=invalid)
+
+
+@pytest.mark.parametrize(
+    "section", ["generator", "generator.exporter", "generator.versions", "generator.locks", "validation"]
+)
+@pytest.mark.parametrize("change", ["missing", "unexpected", "wrong_type"])
+def test_v2_nested_provenance_requires_exact_fields(external, section, change):
+    build(external)
+    _, output, options, _, _ = external
+    value = json.loads(options.identity.read_text())
+    parent = value
+    keys = section.split(".")
+    for key in keys[:-1]:
+        parent = parent[key]
+    target = parent[keys[-1]]
+    if change == "missing":
+        target.pop(next(iter(target)))
+    elif change == "unexpected":
+        target["unexpected"] = True
+    else:
+        parent[keys[-1]] = []
+    options.identity.write_text(json.dumps(value))
+    with pytest.raises(ValueError):
+        identity.verify_identity(options.identity, output, options.quality)
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        ("generator", {"exporter": {"revision": "a" * 40}}),
+        ("generator.builder_sha256", "not-a-hash"),
+        ("generator.exporter.executable_sha256", "not-a-hash"),
+        ("generator.exporter.module_sha256", "not-a-hash"),
+        ("generator.exporter.revision", 1),
+        ("generator.exporter.version", ""),
+        ("generator.exporter.vcs", "directory"),
+        ("generator.exporter.interpreter", False),
+        ("generator.exporter.executable", "relative"),
+        ("generator.exporter.module_origin", "relative"),
+        ("generator.exporter.verified_distribution_files", True),
+        ("generator.exporter.verified_distribution_files", 0),
+        ("generator.exporter.installed_distributions", {}),
+        ("generator.exporter.installed_distributions", []),
+        ("generator.exporter.installed_distributions", [["market-intel"]]),
+        ("generator.exporter.installed_distributions", [["market-intel", 1]]),
+        ("generator.exporter.installed_distributions", [["market-intel", "wrong"]]),
+        ("generator.exporter.dependency_lock", {"sha256": "bad", "size": 1}),
+        ("generator.exporter.dependency_lock", {"sha256": "a" * 64, "size": True}),
+        ("generator.locks.uv.lock", None),
+        ("generator.versions.python", 3),
+        ("generator.versions.node", ""),
+        ("generator.command", "python scripts/build_site.py"),
+        ("generator.command", []),
+        ("generator.command", ["python", None]),
+        ("generator.snapshot_command", []),
+        ("generator.snapshot_command", ["python", "--root", "/tmp"]),
+        ("validation.sha256", "bad"),
+        ("validation.validator_revision", 1),
+        ("validation.validator_sha256", "bad"),
+    ],
+)
+def test_v2_rejects_malformed_nested_provenance(external, field, replacement):
+    build(external)
+    _, output, options, _, _ = external
+    value = json.loads(options.identity.read_text())
+    if field == "generator.locks.uv.lock":
+        value["generator"]["locks"]["uv.lock"] = replacement
+    else:
+        parent = value
+        keys = field.split(".")
+        for key in keys[:-1]:
+            parent = parent[key]
+        parent[keys[-1]] = replacement
+    options.identity.write_text(json.dumps(value))
+    with pytest.raises(ValueError):
+        identity.verify_identity(options.identity, output, options.quality)
+
+
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "source_root",
+        "input_root",
+        "producer",
+        "task",
+        "isolation",
+        "interpreter",
+        "exporter",
+        "frozen_root",
+        "snapshot",
+    ],
+)
+def test_v2_observed_commands_are_bound_to_recorded_provenance(external, kind):
+    build(external)
+    _, output, options, _, _ = external
+    value = json.loads(options.identity.read_text())
+    generator = value["generator"]
+    command = generator["command"]
+    if kind in {"source_root", "input_root", "producer", "task"}:
+        flag = {
+            "source_root": "--root",
+            "input_root": "--public-inputs",
+            "producer": "--exporter-revision",
+            "task": "--task-id",
+        }[kind]
+        command[command.index(flag) + 1] = "wrong"
+    else:
+        index = {"isolation": 1, "interpreter": 0, "exporter": 2, "frozen_root": 4, "snapshot": 6}[kind]
+        generator["snapshot_command"][index] = "wrong"
+    options.identity.write_text(json.dumps(value))
+    with pytest.raises(ValueError):
+        identity.verify_identity(options.identity, output, options.quality)
+
+
+@pytest.mark.parametrize("field", ["validator_sha256", "validator_revision"])
+def test_v2_validator_metadata_matches_hash_bound_quality(external, field):
+    build(external)
+    _, output, options, _, _ = external
+    value = json.loads(options.identity.read_text())
+    quality = json.loads(options.quality.read_text())
+    quality[field] = "0" * (64 if field.endswith("sha256") else 40)
+    options.quality.write_text(json.dumps(quality))
+    value["validation"]["sha256"] = identity.file_record(options.quality)["sha256"]
+    options.identity.write_text(json.dumps(value))
+    with pytest.raises(ValueError, match="validator"):
+        identity.verify_identity(options.identity, output, options.quality)
+
+
+def test_v2_rejects_well_formed_but_unbound_validator_hash(external):
+    build(external)
+    _, output, options, _, _ = external
+    value = json.loads(options.identity.read_text())
+    value["validation"]["validator_sha256"] = "0" * 64
+    options.identity.write_text(json.dumps(value))
+    with pytest.raises(ValueError, match="validator"):
+        identity.verify_identity(options.identity, output, options.quality)
+
+
+def test_v2_accepts_recorded_dependency_lock(external):
+    build(external)
+    _, output, options, _, _ = external
+    value = json.loads(options.identity.read_text())
+    value["generator"]["exporter"]["dependency_lock"] = value["generator"]["locks"]["uv.lock"]
+    options.identity.write_text(json.dumps(value))
+    identity.verify_identity(options.identity, output, options.quality)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "command",
+        "snapshot_command",
+        "exporter.module_origin",
+        "exporter.module_sha256",
+        "exporter.executable_sha256",
+        "exporter.installed_distributions",
+    ],
+)
+def test_v2_cannot_omit_observed_command_or_installation_evidence(external, field):
+    build(external)
+    _, output, options, _, _ = external
+    value = json.loads(options.identity.read_text())
+    parent = value["generator"]
+    keys = field.split(".")
+    for key in keys[:-1]:
+        parent = parent[key]
+    del parent[keys[-1]]
+    options.identity.write_text(json.dumps(value))
+    with pytest.raises(ValueError):
+        identity.verify_identity(options.identity, output, options.quality)
+
+
+def test_v2_rejects_unknown_recorded_build_option(external):
+    build(external)
+    _, output, options, _, _ = external
+    value = json.loads(options.identity.read_text())
+    value["generator"]["command"][2] = "--unknown-root"
+    options.identity.write_text(json.dumps(value))
+    with pytest.raises(ValueError, match="build command"):
+        identity.verify_identity(options.identity, output, options.quality)
