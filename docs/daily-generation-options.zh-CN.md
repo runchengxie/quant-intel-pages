@@ -63,3 +63,7 @@ Platform 提供 `market-export-weekly-recap` 和 `market-import-weekly-recap`。
 ## 网页阅读与图片导出
 
 日报正文使用网页文字展示。图片 SVG 保留在可展开的 `details[data-report-export]` 中，导出器继续使用唯一的 `#market-daily-chart svg` 或 `#asia-daily-chart svg`，并核对对应身份按钮。提取静态 HTML 时无需先展开该区域。来源和哈希规则保持不变，投递回执也保留原有含义。
+
+## 已验证的外部内容
+
+构建适配器也支持验证后的外部输入根目录及对应上游回执，并强制生成 v2 身份记录；源码输入构建保留 v1。成对的 API/CLI 参数、源码与内容身份区分，以及目前仅支持本地构建的范围，详见[外部内容构建](content-publication.zh-CN.md)。现有工作流仍使用仓库输入；内容生产模式须另行启用。

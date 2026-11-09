@@ -9,7 +9,7 @@ coverage.xml
 htmlcov/
 node_modules/
 dist/
-.astro/
+.astro
 test-results/
 playwright-report/
 platform-cli/

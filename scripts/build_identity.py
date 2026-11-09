@@ -178,8 +178,16 @@ def validate_served_snapshot(snapshot: dict[str, FileRecord], output: dict[str, 
 
 def verify_identity(identity: Path, output: Path, quality: Path) -> None:
     value = read_json(identity)
+    if value.get("schema_version") == "market_intel_pages.build_identity.v2":
+        if __package__:
+            from . import content_identity
+        else:
+            import content_identity
+        value = json.loads(identity.read_bytes(), object_pairs_hook=content_identity.unique_object)
+        content_identity.verify(value)
     if (
-        value.get("schema_version") != "market_intel_pages.build_identity.v1"
+        value.get("schema_version")
+        not in {"market_intel_pages.build_identity.v1", "market_intel_pages.build_identity.v2"}
         or value.get("status") != "completed"
         or value.get("owner") != "quant-intel-pages"
         or value.get("purpose") != "public_site"

@@ -1,0 +1,25 @@
+{
+  "schema_version": "market_intel_pages.build_identity.v1",
+  "owner": "quant-intel-pages",
+  "purpose": "public_site",
+  "status": "completed",
+  "exported_snapshot": {
+    "data/empty": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    }
+  },
+  "validation": {
+    "sha256": "1fb0702a268aa8bb82c2cae7dc9cbb7d234f5dec01cad585c63e7c73fa25e7bf"
+  },
+  "output": {
+    "index.html": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "data/empty": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    }
+  }
+}

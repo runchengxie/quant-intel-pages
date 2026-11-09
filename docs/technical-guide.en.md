@@ -10,7 +10,7 @@ For report ownership and publication records, see [the handoff guide](daily-gene
 Use Python 3.11, Node.js 24, npm and uv. Install `market-export-site-snapshot` from the pinned Platform commit.
 
 ```bash
-uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@c761aaa22cebd72283063ca11c4f1632f1c439fc"
+uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be"
 npm ci
 uv sync --locked --group dev --no-install-project
 preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)

@@ -80,3 +80,7 @@ continue selecting the unique `#market-daily-chart svg` / `#asia-daily-chart svg
 and matching identity button. Static HTML extraction does not require opening
 the details element. Report source/hash contracts and delivery receipts do not
 change with this presentation update.
+
+## Verified external content
+
+The adapter also accepts a verified external staging root and matching owner receipt. This requires formal v2 identity; source-input builds retain v1. See [external content builds](content-publication.md) for the paired API/CLI options, separate input/source identities and current local-only scope. The existing workflow still uses committed inputs; content-mode production activation is separate.

@@ -17,3 +17,5 @@
 [维护指南](docs/technical-guide.md)介绍页面结构和语言切换，也说明图片下载的处理方式。[日报交接说明](docs/daily-generation-options.zh-CN.md)解释报告文件怎样进入网站。参与开发前请阅读 [开发约定](AGENTS.zh-CN.md)。
 
 同一检出中的 `npm test`、`npm run check`、网站构建和浏览器测试要依次运行。它们共用 Astro 构建缓存，同时运行可能导致构建失败。并行开发请使用独立工作树。
+
+也可在本地渲染经过验证的外部内容，详见[内容构建指南](docs/content-publication.zh-CN.md)。

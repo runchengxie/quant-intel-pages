@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: runchengxie/quant-intel-platform
-          ref: c761aaa22cebd72283063ca11c4f1632f1c439fc
+          ref: 70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be
           path: platform-cli
           persist-credentials: false
       - uses: actions/setup-python@v6
