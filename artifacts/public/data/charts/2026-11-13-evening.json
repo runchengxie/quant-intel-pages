@@ -1,0 +1,433 @@
+{
+  "schema_version": "market_intel.a_share_charts.v1",
+  "publication": "public",
+  "report_id": "2026-11-13-evening",
+  "date": "2026-11-13",
+  "kind": "evening",
+  "generated_at": "2026-11-13T18:30:06.025056+08:00",
+  "charts": [
+    {
+      "key": "dashboard",
+      "title": "综合仪表盘",
+      "status": "ok",
+      "reason": null,
+      "points": [
+        {
+          "label": "上涨家数",
+          "value": 765.0,
+          "unit": "家",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "下跌家数",
+          "value": 4748.0,
+          "unit": "家",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "平盘家数",
+          "value": 58.0,
+          "unit": "家",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "平均涨跌",
+          "value": -2.083181798599892,
+          "unit": "%",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "涨停家数",
+          "value": 38.0,
+          "unit": "家",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare 涨跌停榜单",
+          "source_url": "https://tushare.pro/document/2?doc_id=355"
+        },
+        {
+          "label": "最高连板",
+          "value": 4.0,
+          "unit": "板",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare 连板天梯",
+          "source_url": "https://tushare.pro/document/2?doc_id=356"
+        },
+        {
+          "label": "成交额 2026-11-09",
+          "value": 14945.5365126325,
+          "unit": "亿",
+          "observation_date": "2026-11-09",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "成交额 2026-11-10",
+          "value": 15167.4513969812,
+          "unit": "亿",
+          "observation_date": "2026-11-10",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "成交额 2026-11-11",
+          "value": 16886.9260906843,
+          "unit": "亿",
+          "observation_date": "2026-11-11",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "成交额 2026-11-12",
+          "value": 19458.7195330584,
+          "unit": "亿",
+          "observation_date": "2026-11-12",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "成交额 2026-11-13",
+          "value": 16670.735977850898,
+          "unit": "亿",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "融资余额 2026-11-06",
+          "value": 22549.38816321,
+          "unit": "亿",
+          "observation_date": "2026-11-06",
+          "source_label": "Tushare 融资融券交易汇总（全市场，覆盖 BSE/SSE/SZSE）",
+          "source_url": "https://tushare.pro/document/2?doc_id=58"
+        },
+        {
+          "label": "融资余额 2026-11-09",
+          "value": 22670.30653104,
+          "unit": "亿",
+          "observation_date": "2026-11-09",
+          "source_label": "Tushare 融资融券交易汇总（全市场，覆盖 BSE/SSE/SZSE）",
+          "source_url": "https://tushare.pro/document/2?doc_id=58"
+        },
+        {
+          "label": "融资余额 2026-11-10",
+          "value": 22656.61943805,
+          "unit": "亿",
+          "observation_date": "2026-11-10",
+          "source_label": "Tushare 融资融券交易汇总（全市场，覆盖 BSE/SSE/SZSE）",
+          "source_url": "https://tushare.pro/document/2?doc_id=58"
+        },
+        {
+          "label": "融资余额 2026-11-11",
+          "value": 22731.373403,
+          "unit": "亿",
+          "observation_date": "2026-11-11",
+          "source_label": "Tushare 融资融券交易汇总（全市场，覆盖 BSE/SSE/SZSE）",
+          "source_url": "https://tushare.pro/document/2?doc_id=58"
+        },
+        {
+          "label": "融资余额 2026-11-12",
+          "value": 22738.30861546,
+          "unit": "亿",
+          "observation_date": "2026-11-12",
+          "source_label": "Tushare 融资融券交易汇总（全市场，覆盖 BSE/SSE/SZSE）",
+          "source_url": "https://tushare.pro/document/2?doc_id=58"
+        }
+      ]
+    },
+    {
+      "key": "moneyflow",
+      "title": "资金流向图",
+      "status": "missing",
+      "reason": "逐点审核未通过，本期不公开该图数据",
+      "points": []
+    },
+    {
+      "key": "topic",
+      "title": "热点概念图",
+      "status": "ok",
+      "reason": null,
+      "points": [
+        {
+          "label": "AI影视",
+          "value": 2.4,
+          "unit": "%",
+          "observation_date": "2026-11-13",
+          "source_label": "东方财富概念板块（Tushare 授权数据）",
+          "source_url": "https://data.eastmoney.com/bkzj/"
+        },
+        {
+          "label": "银行",
+          "value": 1.43,
+          "unit": "%",
+          "observation_date": "2026-11-13",
+          "source_label": "东方财富概念板块（Tushare 授权数据）",
+          "source_url": "https://data.eastmoney.com/bkzj/"
+        },
+        {
+          "label": "CANN概念",
+          "value": 1.34,
+          "unit": "%",
+          "observation_date": "2026-11-13",
+          "source_label": "东方财富概念板块（Tushare 授权数据）",
+          "source_url": "https://data.eastmoney.com/bkzj/"
+        },
+        {
+          "label": "猪肉概念",
+          "value": 0.96,
+          "unit": "%",
+          "observation_date": "2026-11-13",
+          "source_label": "东方财富概念板块（Tushare 授权数据）",
+          "source_url": "https://data.eastmoney.com/bkzj/"
+        },
+        {
+          "label": "影视娱乐",
+          "value": 0.96,
+          "unit": "%",
+          "observation_date": "2026-11-13",
+          "source_label": "东方财富概念板块（Tushare 授权数据）",
+          "source_url": "https://data.eastmoney.com/bkzj/"
+        }
+      ]
+    },
+    {
+      "key": "sentiment",
+      "title": "市场温度计",
+      "status": "ok",
+      "reason": null,
+      "points": [
+        {
+          "label": "流动性",
+          "value": 54.6,
+          "unit": "观察分",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A股晚报六维观察",
+          "source_url": "https://tushare.pro/document/2?doc_id=181"
+        },
+        {
+          "label": "广度",
+          "value": 0.0,
+          "unit": "观察分",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A股晚报六维观察",
+          "source_url": "https://tushare.pro/document/2?doc_id=181"
+        },
+        {
+          "label": "赚钱效应",
+          "value": 21.9,
+          "unit": "观察分",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A股晚报六维观察",
+          "source_url": "https://tushare.pro/document/2?doc_id=181"
+        },
+        {
+          "label": "亏钱风险",
+          "value": 77.2,
+          "unit": "观察分（风险）",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A股晚报六维观察",
+          "source_url": "https://tushare.pro/document/2?doc_id=181"
+        },
+        {
+          "label": "趋势确认",
+          "value": 0.0,
+          "unit": "观察分",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A股晚报六维观察",
+          "source_url": "https://tushare.pro/document/2?doc_id=181"
+        },
+        {
+          "label": "轮动质量",
+          "value": 1.0,
+          "unit": "观察分",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A股晚报六维观察",
+          "source_url": "https://tushare.pro/document/2?doc_id=181"
+        }
+      ]
+    },
+    {
+      "key": "us_overnight",
+      "title": "美股隔夜图",
+      "status": "skipped",
+      "reason": "亚洲五图审核不包含美股隔夜数据",
+      "points": []
+    },
+    {
+      "key": "weekly_chart",
+      "title": "近5个交易日数据概览",
+      "status": "ok",
+      "reason": null,
+      "points": [
+        {
+          "label": "上涨家数 2026-11-09",
+          "value": 2242.0,
+          "unit": "家",
+          "observation_date": "2026-11-09",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "下跌家数 2026-11-09",
+          "value": 3148.0,
+          "unit": "家",
+          "observation_date": "2026-11-09",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "平盘家数 2026-11-09",
+          "value": 183.0,
+          "unit": "家",
+          "observation_date": "2026-11-09",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "成交额 2026-11-09",
+          "value": 14945.5365126325,
+          "unit": "亿",
+          "observation_date": "2026-11-09",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "上涨家数 2026-11-10",
+          "value": 4273.0,
+          "unit": "家",
+          "observation_date": "2026-11-10",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "下跌家数 2026-11-10",
+          "value": 1149.0,
+          "unit": "家",
+          "observation_date": "2026-11-10",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "平盘家数 2026-11-10",
+          "value": 151.0,
+          "unit": "家",
+          "observation_date": "2026-11-10",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "成交额 2026-11-10",
+          "value": 15167.4513969812,
+          "unit": "亿",
+          "observation_date": "2026-11-10",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "上涨家数 2026-11-11",
+          "value": 3538.0,
+          "unit": "家",
+          "observation_date": "2026-11-11",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "下跌家数 2026-11-11",
+          "value": 1827.0,
+          "unit": "家",
+          "observation_date": "2026-11-11",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "平盘家数 2026-11-11",
+          "value": 209.0,
+          "unit": "家",
+          "observation_date": "2026-11-11",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "成交额 2026-11-11",
+          "value": 16886.9260906843,
+          "unit": "亿",
+          "observation_date": "2026-11-11",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "上涨家数 2026-11-12",
+          "value": 875.0,
+          "unit": "家",
+          "observation_date": "2026-11-12",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "下跌家数 2026-11-12",
+          "value": 4635.0,
+          "unit": "家",
+          "observation_date": "2026-11-12",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "平盘家数 2026-11-12",
+          "value": 63.0,
+          "unit": "家",
+          "observation_date": "2026-11-12",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "成交额 2026-11-12",
+          "value": 19458.7195330584,
+          "unit": "亿",
+          "observation_date": "2026-11-12",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "上涨家数 2026-11-13",
+          "value": 765.0,
+          "unit": "家",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "下跌家数 2026-11-13",
+          "value": 4748.0,
+          "unit": "家",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "平盘家数 2026-11-13",
+          "value": 58.0,
+          "unit": "家",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        },
+        {
+          "label": "成交额 2026-11-13",
+          "value": 16670.735977850898,
+          "unit": "亿",
+          "observation_date": "2026-11-13",
+          "source_label": "Tushare A 股日线",
+          "source_url": "https://tushare.pro/document/1?doc_id=27"
+        }
+      ]
+    }
+  ],
+  "content_sha256": "f7138afcd5c775fa10efa7743b8131bfe2cc37d8049463a85039d6f33ca0fd9e"
+}
