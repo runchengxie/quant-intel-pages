@@ -1,9 +1,9 @@
 # 美股市场日报（2026-11-13）
 
 数据状态：degraded
-报告生成时间：2026-11-13T22:05:29.085934+00:00（美东报告日 2026-11-13）
+报告生成时间：2026-11-13T23:15:30.639004+00:00（美东报告日 2026-11-13）
 
-尚缺：研究解释、布伦特期货行情、黄金期货行情、白银期货行情。
+尚缺：研究解释。
 
 ## 美股市场表现
 
@@ -42,7 +42,10 @@
 
 | 品种 | 价格 | 日涨跌 | 观测日 | 来源 |
 |---|---:|---:|---|---|
-| BTC/USD 现货 | 68,844.40 美元/BTC | -3.53% | 2026-11-13 | [Kraken](https://www.kraken.com/prices/bitcoin) |
+| 布伦特期货 | 96.08 美元/桶 | +0.27% | 2026-11-13 | [Yahoo Finance](https://finance.yahoo.com/quote/BZF27.NYM/history/) |
+| COMEX 黄金期货 | 3,887.60 美元/金衡盎司 | +0.06% | 2026-11-13 | [Yahoo Finance](https://finance.yahoo.com/quote/GCZ26.CMX/history/) |
+| COMEX 白银期货 | 48.65 美元/金衡盎司 | -2.83% | 2026-11-13 | [Yahoo Finance](https://finance.yahoo.com/quote/SIZ26.CMX/history/) |
+| BTC/USD 现货 | 67,997.76 美元/BTC | -4.73% | 2026-11-13 | [FMP](https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full) |
 
 ## 市场驱动因素
 
@@ -70,7 +73,7 @@
 | 指数行情 | 已核实 | 目标交易日数据齐全 |
 | 研究材料 | 有缺项 | 研究材料尚未接入，不提供未经核实的解释 |
 | 跨资产行情 | 有缺项 | 详见逐项观测日与来源 |
-| 比特币现货 | 已核实 | 详见逐项观测日与来源 |
+| 比特币现货 | 已核实 | 来源状态正常 |
 | 美股个股行情 | 已核实 | 核心观察股票行情齐全 |
 
 证据编号对应已审阅材料；公开报告不包含私有核验工作底稿。
