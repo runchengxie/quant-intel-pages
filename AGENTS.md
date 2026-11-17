@@ -38,7 +38,7 @@ node --check src/legacy/summary-utils.js
 python scripts/build_site.py --output /tmp/quant-market-intel-check
 npm run check
 npm run test:browser
-npm audit
+node tools/dependency-audit.mjs /tmp/quant-intel-pages-npm-audit.json
 uv run pip-audit --strict
 python tools/audit_structure.py --output /tmp/market-intel-structure.json
 git diff --check
