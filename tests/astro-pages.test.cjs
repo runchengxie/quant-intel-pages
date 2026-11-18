@@ -253,6 +253,8 @@ test('US daily macro-only edition keeps economic data without inventing market c
     report.source_status.equities = { quality: 'missing' };
     writeFileSync(file, JSON.stringify(report));
     writeFileSync(path.join(fixture, 'data/market_daily_reports.json'), JSON.stringify({ schema_version: 'market_intel_pages.us_daily_history.v1', reports: [report] }));
+    // Historical test content belongs to the fixture, independent of the current public window.
+    cpSync(path.join(__dirname, 'fixtures/market-daily-complete.md'), path.join(fixture, `reports/${report.run_id.slice(6)}-market-daily.md`));
     execFileSync('npm', ['run', 'build', '--', '--outDir', path.join(fixture, 'built')], {
       cwd: root, stdio: 'pipe', env: { ...process.env, ASTRO_DATA_ROOT: fixture },
     });
@@ -275,6 +277,8 @@ test('visual report keeps verified market facts and source links together', () =
     const report = JSON.parse(readFileSync(path.join(__dirname, 'fixtures/market-daily-complete.json'), 'utf8'));
     writeFileSync(path.join(fixture, 'data/market_daily_report.json'), JSON.stringify(report));
     writeFileSync(path.join(fixture, 'data/market_daily_reports.json'), JSON.stringify({ schema_version: 'market_intel_pages.us_daily_history.v1', reports: [report] }));
+    // Historical test content belongs to the fixture, independent of the current public window.
+    cpSync(path.join(__dirname, 'fixtures/market-daily-complete.md'), path.join(fixture, `reports/${report.run_id.slice(6)}-market-daily.md`));
     execFileSync('npm', ['run', 'build', '--', '--outDir', path.join(fixture, 'built')], {
       cwd: root, stdio: 'pipe', env: { ...process.env, ASTRO_DATA_ROOT: fixture },
     });
