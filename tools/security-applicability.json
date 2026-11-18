@@ -1,0 +1,7 @@
+{
+  "schema": "dependency-applicability.v1",
+  "advisory": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf",
+  "reviewed_at": "2026-11-18T00:00:00Z",
+  "lock_sha256": "5cf7b00fc27f925af0b765c6ecfaab22487a566de1ef624dd767fbedc25f42af",
+  "scope_sha256": "d6dab32b4ec3ac196938fb9b9315a9da84099fb0f0fa5039faf3a68bf69bc34b"
+}

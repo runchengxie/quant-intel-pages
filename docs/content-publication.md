@@ -9,17 +9,17 @@ require the separately configured Deploy coordinator.
 
 Install the [pinned Platform CLI](technical-guide.en.md#local-build). The installed
 producer and exporter must both use commit
-`70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be`.
+`b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0`.
 Use the owner's `market-pack-site-content` and `market-verify-site-content`
 commands to create an immutable archive and a verified staging root containing
 `artifacts/public/data/` and `artifacts/public/reports/`.
-See the [Platform bundle contract](https://github.com/runchengxie/quant-intel-platform/blob/70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be/docs/publication/site-content-bundles.md).
+See the [Platform bundle contract](https://github.com/runchengxie/quant-intel-platform/blob/b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0/docs/publication/site-content-bundles.md).
 
 Choose new receipt paths outside the source checkout, inputs and output:
 
 ~~~bash
 task_output="$DATA_ROOT/quant/quant-intel-pages/tasks/<task-id>"
-producer_revision="70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be"
+producer_revision="b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0"
 python scripts/build_site.py --root "$CODE_ROOT/quant/quant-intel-pages" \
   --output "$task_output/site" \
   --public-inputs "$task_output/verified" \
@@ -140,3 +140,6 @@ Before activation, separately authorize and perform the coordinator bootstrap,
 drain legacy pending/in-flight publications, and change the repository variable.
 Rollback requires a reconciled archived snapshot and pinned legacy publisher;
 merely reenabling stale committed inputs is insufficient.
+
+
+The portable ledger additionally retains exactly the root `index.html`, copied only after its bytes match the build output SHA-256 and size. This rendered evidence supports root-page image authorization; it is separate from the owner payload inventory and canonical bundle. Arbitrary root HTML files are not copied.

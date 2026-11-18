@@ -8,17 +8,17 @@ Pages 可以直接渲染经 Platform 验证的内容包，无需修改 Git 中�
 
 先按[本地构建指南](technical-guide.md#本地构建)安装固定版本的 Platform CLI。
 内容生产者与导出器均须使用已合并提交
-`70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be`。
+`b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0`。
 调用上游的 `market-pack-site-content` 和 `market-verify-site-content`，
 生成不可变归档及包含 `artifacts/public/data/`、`artifacts/public/reports/`
 的验证后输入目录。
-详见 [Platform 内容包契约](https://github.com/runchengxie/quant-intel-platform/blob/70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be/docs/publication/site-content-bundles.zh-CN.md)。
+详见 [Platform 内容包契约](https://github.com/runchengxie/quant-intel-platform/blob/b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0/docs/publication/site-content-bundles.zh-CN.md)。
 
 在源码、输入和输出目录之外选择新的回执路径：
 
 ~~~bash
 task_output="$DATA_ROOT/quant/quant-intel-pages/tasks/<task-id>"
-producer_revision="70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be"
+producer_revision="b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0"
 python scripts/build_site.py --root "$CODE_ROOT/quant/quant-intel-pages" \
   --output "$task_output/site" \
   --public-inputs "$task_output/verified" \
@@ -122,3 +122,6 @@ Actions 保存期为 90 天；永久归档及线上报告日期、哈希核对�
 
 启用前须另行授权并完成协调器初始化、排空旧待发布及正在运行的发布，再修改仓库变量。
 回滚须使用核对后的归档快照与固定旧发布器，不能简单重新启用旧 Git 输入。
+
+
+可移植 ledger 额外保留根页面 `index.html`，复制前校验构建 output 中的 SHA-256 与大小，用于根页面截图授权。该渲染证据不进入 owner payload 或 canonical bundle，不复制任意其他根 HTML。

@@ -1,0 +1,68 @@
+name: Dependency security review
+
+on:
+  schedule:
+    - cron: '23 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-security-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - uses: astral-sh/setup-uv@v6
+      - name: Audit full npm dependency graph and applicability
+        id: npm-audit
+        continue-on-error: true
+        run: node tools/dependency-audit.mjs "$RUNNER_TEMP/npm-audit.json" "$RUNNER_TEMP/security-review.json"
+      - name: Audit Python dependencies
+        id: python-audit
+        if: always()
+        continue-on-error: true
+        run: |
+          uv sync --locked --group dev --no-install-project
+          uv run pip-audit --strict --format json --output "$RUNNER_TEMP/python-audit.json"
+      - name: Retain complete audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-security-review-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/npm-audit.json
+            ${{ runner.temp }}/python-audit.json
+            ${{ runner.temp }}/security-review.json
+          if-no-files-found: warn
+      - name: Reconcile overdue or unknown security maintenance
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SECURITY_REVIEW_STATUS: ${{ runner.temp }}/security-review.json
+          NPM_AUDIT_OUTCOME: ${{ steps.npm-audit.outcome }}
+          PYTHON_AUDIT_OUTCOME: ${{ steps.python-audit.outcome }}
+        run: python -m scripts.security_review_alerts
+      - name: Require auditable dependency results
+        if: always()
+        env:
+          NPM_AUDIT_OUTCOME: ${{ steps.npm-audit.outcome }}
+          PYTHON_AUDIT_OUTCOME: ${{ steps.python-audit.outcome }}
+        run: test "$NPM_AUDIT_OUTCOME" = success && test "$PYTHON_AUDIT_OUTCOME" = success
