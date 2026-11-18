@@ -439,3 +439,69 @@ def test_content_failure_is_not_closed_by_source_success():
     )
     event["workflow_run"].update(id=125, conclusion="success")
     assert process_workflow_event(client, event, repository="example/site") == "closed"
+
+
+def test_security_maintenance_reconciles_overdue_unknown_and_recovery(tmp_path):
+    from scripts.security_review_alerts import process_review
+
+    client = FakeIssues()
+    report = tmp_path / "review.json"
+    for run_id, (state, expected) in enumerate(
+        [("overdue", "created"), ("unknown", "commented"), ("current", "closed")], start=200
+    ):
+        report.write_text(json.dumps({"state": state, "blocking": []}))
+        result = process_review(client, report, repository="example/site", run_id=run_id)
+        assert result == expected
+    assert "security-review" in client.issues[0]["title"]
+
+
+def test_missing_or_blocking_security_evidence_never_closes_issue(tmp_path):
+    from scripts.security_review_alerts import process_review
+
+    client = FakeIssues()
+    report = tmp_path / "review.json"
+    assert process_review(client, report, repository="example/site", run_id=300) == "created"
+    report.write_text(json.dumps({"state": "current", "blocking": ["new-advisory"]}))
+    assert process_review(client, report, repository="example/site", run_id=301) == "commented"
+    assert not client.closed
+
+
+@pytest.mark.parametrize(
+    "content", ["{", "[]", '{"state":"current","blocking":null}', '{"state":"unexpected","blocking":[]}']
+)
+def test_invalid_security_status_holds_alert(tmp_path, content):
+    from scripts.security_review_alerts import process_review
+
+    client = FakeIssues()
+    report = tmp_path / "review.json"
+    report.write_text(content)
+    assert process_review(client, report, repository="example/site", run_id=400) == "created"
+    assert not client.closed
+
+
+def test_security_monitor_does_not_treat_failed_python_audit_as_recovery(tmp_path):
+    from scripts.security_review_alerts import process_review
+
+    client = FakeIssues()
+    report = tmp_path / "review.json"
+    report.write_text(json.dumps({"state": "current", "blocking": []}))
+    assert process_review(client, report, repository="example/site", run_id=500, audits_ok=False) == "created"
+
+
+def test_security_monitor_cli_uses_both_audit_outcomes(tmp_path, monkeypatch, capsys):
+    from scripts import security_review_alerts
+
+    client = FakeIssues()
+    report = tmp_path / "review.json"
+    report.write_text(json.dumps({"state": "current", "blocking": []}))
+    monkeypatch.setattr(IssueClient, "from_environment", lambda: client)
+    for name, value in {
+        "SECURITY_REVIEW_STATUS": str(report),
+        "GITHUB_REPOSITORY": "example/site",
+        "GITHUB_RUN_ID": "600",
+        "NPM_AUDIT_OUTCOME": "success",
+        "PYTHON_AUDIT_OUTCOME": "failure",
+    }.items():
+        monkeypatch.setenv(name, value)
+    security_review_alerts.main()
+    assert capsys.readouterr().out.strip() == "created"

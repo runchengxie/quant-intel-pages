@@ -1,5 +1,7 @@
 """Executable pre-check guards and shared workflow contracts."""
 
+import hashlib
+import json
 import os
 import subprocess
 from pathlib import Path
@@ -34,7 +36,7 @@ def test_dispatch_rejects_mode_and_unmerged_ref_before_checkout(mode, ref, reque
             "GITHUB_REF": ref,
             "GITHUB_SHA": "a" * 40,
             "RENDERER_REVISION": requested,
-            "PRODUCER_REVISION": "70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be",
+            "PRODUCER_REVISION": "b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0",
         },
         capture_output=True,
     )
@@ -82,6 +84,19 @@ def test_content_ledger_preserves_original_and_normalized_bytes(tmp_path, with_r
         (site / folder).mkdir(parents=True)
         (site / folder / "public").write_text("normalized")
     (site / "data/site-publication.json").write_text("marker")
+    (site / "index.html").write_text("rendered")
+    (tmp_path / "build-identity.json").write_text(
+        json.dumps(
+            {
+                "output": {
+                    "index.html": {
+                        "size": 8,
+                        "sha256": hashlib.sha256(b"rendered").hexdigest(),
+                    }
+                }
+            }
+        )
+    )
     original = tmp_path / "verified/artifacts/public/data"
     original.mkdir(parents=True)
     (original / "public").write_text("original")
@@ -100,6 +115,7 @@ def test_content_ledger_preserves_original_and_normalized_bytes(tmp_path, with_r
     )
     assert result.returncode == 0, result.stderr
     ledger = tmp_path / "market-intel-ledger"
+    assert (ledger / "index.html").read_bytes() == b"rendered"
     assert (ledger / "data/public").read_text() == "normalized"
     assert (ledger / "original/artifacts/public/data/public").read_text() == "original"
     assert (ledger / "data/site-publication.json").read_text() == "marker"

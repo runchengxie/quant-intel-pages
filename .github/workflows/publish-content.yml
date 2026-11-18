@@ -50,7 +50,7 @@ jobs:
           test "$MODE" = artifact-v1
           test "$GITHUB_REF" = refs/heads/main
           test "$RENDERER_REVISION" = "$GITHUB_SHA"
-          test "$PRODUCER_REVISION" = 70d21f8683cdbe3b7841e2a7f4e10f57d1c2a8be
+          test "$PRODUCER_REVISION" = b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0
       - name: Require successful merged main source checks
         id: green
         uses: actions/github-script@v8

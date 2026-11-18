@@ -1,0 +1,84 @@
+{
+  "schema_version": "market_intel_pages.us_daily_status.v1",
+  "reports": [
+    {
+      "run_id": "daily-2026-11-17",
+      "date": "2026-11-17",
+      "content_hash": "6c2e8cffe17813b1fe283e0b6b7860a8493cf3889f4715972e223fa90ad44f7c",
+      "report_status": {
+        "market": "complete",
+        "research": "not_included",
+        "publication": "published"
+      },
+      "missing_market_facts": []
+    },
+    {
+      "run_id": "daily-2026-11-16",
+      "date": "2026-11-16",
+      "content_hash": "026b7fb2ed67530e7a38d69e710c912cc8fe19b90978c3a081407008092c38fe",
+      "report_status": {
+        "market": "complete",
+        "research": "not_included",
+        "publication": "published"
+      },
+      "missing_market_facts": []
+    },
+    {
+      "run_id": "daily-2026-11-13",
+      "date": "2026-11-13",
+      "content_hash": "4905aa17e3b99cdb7b2591c2753c47aac28f270d5491167b537955bb7b4dee39",
+      "report_status": {
+        "market": "complete",
+        "research": "not_included",
+        "publication": "published"
+      },
+      "missing_market_facts": []
+    },
+    {
+      "run_id": "daily-2026-11-12",
+      "date": "2026-11-12",
+      "content_hash": "a7894266d3f682283bd7fb0bf08df56cce5c6d7df65716324ef8b9f8cc9401b4",
+      "report_status": {
+        "market": "incomplete",
+        "research": "not_included",
+        "publication": "published"
+      },
+      "missing_market_facts": [
+        "treasury.10y.change_bp",
+        "treasury.10y.level_percent",
+        "treasury.2y.change_bp",
+        "treasury.2y.level_percent",
+        "treasury.30y.change_bp",
+        "treasury.30y.level_percent",
+        "treasury.5y.change_bp",
+        "treasury.5y.level_percent"
+      ]
+    },
+    {
+      "run_id": "daily-2026-11-11",
+      "date": "2026-11-11",
+      "content_hash": "b4f7d45e45e133a5eb90291467bd28ec595ad93e2a95fa44ad37740a69cb218e",
+      "report_status": {
+        "market": "incomplete",
+        "research": "not_included",
+        "publication": "published"
+      },
+      "missing_market_facts": [
+        "cross_asset.brent.change_percent",
+        "cross_asset.brent.close",
+        "cross_asset.gold.change_percent",
+        "cross_asset.gold.close",
+        "cross_asset.silver.change_percent",
+        "cross_asset.silver.close",
+        "treasury.10y.change_bp",
+        "treasury.10y.level_percent",
+        "treasury.2y.change_bp",
+        "treasury.2y.level_percent",
+        "treasury.30y.change_bp",
+        "treasury.30y.level_percent",
+        "treasury.5y.change_bp",
+        "treasury.5y.level_percent"
+      ]
+    }
+  ]
+}
