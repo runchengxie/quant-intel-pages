@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
 from urllib.error import HTTPError
@@ -66,10 +67,24 @@ def open_public(request: Request, timeout: int):
     raise ValueError("content asset redirect limit exceeded")
 
 
-def read_metadata(asset_id: str) -> dict:
-    with open_public(
-        Request(asset_url(asset_id), headers={"Accept": "application/vnd.github+json"}), 30
-    ) as stream:
+def open_metadata(asset_id: str, token: str):
+    request = Request(
+        asset_url(asset_id),
+        headers={"Accept": "application/vnd.github+json", "User-Agent": "quant-intel-pages-content"},
+    )
+    if not token:
+        return open_public(request, 30)
+    request.add_header("Authorization", f"Bearer {token}")
+    try:
+        return build_opener(NoRedirect()).open(request, timeout=30)
+    except HTTPError as error:
+        raise ValueError(f"asset metadata request failed: HTTP {error.code}") from None
+    except OSError:
+        raise ValueError("asset metadata request failed") from None
+
+
+def read_metadata(asset_id: str, token: str = "") -> dict:
+    with open_metadata(asset_id, token) as stream:
         data = stream.read(65537)
     if len(data) > 65536:
         raise ValueError("asset metadata too large")
@@ -88,17 +103,25 @@ def read_metadata(asset_id: str) -> dict:
     return value
 
 
-def download_asset(asset_id: str, sha256: str, output: Path) -> None:
+def public_download_url(metadata: dict) -> str:
+    url = metadata.get("browser_download_url")
+    prefix = f"https://github.com/{REPOSITORY}/releases/download/"
+    segment = r"[a-zA-Z0-9_-][a-zA-Z0-9_.-]*"
+    if not isinstance(url, str) or not re.fullmatch(re.escape(prefix) + f"{segment}/{segment}", url):
+        raise ValueError("asset public download URL mismatch")
+    return url
+
+
+def download_asset(asset_id: str, sha256: str, output: Path, *, token: str = "") -> None:
     if not re.fullmatch(r"[a-f0-9]{64}", sha256):
         raise ValueError("invalid archive digest")
-    metadata = read_metadata(asset_id)
+    metadata = read_metadata(asset_id, token)
+    url = public_download_url(metadata) if token else asset_url(asset_id)
     count, digest = 0, hashlib.sha256()
     # Exclusive creation prevents replacement of existing candidate bytes.
     with output.open("xb") as destination:
         try:
-            with open_public(
-                Request(asset_url(asset_id), headers={"Accept": "application/octet-stream"}), 30
-            ) as stream:
+            with open_public(Request(url, headers={"Accept": "application/octet-stream"}), 30) as stream:
                 while block := stream.read(min(65536, metadata["size"] - count + 1)):
                     count += len(block)
                     if count > metadata["size"]:
@@ -120,7 +143,9 @@ def main() -> None:
     parser.add_argument("--sha256", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    download_asset(args.asset_id, args.sha256, args.output)
+    download_asset(
+        args.asset_id, args.sha256, args.output, token=os.environ.get("CONTENT_METADATA_TOKEN", "")
+    )
 
 
 if __name__ == "__main__":
