@@ -1,0 +1,83 @@
+# 美股市场日报（2026-11-20）
+
+数据状态：degraded
+报告生成时间：2026-11-20T23:15:31.271384+00:00（美东报告日 2026-11-20）
+
+尚缺：研究解释。
+
+## 美股市场表现
+
+| 指数 | 收盘点位 | 收盘涨跌 | 观测日 | 来源 |
+|---|---:|---:|---|---|
+| 标普 500 | 6,910.39 | -3.70% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/%5EGSPC/history/) |
+| 道指 | 48,147.33 | -1.93% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/%5EDJI/history/) |
+| 纳指 | 22,617.73 | -5.28% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/%5EIXIC/history/) |
+| 罗素 2000 | 2,581.79 | -2.76% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/%5ERUT/history/) |
+
+## 美股个股行情
+
+| 股票 | 收盘价 | 日涨跌 | 观测日 | 来源 |
+|---|---:|---:|---|---|
+| MSFT | 484.52 美元 | -2.77% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/MSFT/history/) |
+| AAPL | 342.56 美元 | -1.90% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/AAPL/history/) |
+| NVDA | 125.53 美元 | -14.01% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/NVDA/history/) |
+| AMZN | 246.82 美元 | -4.10% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/AMZN/history/) |
+| GOOGL | 265.29 美元 | -2.70% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/GOOGL/history/) |
+| META | 560.84 美元 | -5.93% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/META/history/) |
+
+## 主要个股
+
+暂无经核实内容。
+
+## 美债收益率
+
+| 美债期限 | 收益率水平 | 日变动 | 观测日 | 来源 |
+|---|---:|---:|---|---|
+| 2 年期 | 4.63% | -13.00 bp | 2026-11-20 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve) |
+| 5 年期 | 4.71% | -15.00 bp | 2026-11-20 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve) |
+| 10 年期 | 4.92% | -12.00 bp | 2026-11-20 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve) |
+| 30 年期 | 5.31% | -9.00 bp | 2026-11-20 | [美国财政部](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/all/202611?_format=csv&field_tdr_date_value_month=202611&page=&type=daily_treasury_yield_curve) |
+
+## 布伦特、金银与比特币
+
+| 品种 | 价格 | 日涨跌 | 观测日 | 来源 |
+|---|---:|---:|---|---|
+| 布伦特期货 | 92.56 美元/桶 | +0.63% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/BZF27.NYM/history/) |
+| COMEX 黄金期货 | 3,539.00 美元/金衡盎司 | -3.98% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/GCZ26.CMX/history/) |
+| COMEX 白银期货 | 41.08 美元/金衡盎司 | -7.39% | 2026-11-20 | [Yahoo Finance](https://finance.yahoo.com/quote/SIZ26.CMX/history/) |
+| BTC/USD 现货 | 59,083.56 美元/BTC | -4.55% | 2026-11-20 | [FMP](https://site.financialmodelingprep.com/developer/docs/stable/cryptocurrency-historical-price-eod-full) |
+
+## 市场驱动因素
+
+暂无经核实内容。
+
+## 经济数据与美联储动态
+
+| 数据 | 数值 | 观测日 | 来源 |
+|---|---:|---|---|
+| CPI 同比 | 3.74% | 2026-09-01 | [FRED](https://fred.stlouisfed.org/series/CPIAUCNS) |
+| PCE 同比 | 3.65% | 2026-09-01 | [FRED](https://fred.stlouisfed.org/series/PCEPI) |
+| 失业率 | 4.10% | 2026-10-01 | [FRED](https://fred.stlouisfed.org/series/UNRATE) |
+| 非农就业月变动 | 165.00千人 | 2026-10-01 | [FRED](https://fred.stlouisfed.org/series/PAYEMS) |
+
+## 公司新闻
+
+暂无经核实内容。
+
+## 数据质量与核验说明
+
+| 数据链路 | 状态 | 说明 |
+|---|---|---|
+| 美债收益率 | 已核实 | 应有观测日数据齐全 |
+| 宏观数据 | 已核实 | 详见逐项观测日与来源 |
+| 指数行情 | 已核实 | 目标交易日数据齐全 |
+| 研究材料 | 有缺项 | 研究材料尚未接入，不提供未经核实的解释 |
+| 跨资产行情 | 有缺项 | 详见逐项观测日与来源 |
+| 比特币现货 | 已核实 | 来源状态正常 |
+| 美股个股行情 | 已核实 | 核心观察股票行情齐全 |
+
+证据编号对应已审阅材料；公开报告不包含私有核验工作底稿。
+
+## 数据说明
+
+可选数据未提供：比特币期货行情。
