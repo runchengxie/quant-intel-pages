@@ -193,3 +193,57 @@ def test_asset_cli_and_existing_output(tmp_path, monkeypatch):
 
 def test_redirect_handler_defers_to_bounded_caller():
     assert asset_module().NoRedirect().redirect_request(None, None, 302, "", {}, "https://github.com") is None
+
+
+def test_authenticated_metadata_then_public_zip(tmp_path, monkeypatch):
+    asset = asset_module()
+    payload = b"public bundle"
+    download_url = "https://github.com/runchengxie/quant-intel-pages/releases/download/tag/bundle.zip"
+    calls = []
+
+    class Opener:
+        def open(self, request, timeout):
+            calls.append((request.full_url, request.get_header("Authorization")))
+            if request.full_url == asset.asset_url("42"):
+                return io.BytesIO(
+                    json.dumps(
+                        {
+                            "id": 42,
+                            "size": len(payload),
+                            "state": "uploaded",
+                            "url": asset.asset_url("42"),
+                            "browser_download_url": download_url,
+                        }
+                    ).encode()
+                )
+            return io.BytesIO(payload)
+
+    monkeypatch.setattr(asset, "build_opener", lambda _handler: Opener())
+    output = tmp_path / "bundle.zip"
+    asset.download_asset("42", hashlib.sha256(payload).hexdigest(), output, token="test-token")
+    assert calls == [(asset.asset_url("42"), "Bearer test-token"), (download_url, None)]
+    assert output.read_bytes() == payload
+
+
+@pytest.mark.parametrize("status", [302, 403])
+def test_metadata_token_never_follows_redirects(monkeypatch, status):
+    from urllib.error import HTTPError
+
+    asset = asset_module()
+    calls = []
+
+    class Opener:
+        def open(self, request, timeout):
+            calls.append(request.full_url)
+            raise HTTPError(request.full_url, status, "secret", {"Location": "https://github.com"}, None)
+
+    monkeypatch.setattr(asset, "build_opener", lambda _handler: Opener())
+    with pytest.raises(ValueError, match=f"metadata request failed: HTTP {status}"):
+        asset.read_metadata("42", "test-token")
+    assert calls == [asset.asset_url("42")]
+
+
+@pytest.mark.parametrize("url", [None, "https://github.com/other/repo/releases/download/tag/file.zip"])
+def test_rejects_download_outside_fixed_release(url):
+    with pytest.raises(ValueError, match="public download URL mismatch"):
+        asset_module().public_download_url({"browser_download_url": url})

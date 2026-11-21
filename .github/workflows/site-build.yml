@@ -111,6 +111,7 @@ jobs:
       - name: Download fixed public repository asset
         if: inputs.profile == 'content' && !inputs.synthetic
         env:
+          CONTENT_METADATA_TOKEN: ${{ github.token }}
           ASSET_ID: ${{ inputs.content_asset_id }}
           ARCHIVE_SHA256: ${{ inputs.content_sha256 }}
         run: python scripts/content_asset.py --asset-id "$ASSET_ID" --sha256 "$ARCHIVE_SHA256" --output "$RUNNER_TEMP/content.zip"
