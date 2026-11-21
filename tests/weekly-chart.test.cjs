@@ -34,7 +34,17 @@ test("weekly charts keep original values and dates on separate unit axes", () =>
   assert.equal(size.series[0].showSymbol, true);
   assert.deepEqual(
     size.series.map((s) => s.data),
-    [[1.2], [0.3], [0.7]],
+    [[["2026-10-23",1.2]], [["2026-10-23",0.3]], [["2026-10-23",0.7]]],
   );
   assert.equal(size.series[0].name, weeklyLabels.zh.strength);
+});
+
+test("size charts reserve the time of a long gap and break the line", () => {
+  const rows = ["2026-08-28", "2026-11-20"].map((date, i) => ({date, relative_strength: .6 + i * .1}));
+  const option = weeklyChartOption("size", rows, weeklyLabels.zh);
+  assert.equal(option.xAxis.type, "time");
+  assert.equal(option.series[0].data[1][1], null);
+  const { reportLineGeometry } = require("../src/lib/report-document-geometry.ts");
+  const staticChart = reportLineGeometry({id: "weekly-size", series: [{label: "ratio", values: rows.map(r => ({date:r.date, value:r.relative_strength}))}]});
+  assert.equal(staticChart.series[0].segments.length, 2);
 });

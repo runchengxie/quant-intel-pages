@@ -1,3 +1,4 @@
+import { weeklySizeGap } from "./weekly-size-gap.ts";
 import type { weeklyLabels } from "./weekly-locale.ts";
 export function weeklyChartOption(
   kind: string,
@@ -15,11 +16,18 @@ export function weeklyChartOption(
           ["small_crowding", labels.small],
           ["large_crowding", labels.large],
         ];
+  const timed = kind === "size";
+  const plotted = rows.flatMap<Record<string, any>>((row, index) => {
+    const previous = rows[index - 1];
+    if (!timed || !previous || !weeklySizeGap(previous.date, row.date)) return [row];
+    const middle = (Date.parse(previous.date) + Date.parse(row.date)) / 2;
+    return [{ date: new Date(middle).toISOString() }, row];
+  });
   return {
     tooltip: { trigger: "axis" },
     legend: { type: "scroll", top: 0 },
     grid: { left: 65, right: 65, top: 60, bottom: 80 },
-    xAxis: { type: "category", data: rows.map((r: any) => r.date) },
+    xAxis: timed ? { type: "time" } : { type: "category", data: rows.map((r) => r.date) },
     yAxis: [
       {
         type: "value",
@@ -39,7 +47,7 @@ export function weeklyChartOption(
       type: "line",
       showSymbol: rows.length <= 2,
       yAxisIndex: index === 0 ? 0 : 1,
-      data: rows.map((r: any) => r[key]),
+      data: timed ? plotted.map((r) => [r.date, r[key] ?? null]) : rows.map((r) => r[key]),
     })),
   };
 }
