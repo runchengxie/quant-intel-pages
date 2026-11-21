@@ -1,3 +1,4 @@
+import {weeklySizeGap} from "./weekly-size-gap";
 import type {ReportPanel,ReportRow} from './report-document';
 export function reportRowGeometry(panel:ReportPanel,row:ReportRow) {
  const value=row.value;
@@ -17,7 +18,21 @@ export function reportLineGeometry(panel:ReportPanel) {
  let low=Math.min(...values.map(v=>v/scale)),high=Math.max(...values.map(v=>v/scale));
  if(panel.scale){low=panel.scale[0]/scale;high=panel.scale[1]/scale;}else {const pad=low===high?.05:(high-low)*.06;low-=pad;high+=pad;}
  if(!Number.isFinite(low)||!Number.isFinite(high)||low>=high)return null;
- return {min:low*scale,max:high*scale,series:series.map(s=>({...s,points:s.values.map((r,i)=>`${(4+(s.values.length===1?.5:i/(s.values.length-1))*632).toFixed(2)},${(8+(high-r.value/scale)/(high-low)*174).toFixed(2)}`).join(' ')}))};
+ const timed=panel.id==='weekly-size'||panel.id==='weekly-crowding';
+ const dates=series.flatMap(s=>s.values.map(r=>Date.parse(r.date)));
+ const first=Math.min(...dates),last=Math.max(...dates);
+ return {min:low*scale,max:high*scale,series:series.map(s=>{
+  const points=s.values.map((r,i)=>{
+   const ratio=timed?(last===first?.5:(Date.parse(r.date)-first)/(last-first)):(s.values.length===1?.5:i/(s.values.length-1));
+   return `${(4+ratio*632).toFixed(2)},${(8+(high-r.value/scale)/(high-low)*174).toFixed(2)}`;
+  });
+  const segments:string[][]=[];
+  for(const [i,point] of points.entries()){
+   if(!i||(timed&&weeklySizeGap(s.values[i-1].date,s.values[i].date)))segments.push([]);
+   segments.at(-1)!.push(point);
+  }
+  return {...s,points:points.join(' '),segments:segments.map(segment=>segment.join(' '))};
+ })};
 }
 
 /** Shared text and in-plot anchors for browser and vector exports. Raw values stay intact. */
