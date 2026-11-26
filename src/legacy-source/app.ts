@@ -1,3 +1,4 @@
+import { formatMarketNumber } from '../lib/market-number.ts';
 import type * as SummaryUtils from './summary-utils';
 import type * as ThemeUtils from './theme-utils';
 import type * as MarkdownUtils from './report-markdown';
@@ -124,8 +125,8 @@ function renderMarketDaily(payload: unknown) {
   for (const row of summary.rateRows) {
     const tr = makeElement("tr");
     tr.append(makeElement("th", "", row.label),
-      makeElement("td", "", row.levelValue === null ? "—" : `${row.levelValue.toFixed(2)}%`),
-      makeElement("td", "", row.changeValue === null ? "—" : `${row.changeValue >= 0 ? "+" : ""}${row.changeValue.toFixed(2)} bp`),
+      makeElement("td", "", row.levelValue === null ? "—" : `${formatMarketNumber(row.levelValue)}%`),
+      makeElement("td", "", row.changeValue === null ? "—" : `${row.changeValue >= 0 ? "+" : ""}${formatMarketNumber(row.changeValue)} bp`),
       makeElement("td", "market-daily-date", row.observationDate ?? "—"));
     const sourceCell = makeElement("td");
     if (row.sourceUrl) sourceCell.append(makeSourceLink(row.sourceUrl, row.sourceLabel ?? ""));
@@ -140,8 +141,8 @@ function renderMarketDaily(payload: unknown) {
   for (const row of summary.crossAssetRows) {
     const card = makeElement("article", "market-daily-card");
     card.append(makeElement("h5", "market-daily-asset-name", row.label),
-      makeElement("p", "market-daily-value", `${row.priceValue.toLocaleString("en-US", { maximumFractionDigits: 4 })} ${row.priceUnit}`),
-      makeElement("p", `market-daily-return ${row.changeValue < 0 ? "is-negative" : "is-positive"}`, `${row.changeValue >= 0 ? "+" : ""}${row.changeValue.toFixed(2)}%`),
+      makeElement("p", "market-daily-value", `${formatMarketNumber(row.priceValue, "en-US", 2, true)} ${row.priceUnit}`),
+      makeElement("p", `market-daily-return ${row.changeValue < 0 ? "is-negative" : "is-positive"}`, `${row.changeValue >= 0 ? "+" : ""}${formatMarketNumber(row.changeValue)}%`),
       makeElement("span", "market-daily-date", `观测日 ${row.observationDate} · `),
       makeSourceLink(row.sourceUrl, row.sourceLabel ?? ""));
     assetGrid.append(card);

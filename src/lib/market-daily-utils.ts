@@ -1,3 +1,6 @@
+import { usNativeLabel } from './us-native-locale.ts';
+import { formatMarketNumber } from './market-number.ts';
+import { equityReferenceDate, validEquityObservation, displayedSession } from './equity-sessions.ts';
 import { isMarketDailyPayload } from './market-facts.ts';
 import { US_REPORT_LABELS, US_VALUE_CHANGE_LABELS, usResearchText, type Locale } from './locale.ts';
 import type { MarketClaimSummary, MarketDailyChart, MarketDailyPayload, MarketDailyRow, MarketDailySummary, MarketEventEvidence, MarketSourceStatus } from './market-facts.ts';
@@ -99,12 +102,12 @@ function validHttpSource(sourceUrl: string): boolean {
   }
 }
 
-function validMarketDailyFact(id: string, fact: MarketDailyPayload['facts'][number], reportDate: string, rates?: MarketSourceStatus): boolean {
+function validMarketDailyFact(id: string, fact: MarketDailyPayload['facts'][number], reportDate: string, rates?: MarketSourceStatus, equities?: MarketSourceStatus): boolean {
   const url = fact.source_url ?? "";
   const equity = id.match(EQUITY_ID);
   if (equity) {
     const [, symbol, field] = equity;
-    return fact.observation_date === reportDate && fact.quality === "ok"
+    return validEquityObservation(fact, reportDate, equities) && ["ok", "lagged"].includes(fact.quality)
       && (field === "close" ? fact.value > 0 : Math.abs(fact.value) <= 100)
       && fact.instrument === symbol.toUpperCase()
       && ((fact.source === "Yahoo Finance" && url === `https://finance.yahoo.com/quote/${symbol.toUpperCase()}/history/`)
@@ -115,13 +118,13 @@ function validMarketDailyFact(id: string, fact: MarketDailyPayload['facts'][numb
   if (id.startsWith("index.")) {
     const key = id.split(".")[1];
     const close = id.endsWith(".close");
-    if (close) return fact.observation_date === reportDate && fact.value > 0
-      && fact.quality === "ok" && fact.source === "Yahoo Finance"
+    if (close) return validEquityObservation(fact, reportDate, equities) && fact.value > 0
+      && ["ok", "lagged"].includes(fact.quality) && fact.source === "Yahoo Finance"
       && fact.metric === "index_close" && fact.unit === "points"
       && Boolean(YAHOO_INDEX_SOURCES[key]?.test(url));
-    return fact.observation_date === reportDate && (
+    return validEquityObservation(fact, reportDate, equities) && (
       (fact.quality === "reviewed" && validHttpSource(url))
-      || (fact.quality === "ok" && fact.source === "Yahoo Finance"
+      || (["ok", "lagged"].includes(fact.quality) && fact.source === "Yahoo Finance"
         && fact.metric === "daily_return" && fact.unit === "percent"
         && Boolean(YAHOO_INDEX_SOURCES[key]?.test(url)))
     );
@@ -179,6 +182,10 @@ export function summarizeMarketDaily(payload: unknown): MarketDailySummary | nul
   if (payload.facts.some((fact) => String(fact.id ?? "").startsWith("equity.")
       && !EQUITY_ID.test(fact.id))) return null;
   const date = payload.run_id.slice(6);
+  for (const key of ['quotes', 'equities']) {
+    const status = payload.source_status?.[key];
+    if ((status?.session === 'closed' || status?.reason === 'holiday_reference') && !equityReferenceDate(date, status)) return null;
+  }
   const rows: MarketDailyRow[] = [];
   for (const [id, label, unit] of MARKET_DAILY_FACTS) {
     const fact = payload.facts.find((item) => item.id === id);
@@ -188,13 +195,13 @@ export function summarizeMarketDaily(payload: unknown): MarketDailySummary | nul
     const isCrossAsset = id.startsWith("cross_asset.");
     if (typeof fact.value !== "number" || !Number.isFinite(fact.value)
         || !/^\d{4}-\d{2}-\d{2}$/.test(fact.observation_date ?? "")
-        || !validMarketDailyFact(id, fact, date, payload.source_status?.rates)) return null;
+        || !validMarketDailyFact(id, fact, date, payload.source_status?.rates, payload.source_status?.quotes)) return null;
     const sourceUrl = fact.source_url;
     rows.push({
       id,
       label: label.replace(/日涨跌|收益率日变动/g, "").trim(),
       value: fact.value,
-      text: `${label} ${fact.value.toFixed(2)}${unit}`,
+      text: `${label} ${formatMarketNumber(fact.value)}${unit}`,
       observationDate: fact.observation_date,
       sourceUrl,
       instrument: fact.instrument ?? "",
@@ -209,14 +216,14 @@ export function summarizeMarketDaily(payload: unknown): MarketDailySummary | nul
     const match = String(fact.id ?? "").match(EQUITY_ID);
     if (!match) continue;
     if (typeof fact.value !== "number" || !Number.isFinite(fact.value)
-      || !validMarketDailyFact(fact.id, fact, date)) return null;
+      || !validMarketDailyFact(fact.id, fact, date, undefined, payload.source_status?.equities)) return null;
     rows.push({ id: fact.id, label: match[1].toUpperCase(), value: fact.value,
       observationDate: fact.observation_date, sourceUrl: fact.source_url,
       sourceLabel: fact.source ?? "", instrument: fact.instrument ?? "", metric: fact.metric ?? "",
       unit: fact.unit ?? "", quality: fact.quality });
   }
   if (!rows.length) return null;
-  const yahooIndexRows = rows.filter((row) => row.id.startsWith("index.") && row.id.endsWith(".change_percent") && row.quality === "ok");
+  const yahooIndexRows = rows.filter((row) => row.id.startsWith("index.") && row.id.endsWith(".change_percent") && ["ok", "lagged"].includes(row.quality));
   if (yahooIndexRows.length && yahooIndexRows.length !== Object.keys(YAHOO_INDEX_SOURCES).length) return null;
   for (const close of rows.filter((row) => row.id.startsWith("index.") && row.id.endsWith(".close"))) {
     const change = rows.find((row) => row.id === close.id.replace(/\.close$/, ".change_percent"));
@@ -330,7 +337,7 @@ export function summarizeMarketDaily(payload: unknown): MarketDailySummary | nul
   const checked = payload.source_status?.rates?.reference_rechecked_at;
   const treasuryReferenceCheckedAt = treasuryReferenceDate && typeof checked === 'string'
     && /(Z|[+-]\d{2}:\d{2})$/.test(checked) && Number.isFinite(Date.parse(checked)) ? checked : undefined;
-  return { treasuryReferenceCheckedAt, treasuryReferenceDate, date, rows, rateRows, crossAssetRows, equityRows, claims, claimSections, primaryClaims,
+  return { equityReferenceDate: equityReferenceDate(date, payload.source_status?.quotes) ?? equityReferenceDate(date, payload.source_status?.equities), treasuryReferenceCheckedAt, treasuryReferenceDate, date, rows, rateRows, crossAssetRows, equityRows, claims, claimSections, primaryClaims,
     secondaryClaimSections, secondaryRows, gaps, optionalGaps, hasTextReport,
     nextMorningRevision: payload.quality_summary?.revision === "next_morning_rechecked",
     historicalBackfill: payload.quality_summary?.revision === "historical_backfill" || (payload.quality_summary?.revision === 'news_only' && payload.quality_summary.market_revision === 'historical_backfill'),
@@ -363,8 +370,8 @@ function publicationLine(event: MarketEventEvidence, locale: Locale): string {
 export function buildMarketDailyCharts(summary: MarketDailySummary | null): MarketDailyChart[] {
   if (!summary) return [];
   const definitions: Array<{ title: string; unit: string; prefix: string; ids: RegExp[]; kind?: 'level' }> = [
-    { title: "四大指数收盘涨跌", unit: "%", prefix: "index.", ids: [/\.change_percent$/] },
-    { title: "美股个股日涨跌", unit: "%", prefix: "equity.", ids: [/\.change_percent$/] },
+    { title: summary.equityReferenceDate ? usNativeLabel('lastSessionIndices', 'zh') : "四大指数收盘涨跌", unit: "%", prefix: "index.", ids: [/\.change_percent$/] },
+    { title: summary.equityReferenceDate ? usNativeLabel('lastSessionEquities', 'zh') : "美股个股日涨跌", unit: "%", prefix: "equity.", ids: [/\.change_percent$/] },
     { title: "美债收益率水平", unit: "%", prefix: "treasury.", ids: [/\.level_percent$/], kind: "level" },
     { title: "美债收益率当日变动", unit: "bp", prefix: "treasury.", ids: [/\.change_bp$/] },
     { title: "跨资产日涨跌", unit: "%", prefix: "cross_asset.", ids: [/\.change_percent$/] },
@@ -372,7 +379,7 @@ export function buildMarketDailyCharts(summary: MarketDailySummary | null): Mark
   return definitions.map(({ title, unit, prefix, ids, kind }) => {
     const rows = summary.rows.filter((row) => row.id.startsWith(prefix)
       && ids.some((pattern) => pattern.test(row.id))
-      && row.observationDate === summary.date && row.quality !== "lagged");
+      && displayedSession(row, summary));
     const maximum = Math.max(...rows.map((row) => Math.abs(row.value)), 0);
     return {
       title, unit, prefix, kind,
@@ -380,8 +387,8 @@ export function buildMarketDailyCharts(summary: MarketDailySummary | null): Mark
         ...row,
         side: (kind === "level" ? "level" : row.value < 0 ? "negative" : "positive") as "level" | "negative" | "positive",
         width: maximum ? Math.abs(row.value) / maximum * 100 : 0,
-        valueText: kind === "level" ? `${row.value.toFixed(2)}%`
-          : `${row.value >= 0 ? "+" : ""}${row.value.toFixed(2)}${unit === "%" ? "%" : " bp"}`,
+        valueText: kind === "level" ? `${formatMarketNumber(row.value)}%`
+          : `${row.value >= 0 ? "+" : ""}${formatMarketNumber(row.value)}${unit === "%" ? "%" : " bp"}`,
       })),
     };
   }).filter((chart) => chart.rows.length);
@@ -399,7 +406,7 @@ interface ValueChangeTable {
 
 /** Pair already validated facts; missing values remain missing and never imply a derived close. */
 export function buildMarketDailyTables(summary: MarketDailySummary): ValueChangeTable[] {
-  const current = summary.rows.filter(row => row.observationDate === summary.date && row.quality !== 'lagged');
+  const current = summary.rows.filter(row => displayedSession(row, summary));
   const find = (id: string) => current.find(row => row.id === id);
   const rows = (prefix: string, valueField: string, changeField: string): ValueChangeRow[] => {
     const keys = [...new Set(current.filter(row => row.id.startsWith(prefix)).map(row => row.id.split('.')[1]))];
@@ -478,9 +485,13 @@ export function buildMarketDailyChartSvg(summary: MarketDailySummary, translate:
   for (const table of tables) {
     parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="19" font-weight="700">${text(label(table.title))}</text>`);
     y += 31;
+    if (summary.equityReferenceDate && ['indices', 'equities'].includes(table.title)) {
+      parts.push(`<text x="54" y="${y}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(`${usNativeLabel('equitiesClosed', locale === 'en-US' ? 'en' : 'zh')} ${summary.equityReferenceDate} · ${usNativeLabel('lastSessionReturn', locale === 'en-US' ? 'en' : 'zh')}`)}</text>`);
+      y += 24;
+    }
     parts.push(`<text x="54" y="${y}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label('asset'))}</text>`);
     parts.push(`<text x="400" y="${y}" text-anchor="end" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label(table.valueHeading))}</text>`);
-    parts.push(`<text x="906" y="${y}" text-anchor="end" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(label(table.changeHeading))}</text>`);
+    parts.push(`<text x="906" y="${y}" text-anchor="end" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="13">${text(summary.equityReferenceDate && ['indices', 'equities'].includes(table.title) ? usNativeLabel('lastSessionReturn', locale === 'en-US' ? 'en' : 'zh') : label(table.changeHeading))}</text>`);
     y += 14;
     parts.push(`<line x1="54" y1="${y}" x2="906" y2="${y}" stroke="${REPORT_LINE}"/>`);
     y += 28;
@@ -489,8 +500,8 @@ export function buildMarketDailyChartSvg(summary: MarketDailySummary, translate:
       const change = row.change;
       const width = maximum && change ? Math.abs(change.value) / maximum * 156 : 0;
       const center = 610;
-      const number = row.value ? row.value.value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
-      const valueText = change ? `${change.value > 0 ? '+' : ''}${change.value.toFixed(2)}${table.changeHeading === 'yieldChange' ? ' bp' : '%'}` : '—';
+      const number = row.value ? formatMarketNumber(row.value.value, locale, 2, true) : '—';
+      const valueText = change ? `${change.value > 0 ? '+' : ''}${formatMarketNumber(change.value)}${table.changeHeading === 'yieldChange' ? ' bp' : '%'}` : '—';
       parts.push(`<text x="54" y="${y}" fill="${REPORT_INK}" font-family="sans-serif" font-size="16" font-weight="600">${text(row.label)}</text>`);
       parts.push(`<text x="400" y="${y}" text-anchor="end" fill="${REPORT_INK}" font-family="monospace" font-size="18" font-weight="700">${text(number)}</text>`);
       if (row.valueUnit) parts.push(`<text x="400" y="${y + 18}" text-anchor="end" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="11">${text(label(row.valueUnit))}</text>`);
@@ -514,8 +525,8 @@ export function buildMarketDailyChartSvg(summary: MarketDailySummary, translate:
       y += 27;
     }
     for (const row of laggedRates) {
-      const level = row.levelValue === null ? "收益率暂缺" : `${row.levelValue.toFixed(2)}%`;
-      const change = row.changeValue === null ? "日变动暂缺" : `${row.changeValue >= 0 ? "+" : ""}${row.changeValue.toFixed(2)} bp`;
+      const level = row.levelValue === null ? "收益率暂缺" : `${formatMarketNumber(row.levelValue)}%`;
+      const change = row.changeValue === null ? "日变动暂缺" : `${row.changeValue >= 0 ? "+" : ""}${formatMarketNumber(row.changeValue)} bp`;
         parts.push(`<text x="54" y="${y}" fill="${REPORT_MUTED}" font-family="sans-serif" font-size="14">${text(`${row.label}：${level} · ${summary.treasuryReferenceDate ? US_REPORT_LABELS.lastSessionChange[locale === 'en-US' ? 1 : 0] + ' ' : ''}${change} · 观测日 ${row.observationDate}，非报告日`)}</text>`);
       y += 27;
     }
@@ -558,8 +569,9 @@ export function buildMarketDailyChartSvg(summary: MarketDailySummary, translate:
     .replaceAll('font-family="monospace"', `font-family="${font}" font-variant-numeric="tabular-nums"`);
 }
 
-export function formatMarketDailyStatus(summary: MarketDailySummary): string {
+export function formatMarketDailyStatus(summary: MarketDailySummary, locale: Locale = 'zh-CN'): string {
   return `${summary.date} 美东报告日 · 逐项显示原始观测日。`
+    + (summary.equityReferenceDate ? ` ${usNativeLabel('equitiesClosed', locale === 'en-US' ? 'en' : 'zh')} ${summary.equityReferenceDate}.` : '')
     + (summary.historicalBackfill ? " 事后整理。" : "")
     + (summary.nextMorningRevision ? " 次日核实更新。" : "")
     + (summary.gaps.length ? ` 尚缺：${summary.gaps.join("、")}。` : "");

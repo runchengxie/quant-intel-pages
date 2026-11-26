@@ -100,6 +100,7 @@ export interface MarketClaimSection {
 }
 
 export interface MarketDailySummary {
+  equityReferenceDate?: string;
   treasuryReferenceDate?: string;
   treasuryReferenceCheckedAt?: string;
   date: string;

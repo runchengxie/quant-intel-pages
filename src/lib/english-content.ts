@@ -112,6 +112,8 @@ const PHRASES: Array<[string, string]> = [
   ['热点概念', 'Hot concepts'],
   ['市场温度', 'Market temperature'],
   ['周度概览', 'Weekly overview'],
+  ['四大指数上一交易日涨跌', 'Four major indices: last-session returns'],
+  ['美股个股上一交易日涨跌', 'U.S. equities: last-session returns'],
   ['四大指数收盘涨跌', 'Four major index returns'],
   ['美股个股日涨跌', 'U.S. stock daily returns'],
   ['美债收益率水平', 'U.S. Treasury yield levels'],

@@ -1,4 +1,8 @@
 export const US_NATIVE_LABELS = {
+ lastSessionIndices: ['Four major indices: last-session returns', '四大指数上一交易日涨跌'],
+ lastSessionEquities: ['U.S. equities: last-session returns', '美股个股上一交易日涨跌'],
+ equitiesClosed: ['U.S. equities closed; reference from', '美股休市；参考上一交易日'],
+ lastSessionReturn: ['Last-session return (%)', '上一交易日涨跌（%）'],
  title: ['U.S. market report', '美股市场报告'],
  figures: ['Market figures', '市场数据'], exact: ['All figures and source records', '完整数据与来源记录'],
  fact: ['Indicator', '指标'], value: ['Value', '数值'], unit: ['Unit', '单位'], observed: ['Observed', '观测日'],
