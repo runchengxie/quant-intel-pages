@@ -22,7 +22,7 @@ export function buildReportSvg(document:ReportDocument):string {
  const text=(value:string,size=13,fill=color('ink'),width=100,x=54,heading=false)=>{for(const line of wrapReportText(value,Math.min(width,Math.floor((906-x)/size)))){parts.push(node(x,y,line,size,fill,'start',heading));y+=size*(heading?1.35:1.65);}};
  const line=(at=y)=>parts.push(`<line x1="54" x2="906" y1="${at}" y2="${at}" stroke="${color('line')}"/>`);
  const sources=(items:ReportDocument['sources'])=>{const labels=[...new Set((items??[]).map(s=>{try{return `${s.label} · ${new URL(s.url,'https://example.invalid').hostname.replace('example.invalid','')}`;}catch{return s.label;}}))];if(labels.length)text(labels.join(' / '),11,color('muted'));};
- parts.push(node(54,y,'Q  QUANT MARKET INTEL',15,color('ink'),'start',true));parts.push(node(906,y,document.date,13,color('muted'),'end'));y+=27;line();y+=40;text(document.title,28,color('ink'),55,54,true);y+=4;text(`${t.observed} ${document.date}`,11,color('muted'));y+=8;
+ parts.push(node(54,y,'Q  QUANT MARKET INTEL',15,color('ink'),'start',true));parts.push(node(906,y,document.date,13,color('muted'),'end'));y+=27;line();y+=40;text(document.title,28,color('ink'),55,54,true);y+=4;text(`${document.dateRole === 'report' ? t.reportDate : t.observed} ${document.date}`,11,color('muted'));y+=8;
  const rowStart=(panel:ReportPanel,row:ReportRow)=>`<g data-report-row-panel="${esc(panel.id)}" data-report-row="${esc(row.id)}">`;
  const drawRow=(panel:ReportPanel,row:ReportRow)=>{
   const labelLines=wrapReportText(row.label,20);for(const label of labelLines){parts.push(node(54,y,label,14));y+=22;}

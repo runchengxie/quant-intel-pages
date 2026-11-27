@@ -44,3 +44,16 @@ test('degraded holiday groups retain verified available references and their mis
  const s=summarizeMarketDaily(p);assert.ok(s);assert.equal(s.equityRows[0].symbol,'MSFT');assert.equal(s.equityReferenceDate,'2026-11-25');assert.match(s.gaps.join(' '),/个股/);assert.equal(buildMarketDailyTables(s).find(t=>t.title==='equities').rows.length,1);
  p.facts.at(-1).observation_date='2026-11-24';assert.equal(summarizeMarketDaily(p),null);
 });
+test('US image header identifies report date while panels retain their separate observation dates',()=>{
+ const {buildWholeReportImage}=require('../src/lib/report-sections.ts');
+ const {buildReportSvg}=require('../src/lib/report-document-svg.ts');
+ for(const locale of ['en','zh']){
+  const document=buildUsReportDocument(summarizeMarketDaily(payload()),locale);const svg=buildWholeReportImage(document);
+  const header=svg.split('<g data-report-panel=')[0];
+  assert.match(header,new RegExp(`${locale==='en'?'Report date':'报告日'} 2026-11-26`));
+  assert.doesNotMatch(header,new RegExp(`${locale==='en'?'Observed':'观测日'} 2026-11-26`));
+  assert.match(svg,new RegExp(`${locale==='en'?'Observed':'观测日'} 2026-11-25`));
+  const other={id:'asia',title:'Independent market observations',date:'2026-11-26',locale,panels:[]};
+  assert.match(buildReportSvg(other),new RegExp(`${locale==='en'?'Observed':'观测日'} 2026-11-26`));
+ }
+});

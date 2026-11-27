@@ -16,5 +16,6 @@ export interface ReportPanel {
 }
 export interface ReportDocument {
   id: string; title: string; date: string; locale: ReportLocale;
+  dateRole?: 'report' | 'observation';
   panels: ReportPanel[]; notes?: string[]; records?: string[]; sources?: ReportSource[];
 }

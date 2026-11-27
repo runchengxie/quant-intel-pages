@@ -9,17 +9,17 @@ require the separately configured Deploy coordinator.
 
 Install the [pinned Platform CLI](technical-guide.en.md#local-build). The installed
 producer and exporter must both use commit
-`b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0`.
+`49b98164b7b9ad026ef73f6522f3d884ff8bb51a`.
 Use the owner's `market-pack-site-content` and `market-verify-site-content`
 commands to create an immutable archive and a verified staging root containing
 `artifacts/public/data/` and `artifacts/public/reports/`.
-See the [Platform bundle contract](https://github.com/runchengxie/quant-intel-platform/blob/b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0/docs/publication/site-content-bundles.md).
+See the [Platform bundle contract](https://github.com/runchengxie/quant-intel-platform/blob/49b98164b7b9ad026ef73f6522f3d884ff8bb51a/docs/publication/site-content-bundles.md).
 
 Choose new receipt paths outside the source checkout, inputs and output:
 
 ~~~bash
 task_output="$DATA_ROOT/quant/quant-intel-pages/tasks/<task-id>"
-producer_revision="b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0"
+producer_revision="49b98164b7b9ad026ef73f6522f3d884ff8bb51a"
 python scripts/build_site.py --root "$CODE_ROOT/quant/quant-intel-pages" \
   --output "$task_output/site" \
   --public-inputs "$task_output/verified" \

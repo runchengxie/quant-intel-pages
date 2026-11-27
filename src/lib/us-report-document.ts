@@ -59,5 +59,5 @@ export function buildUsReportDocument(summary: MarketDailySummary, locale: 'en' 
  if(!model.sections.length) panels.push({id:'research',title:label('research'),kind:'text',paragraphs:[t.noResearch]});
  panels.push({id:'data-status',title:t.status,kind:'text',paragraphs:[...model.caveats,...model.missingNews.map(title=>`${title}: ${t.noResearch}`)]});
  const sources=uniqueSources([...summary.rows.map(source),...summary.claimSections.flatMap(s=>s.claims.flatMap(c=>c.sourceUrls.map(url=>({label:new URL(url).hostname,url}))))]);
- return {id:'us',title:label('title'),date:summary.date,locale,panels,sources};
+ return {id:'us',dateRole:'report',title:label('title'),date:summary.date,locale,panels,sources};
 }

@@ -42,7 +42,7 @@ jobs:
       publication_marker: ${{ steps.content.outputs.marker }}
     env:
       ESBUILD_BINARY_PATH: ${{ github.workspace }}/node_modules/@esbuild/linux-x64/bin/esbuild
-      PRODUCER_REVISION: b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0
+      PRODUCER_REVISION: 49b98164b7b9ad026ef73f6522f3d884ff8bb51a
     steps:
       - name: Validate build mode and profile
         env:
@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: runchengxie/quant-intel-platform
-          ref: b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0
+          ref: 49b98164b7b9ad026ef73f6522f3d884ff8bb51a
           path: platform-cli
           persist-credentials: false
       - uses: actions/setup-python@v6

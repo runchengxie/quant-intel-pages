@@ -9,7 +9,7 @@
 需要 Python 3.11、Node.js 24、npm 和 uv。报告导出命令要与工作流中固定的 Platform 提交一致。
 
 ```bash
-uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0"
+uv tool install "git+https://github.com/runchengxie/quant-intel-platform.git@49b98164b7b9ad026ef73f6522f3d884ff8bb51a"
 npm ci
 uv sync --locked --group dev --no-install-project
 preview_root=$(mktemp -d /tmp/qmi-preview.XXXXXX)

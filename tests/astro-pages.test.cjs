@@ -100,7 +100,9 @@ test('Astro emits a readable recent-report site with Asian market chart states',
   assert.ok(chart);
   assertDriverSectionMatchesReport(chart, usReport);
   assert.match(chart, /关键来源/);
-  assert.ok(chart.includes(`观测日 ${usDate}`));
+  const chartHeader = chart.split('<g data-report-panel=')[0];
+  assert.ok(chartHeader.includes(`报告日 ${usDate}`));
+  assert.ok(!chartHeader.includes(`观测日 ${usDate}`));
   const asia = index.match(/id="asia-daily-chart">([\s\S]*?)<\/div>/)?.[1];
   const eveningHash = execFileSync('python', ['-c', 'import hashlib,json,sys; row=json.load(sys.stdin); print(hashlib.sha256(json.dumps(row,ensure_ascii=False,sort_keys=True,separators=(",",":")).encode()).hexdigest())'], {
     input: JSON.stringify(latestEvening), encoding: 'utf8',

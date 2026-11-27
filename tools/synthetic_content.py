@@ -1,7 +1,7 @@
 """Generate public CI fixtures outside source; no provider-source imports.
 
 Minimal Asia shape follows Platform tests/_site_content_test_utils.py at
-b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0. Owner pack/verify remain authoritative.
+49b98164b7b9ad026ef73f6522f3d884ff8bb51a. Owner pack/verify remain authoritative.
 """
 
 import argparse

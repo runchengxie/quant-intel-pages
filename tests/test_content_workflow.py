@@ -36,7 +36,7 @@ def test_dispatch_rejects_mode_and_unmerged_ref_before_checkout(mode, ref, reque
             "GITHUB_REF": ref,
             "GITHUB_SHA": "a" * 40,
             "RENDERER_REVISION": requested,
-            "PRODUCER_REVISION": "b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0",
+            "PRODUCER_REVISION": "49b98164b7b9ad026ef73f6522f3d884ff8bb51a",
         },
         capture_output=True,
     )
