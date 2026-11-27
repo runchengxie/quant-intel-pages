@@ -1,6 +1,13 @@
 // Generated from TypeScript by npm run legacy:build; do not edit.
 "use strict";
 var marketIntelApp = (() => {
+  // src/lib/market-number.ts
+  function formatMarketNumber(value, locale = "en-US", digits = 2, grouping = false) {
+    const formatter = new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits, useGrouping: grouping, roundingMode: "halfExpand" });
+    const zero = new Intl.NumberFormat("en-US", { maximumFractionDigits: digits, useGrouping: false, roundingMode: "halfExpand" }).format(value);
+    return formatter.format(Number(zero) === 0 ? 0 : value);
+  }
+
   // src/lib/insights.ts
   var record = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
   var strings = (value) => Array.isArray(value) && value.every((item) => typeof item === "string");
@@ -205,8 +212,8 @@ var marketIntelApp = (() => {
       const tr = makeElement("tr");
       tr.append(
         makeElement("th", "", row.label),
-        makeElement("td", "", row.levelValue === null ? "\u2014" : `${row.levelValue.toFixed(2)}%`),
-        makeElement("td", "", row.changeValue === null ? "\u2014" : `${row.changeValue >= 0 ? "+" : ""}${row.changeValue.toFixed(2)} bp`),
+        makeElement("td", "", row.levelValue === null ? "\u2014" : `${formatMarketNumber(row.levelValue)}%`),
+        makeElement("td", "", row.changeValue === null ? "\u2014" : `${row.changeValue >= 0 ? "+" : ""}${formatMarketNumber(row.changeValue)} bp`),
         makeElement("td", "market-daily-date", row.observationDate ?? "\u2014")
       );
       const sourceCell = makeElement("td");
@@ -222,8 +229,8 @@ var marketIntelApp = (() => {
       const card = makeElement("article", "market-daily-card");
       card.append(
         makeElement("h5", "market-daily-asset-name", row.label),
-        makeElement("p", "market-daily-value", `${row.priceValue.toLocaleString("en-US", { maximumFractionDigits: 4 })} ${row.priceUnit}`),
-        makeElement("p", `market-daily-return ${row.changeValue < 0 ? "is-negative" : "is-positive"}`, `${row.changeValue >= 0 ? "+" : ""}${row.changeValue.toFixed(2)}%`),
+        makeElement("p", "market-daily-value", `${formatMarketNumber(row.priceValue, "en-US", 2, true)} ${row.priceUnit}`),
+        makeElement("p", `market-daily-return ${row.changeValue < 0 ? "is-negative" : "is-positive"}`, `${row.changeValue >= 0 ? "+" : ""}${formatMarketNumber(row.changeValue)}%`),
         makeElement("span", "market-daily-date", `\u89C2\u6D4B\u65E5 ${row.observationDate} \xB7 `),
         makeSourceLink(row.sourceUrl, row.sourceLabel ?? "")
       );

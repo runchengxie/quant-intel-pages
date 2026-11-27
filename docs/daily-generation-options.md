@@ -84,3 +84,19 @@ change with this presentation update.
 ## Verified external content
 
 The adapter also accepts a verified external staging root and matching owner receipt. This requires formal v2 identity; source-input builds retain v1. The opt-in `publish-content.yml` workflow and shared `site-build.yml` content profile are implemented, including installed-owner verification, formal quality checks, built-site browser checks, identity/ledger retention and parent-checked deployment. See [content publication](content-publication.md) for the paired API/CLI options and separate source/content identities. This capability has not been activated in production: unset or `legacy` mode keeps the committed-input workflow; `artifact-v1` requires a separate authorized cutover. Source CI also exercises all families and each valid family absence through the same content profile.
+
+## Closed U.S. equity sessions
+
+Pages admits previous-session index and stock facts only when their `lagged`
+observation date and `quotes`/`equities` holiday metadata match
+`src/data/equity_sessions_v1.json`. Platform owns that versioned XNYS artifact;
+copy the artifact when updating its calendar contract, without importing producer
+source. Its bounded 2025–2027 dates include actual early session closes. Bond-only
+holidays do not close equities. Open-day stale facts and forged holiday metadata
+are rejected.
+
+Tables, return charts and report image/download models retain the reference date
+and label the values as last-session changes. Display rounding uses decimal
+half-away-from-zero (JavaScript Intl `halfExpand`) at two places, normalizing
+negative zero. Original fact values and source records retain their precision.
+These source changes do not publish reports or change production schedules.

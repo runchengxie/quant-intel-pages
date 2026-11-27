@@ -141,3 +141,20 @@ test('archived interpretation evidence uses a fixed fixture independent of gener
   await expect(page.locator('#insight-list .evidence-item').first()).toContainText('Archived source fact');
   await expect(page.locator('#insight-list .source-link').first()).toHaveAttribute('href', '../reports/morning.md');
 });
+
+test('holiday legacy entry keeps previous-session panels, rounded price and PNG export', async ({ page }) => {
+  await legacyEntry(page);
+  const status = { quality: 'lagged', session: 'closed', reason: 'holiday_reference', expected_observation_date: '2026-11-25', observation_date: '2026-11-25', calendar_version: 'xnys.2025-2027.v1', calendar_source: 'https://www.nyse.com/markets/hours-calendars' };
+  const common = { source: 'Yahoo Finance', observation_date: '2026-11-25', quality: 'lagged' };
+  const facts = [['spx', '%5EGSPC'], ['dow', '%5EDJI'], ['nasdaq', '%5EIXIC'], ['russell2000', '%5ERUT']].map(([key, symbol]) => ({ ...common, id: `index.${key}.change_percent`, value: 1.005, metric: 'daily_return', unit: 'percent', source_url: `https://finance.yahoo.com/quote/${symbol}/history/` }));
+  await page.route(`${base}/data/market_daily_report.json`, route => route.fulfill({ json: { schema_version: '1.0', run_id: 'daily-2026-11-26', source_status: { quotes: status }, facts } }));
+  await page.reload();
+  await expect(page.locator('#market-daily-status')).toContainText('美股休市');
+  await expect(page.locator('#market-daily-status')).toContainText('2026-11-25');
+  await expect(page.locator('#market-daily-charts .market-daily-chart-title')).toContainText('上一交易日');
+  await expect(page.locator('#market-daily-charts .market-daily-chart-row')).toHaveCount(4);
+  await expect(page.locator('#market-daily-charts .market-daily-chart-value').first()).toHaveText('+1.01%');
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('#market-daily-files button').click();
+  expect((await downloadPromise).suggestedFilename()).toBe('2026-11-26-market-daily-charts.png');
+});

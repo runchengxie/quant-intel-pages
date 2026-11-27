@@ -1,3 +1,4 @@
+import { formatMarketNumber } from './market-number.ts';
 import type { MarketDailySummary, MarketDailyRow } from './market-facts.ts';
 import type { ReportDocument, ReportPanel, ReportRow, ReportSource } from './report-document.ts';
 import { buildMarketDailyTables } from './market-daily-utils.ts';
@@ -16,7 +17,7 @@ export function buildUsReportDocument(summary: MarketDailySummary, locale: 'en' 
  const model = buildUsNativeReport(summary, locale);
  const panels: ReportPanel[] = [];
  const consumed = new Set<string>();
- const number = (n: number) => n.toLocaleString(locale === 'en' ? 'en-US' : 'zh-CN', {minimumFractionDigits:2,maximumFractionDigits:2});
+ const number = (n: number) => formatMarketNumber(n, locale === 'en' ? 'en-US' : 'zh-CN', 2, true);
  const source = (r: MarketDailyRow): ReportSource => ({label:present(r.sourceLabel),url:r.sourceUrl});
  const uniqueSources = (sources: ReportSource[]) => [...new Map(sources.map(s=>[s.url,s])).values()];
  for (const table of buildMarketDailyTables(summary)) {
@@ -33,7 +34,7 @@ export function buildUsReportDocument(summary: MarketDailySummary, locale: 'en' 
     records:facts.map(r=>`${present(r.label)}: ${String(r.value)} ${r.unit} · ${r.observationDate} · ${present(r.sourceLabel)} · ${present(r.quality)}`),
    };
   });
-  panels.push({id:table.title,title:label(table.title),kind:'rows',unit:table.changeHeading === 'yieldChange' ? 'bp' : '%',rows});
+  panels.push({id:table.title,title:label(table.title),kind:'rows',unit:table.changeHeading === 'yieldChange' ? 'bp' : '%',rows,notes: summary.equityReferenceDate && ['indices','equities'].includes(table.title) ? [model.equityNote] : undefined});
  }
  // Reuse the same admitted pairing rules on each earlier observation date, never mixing sessions.
  const olderRates = summary.rows.filter(r=>r.id.startsWith('treasury.') && !consumed.has(r.id));
@@ -58,5 +59,5 @@ export function buildUsReportDocument(summary: MarketDailySummary, locale: 'en' 
  if(!model.sections.length) panels.push({id:'research',title:label('research'),kind:'text',paragraphs:[t.noResearch]});
  panels.push({id:'data-status',title:t.status,kind:'text',paragraphs:[...model.caveats,...model.missingNews.map(title=>`${title}: ${t.noResearch}`)]});
  const sources=uniqueSources([...summary.rows.map(source),...summary.claimSections.flatMap(s=>s.claims.flatMap(c=>c.sourceUrls.map(url=>({label:new URL(url).hostname,url}))))]);
- return {id:'us',title:label('title'),date:summary.date,locale,panels,sources};
+ return {id:'us',dateRole:'report',title:label('title'),date:summary.date,locale,panels,sources};
 }

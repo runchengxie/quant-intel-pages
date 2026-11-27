@@ -8,17 +8,17 @@ Pages 可以直接渲染经 Platform 验证的内容包，无需修改 Git 中�
 
 先按[本地构建指南](technical-guide.md#本地构建)安装固定版本的 Platform CLI。
 内容生产者与导出器均须使用已合并提交
-`b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0`。
+`49b98164b7b9ad026ef73f6522f3d884ff8bb51a`。
 调用上游的 `market-pack-site-content` 和 `market-verify-site-content`，
 生成不可变归档及包含 `artifacts/public/data/`、`artifacts/public/reports/`
 的验证后输入目录。
-详见 [Platform 内容包契约](https://github.com/runchengxie/quant-intel-platform/blob/b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0/docs/publication/site-content-bundles.zh-CN.md)。
+详见 [Platform 内容包契约](https://github.com/runchengxie/quant-intel-platform/blob/49b98164b7b9ad026ef73f6522f3d884ff8bb51a/docs/publication/site-content-bundles.zh-CN.md)。
 
 在源码、输入和输出目录之外选择新的回执路径：
 
 ~~~bash
 task_output="$DATA_ROOT/quant/quant-intel-pages/tasks/<task-id>"
-producer_revision="b7a6e1a3464ac0771fbc90c4c1c8ce735f4043e0"
+producer_revision="49b98164b7b9ad026ef73f6522f3d884ff8bb51a"
 python scripts/build_site.py --root "$CODE_ROOT/quant/quant-intel-pages" \
   --output "$task_output/site" \
   --public-inputs "$task_output/verified" \
